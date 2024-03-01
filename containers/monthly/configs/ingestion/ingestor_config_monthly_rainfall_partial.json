@@ -1,0 +1,41 @@
+{
+    "tapis_config": {
+        "tenant_url": "https://agaveauth.its.hawaii.edu/meta/v2/data",
+        "token": "token",
+        "retry": 3,
+        "db_write_api_url": "https://cistore.its.hawaii.edu"
+    },
+    "data": [
+        {
+             "additional_properties": {
+                     "production": "new"
+            },
+            "additional_key_properties": [
+                "production"
+                ],
+            "data_col_start": 13,
+            "id_col": 0,
+            "nodata": "NA",
+            "datatype": "rainfall",
+            "period": "month",
+    "fill": "partial",
+    "start_date": "%y-%m",
+    "end_date": "%y-%m",
+            "files": [
+                "/home/ingest/Statewide_Partial_Filled_Monthly_RF_mm_%y.csv"
+            ],
+            "file_pulls": [
+                {
+                    "url": "https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/production/rainfall/new/day/statewide/partial/station_data/%y/%m/rainfall_new_day_statewide_partial_station_data_%y_%m.csv",
+                    "placement_dir": "/home/ingest",
+                    "rename": "Statewide_Partial_Filled_Daily_RF_mm_%y_%m.csv"
+                },
+                {
+                    "url": "https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/production/rainfall/new/month/statewide/partial/station_data/%y/rainfall_new_month_statewide_partial_station_data_%y.csv",
+                    "placement_dir": "/home/ingest",
+                    "rename": "Statewide_Partial_Filled_Monthly_RF_mm_%y.csv"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,186 @@
+/home/hawaii_climate_products_container/preliminary/rainfall/.
+├── code
+│   ├── daily
+│   │   ├── bash
+│   │   └── rcode
+│   ├── monthly
+│   └── source
+├── copyRedoFiles
+│   ├── 2023_03
+│   └── 2023_04
+├── data_outputs
+│   ├── plots
+│   │   └── monthly
+│   │       ├── anom
+│   │       │   └── county
+│   │       │       ├── BI
+│   │       │       ├── KA
+│   │       │       ├── MN
+│   │       │       └── OA
+│   │       ├── multiplot
+│   │       │   └── county
+│   │       │       ├── BI
+│   │       │       ├── KA
+│   │       │       ├── MN
+│   │       │       └── OA
+│   │       ├── rf_mm
+│   │       │   ├── county
+│   │       │   │   ├── BI
+│   │       │   │   ├── KA
+│   │       │   │   ├── MN
+│   │       │   │   └── OA
+│   │       │   └── statewide
+│   │       └── variogram
+│   │           └── county
+│   │               ├── BI
+│   │               ├── KA
+│   │               ├── MN
+│   │               └── OA
+│   ├── tables
+│   │   ├── metadata
+│   │   │   └── monthly
+│   │   │       ├── county
+│   │   │       │   ├── BI
+│   │   │       │   ├── KA
+│   │   │       │   ├── MN
+│   │   │       │   └── OA
+│   │   │       └── statewide
+│   │   ├── rf_station_tracking
+│   │   │   ├── count
+│   │   │   │   ├── daily
+│   │   │   │   └── monthly
+│   │   │   ├── gapFilling
+│   │   │   ├── lastObs
+│   │   │   ├── missing
+│   │   │   ├── qaqc_count
+│   │   │   └── qaqc_fail
+│   │   ├── station_data
+│   │   │   ├── daily
+│   │   │   │   ├── lastStationObs
+│   │   │   │   ├── partial_filled
+│   │   │   │   │   ├── county
+│   │   │   │   │   └── statewide
+│   │   │   │   ├── qc_flag
+│   │   │   │   │   ├── county
+│   │   │   │   │   └── statewide
+│   │   │   │   ├── qc_prob
+│   │   │   │   │   ├── county
+│   │   │   │   │   └── statewide
+│   │   │   │   ├── raw
+│   │   │   │   │   ├── county
+│   │   │   │   │   └── statewide
+│   │   │   │   ├── raw_qc
+│   │   │   │   │   ├── county
+│   │   │   │   │   └── statewide
+│   │   │   │   └── source
+│   │   │   │       ├── county
+│   │   │   │       └── statewide
+│   │   │   └── monthly
+│   │   │       ├── krigInput
+│   │   │       │   ├── county
+│   │   │       │   │   ├── BI
+│   │   │       │   │   ├── KA
+│   │   │       │   │   ├── MN
+│   │   │       │   │   └── OA
+│   │   │       │   └── statewide
+│   │   │       └── partial_filled
+│   │   │           ├── county
+│   │   │           │   ├── BI
+│   │   │           │   ├── KA
+│   │   │           │   ├── MN
+│   │   │           │   └── OA
+│   │   │           └── statewide
+│   │   └── validation
+│   │       └── monthly
+│   │           ├── loocv
+│   │           │   ├── county
+│   │           │   │   ├── BI
+│   │           │   │   ├── KA
+│   │           │   │   ├── MN
+│   │           │   │   └── OA
+│   │           │   └── statewide
+│   │           ├── stats
+│   │           │   └── statewide
+│   │           └── validate
+│   │               └── statewide
+│   │                   ├── all
+│   │                   └── best
+│   └── tiffs
+│       ├── daily
+│       │   ├── county
+│       │   │   ├── anom
+│       │   │   │   ├── BI
+│       │   │   │   ├── KA
+│       │   │   │   ├── MN
+│       │   │   │   └── OA
+│       │   │   ├── anom_se
+│       │   │   │   ├── BI
+│       │   │   │   ├── KA
+│       │   │   │   ├── MN
+│       │   │   │   └── OA
+│       │   │   ├── rf_mm
+│       │   │   │   ├── BI
+│       │   │   │   ├── KA
+│       │   │   │   ├── MN
+│       │   │   │   └── OA
+│       │   │   └── rf_mm_se
+│       │   │       ├── BI
+│       │   │       ├── KA
+│       │   │       ├── MN
+│       │   │       └── OA
+│       │   └── statewide
+│       │       ├── anom
+│       │       ├── anom_se
+│       │       ├── rf_mm
+│       │       └── rf_mm_se
+│       └── monthly
+│           ├── anom
+│           │   ├── county
+│           │   │   ├── BI
+│           │   │   ├── KA
+│           │   │   ├── MN
+│           │   │   └── OA
+│           │   └── statewide
+│           ├── anom_se
+│           │   ├── county
+│           │   │   ├── BI
+│           │   │   ├── KA
+│           │   │   ├── MN
+│           │   │   └── OA
+│           │   └── statewide
+│           ├── rf_mm
+│           │   ├── county
+│           │   │   ├── BI
+│           │   │   ├── KA
+│           │   │   ├── MN
+│           │   │   └── OA
+│           │   └── statewide
+│           └── rf_mm_se
+│               ├── county
+│               │   ├── BI
+│               │   ├── KA
+│               │   ├── MN
+│               │   └── OA
+│               └── statewide
+├── dependencies
+│   ├── daily
+│   │   ├── gapFilling
+│   │   ├── models
+│   │   └── probRasters
+│   │       ├── 6mo
+│   │       └── ann
+│   └── monthly
+│       ├── masks
+│       └── rf_tiffs
+├── docs
+│   ├── daily
+│   └── monthly
+└── working_data
+    ├── hads
+    ├── hi_mesonet
+    │   └── synoptic
+    ├── madis
+    ├── nws_rr5
+    └── scan
+
+183 directories

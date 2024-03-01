@@ -1,0 +1,377 @@
+{
+	"global_cache": "cache.pk",
+	"retry": 10,
+	"print_exec_stats": true,
+	"write_exec_stats": "stats.json",
+	"agave_options": {
+		"api_server": "https://ikeauth.its.hawaii.edu",
+		"username": "username",
+		"password": "password",
+		"api_key": "api_key",
+		"api_secret": "api_secret"
+	},
+	"upload":
+	[
+       {
+            "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tiffs/monthly/rf_mm/statewide/%y_%m_statewide_rf_mm.tif",
+            "remote_path": "HCDP/production/rainfall/new/month/statewide/data_map/%y",
+            "rename": "rainfall_new_month_statewide_data_map_%y_%m.tif",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+        },{
+            "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tiffs/monthly/rf_mm_se/statewide/%y_%m_statewide_rf_mm_SE.tif",
+            "remote_path": "HCDP/production/rainfall/new/month/statewide/se/%y",
+            "rename": "rainfall_new_month_statewide_se_%y_%m.tif",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+		},{
+            "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tiffs/monthly/anom/statewide/%y_%m_statewide_anom.tif",
+            "remote_path": "HCDP/production/rainfall/new/month/statewide/anom/%y",
+            "rename": "rainfall_new_month_statewide_anom_%y_%m.tif",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+		},{	
+			"local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tiffs/monthly/anom_se/statewide/%y_%m_statewide_anom_SE.tif",
+            "remote_path": "HCDP/production/rainfall/new/month/statewide/anom_se/%y",
+            "rename": "rainfall_new_month_statewide_anom_se_%y_%m.tif",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+		},{
+            "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tables/metadata/monthly/statewide/%y_%m_statewide_rf_mm_meta.txt",
+            "remote_path": "HCDP/production/rainfall/new/month/statewide/metadata/%y",
+            "rename": "rainfall_new_month_statewide_metadata_%y_%m.txt",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+        },{ 
+			"local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tables/station_data/monthly/partial_filled/statewide/Statewide_Partial_Filled_Monthly_RF_mm_%y.csv",
+            "remote_path": "HCDP/production/rainfall/new/month/statewide/partial/station_data/%y",
+            "rename": "rainfall_new_month_statewide_partial_station_data_%y.csv",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+		},{
+            "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tiffs/monthly/rf_mm/county/BI/%y_%m_bi_rf_mm.tif",
+            "remote_path": "HCDP/production/rainfall/new/month/bi/data_map/%y",
+            "rename": "rainfall_new_month_bi_data_map_%y_%m.tif",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+        },{ 
+		    "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tiffs/monthly/rf_mm_se/county/BI/%y_%m_bi_rf_mm_SE.tif",
+            "remote_path": "HCDP/production/rainfall/new/month/bi/se/%y",
+            "rename": "rainfall_new_month_bi_se_%y_%m.tif",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+        },{ 
+		    "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tiffs/monthly/anom/county/BI/%y_%m_bi_anom.tif",
+            "remote_path": "HCDP/production/rainfall/new/month/bi/anom/%y",
+            "rename": "rainfall_new_month_bi_anom_%y_%m.tif",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+        },{ 
+		    "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tiffs/monthly/anom_se/county/BI/%y_%m_bi_anom_SE.tif",
+            "remote_path": "HCDP/production/rainfall/new/month/bi/anom_se/%y",
+            "rename": "rainfall_new_month_bi_anom_se_%y_%m.tif",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+		},{
+            "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tables/metadata/monthly/county/BI/%y_%m_bi_rf_mm_meta.txt",
+            "remote_path": "HCDP/production/rainfall/new/month/bi/metadata/%y",
+            "rename": "rainfall_new_month_bi_metadata_%y_%m.txt",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+        },{ 
+			"local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tables/station_data/monthly/partial_filled/county/BI/BI_Partial_Filled_Monthly_RF_mm_%y.csv",
+            "remote_path": "HCDP/production/rainfall/new/month/bi/partial/station_data/%y",
+            "rename": "rainfall_new_month_bi_partial_station_data_%y.csv",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+		},{
+            "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tiffs/monthly/rf_mm/county/MN/%y_%m_mn_rf_mm.tif",
+            "remote_path": "HCDP/production/rainfall/new/month/mn/data_map/%y",
+            "rename": "rainfall_new_month_mn_data_map_%y_%m.tif",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+        },{ 
+		    "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tiffs/monthly/rf_mm_se/county/MN/%y_%m_mn_rf_mm_SE.tif",
+            "remote_path": "HCDP/production/rainfall/new/month/mn/se/%y",
+            "rename": "rainfall_new_month_mn_se_%y_%m.tif",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+        },{ 
+		    "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tiffs/monthly/anom/county/MN/%y_%m_mn_anom.tif",
+            "remote_path": "HCDP/production/rainfall/new/month/mn/anom/%y",
+            "rename": "rainfall_new_month_mn_anom_%y_%m.tif",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+        },{ 
+		    "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tiffs/monthly/anom_se/county/MN/%y_%m_mn_anom_SE.tif",
+            "remote_path": "HCDP/production/rainfall/new/month/mn/anom_se/%y",
+            "rename": "rainfall_new_month_mn_anom_se_%y_%m.tif",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+		},{
+            "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tables/metadata/monthly/county/MN/%y_%m_mn_rf_mm_meta.txt",
+            "remote_path": "HCDP/production/rainfall/new/month/mn/metadata/%y",
+            "rename": "rainfall_new_month_mn_metadata_%y_%m.txt",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+        },{ 
+			"local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tables/station_data/monthly/partial_filled/county/MN/MN_Partial_Filled_Monthly_RF_mm_%y.csv",
+            "remote_path": "HCDP/production/rainfall/new/month/mn/partial/station_data/%y",
+            "rename": "rainfall_new_month_mn_partial_station_data_%y.csv",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+		},{
+            "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tiffs/monthly/rf_mm/county/OA/%y_%m_oa_rf_mm.tif",
+            "remote_path": "HCDP/production/rainfall/new/month/oa/data_map/%y",
+            "rename": "rainfall_new_month_oa_data_map_%y_%m.tif",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+        },{ 
+		    "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tiffs/monthly/rf_mm_se/county/OA/%y_%m_oa_rf_mm_SE.tif",
+            "remote_path": "HCDP/production/rainfall/new/month/oa/se/%y",
+            "rename": "rainfall_new_month_oa_se_%y_%m.tif",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+        },{ 
+		    "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tiffs/monthly/anom/county/OA/%y_%m_oa_anom.tif",
+            "remote_path": "HCDP/production/rainfall/new/month/oa/anom/%y",
+            "rename": "rainfall_new_month_oa_anom_%y_%m.tif",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+        },{ 
+		    "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tiffs/monthly/anom_se/county/OA/%y_%m_oa_anom_SE.tif",
+            "remote_path": "HCDP/production/rainfall/new/month/oa/anom_se/%y",
+            "rename": "rainfall_new_month_oa_anom_se_%y_%m.tif",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+		},{
+            "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tables/metadata/monthly/county/OA/%y_%m_oa_rf_mm_meta.txt",
+            "remote_path": "HCDP/production/rainfall/new/month/oa/metadata/%y",
+            "rename": "rainfall_new_month_oa_metadata_%y_%m.txt",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+        },{ 
+			"local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tables/station_data/monthly/partial_filled/county/OA/OA_Partial_Filled_Monthly_RF_mm_%y.csv",
+            "remote_path": "HCDP/production/rainfall/new/month/oa/partial/station_data/%y",
+            "rename": "rainfall_new_month_oa_partial_station_data_%y.csv",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+		},{
+            "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tiffs/monthly/rf_mm/county/KA/%y_%m_ka_rf_mm.tif",
+            "remote_path": "HCDP/production/rainfall/new/month/ka/data_map/%y",
+            "rename": "rainfall_new_month_ka_data_map_%y_%m.tif",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+        },{ 
+		    "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tiffs/monthly/rf_mm_se/county/KA/%y_%m_ka_rf_mm_SE.tif",
+            "remote_path": "HCDP/production/rainfall/new/month/ka/se/%y",
+            "rename": "rainfall_new_month_ka_se_%y_%m.tif",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+        },{ 
+		    "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tiffs/monthly/anom/county/KA/%y_%m_ka_anom.tif",
+            "remote_path": "HCDP/production/rainfall/new/month/ka/anom/%y",
+            "rename": "rainfall_new_month_ka_anom_%y_%m.tif",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+        },{ 
+		    "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tiffs/monthly/anom_se/county/KA/%y_%m_ka_anom_SE.tif",
+            "remote_path": "HCDP/production/rainfall/new/month/ka/anom_se/%y",
+            "rename": "rainfall_new_month_ka_anom_se_%y_%m.tif",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+		},{
+            "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tables/metadata/monthly/county/KA/%y_%m_ka_rf_mm_meta.txt",
+            "remote_path": "HCDP/production/rainfall/new/month/ka/metadata/%y",
+            "rename": "rainfall_new_month_ka_metadata_%y_%m.txt",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+        },{ 
+			"local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tables/station_data/monthly/partial_filled/county/KA/KA_Partial_Filled_Monthly_RF_mm_%y.csv",
+            "remote_path": "HCDP/production/rainfall/new/month/ka/partial/station_data/%y",
+            "rename": "rainfall_new_month_ka_partial_station_data_%y.csv",
+            "system_id": "ikewai-annotated-data",
+	    "dir_permissions": [
+                {
+                    "permission": "READ",
+                    "recursive": true,
+                    "username": "public"
+                }
+            ]
+	}
+    ]
+}

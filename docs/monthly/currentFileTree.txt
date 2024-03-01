@@ -1,0 +1,135 @@
+/home/hawaii_climate_products_container/preliminary/rainfall/.
+├── code
+│   ├── daily
+│   │   ├── bash
+│   │   └── rcode
+│   └── monthly
+├── data_outputs
+│   ├── plots
+│   │   └── monthly
+│   │       ├── anom
+│   │       │   └── county
+│   │       │       ├── BI [error opening dir]
+│   │       │       ├── KA [error opening dir]
+│   │       │       ├── MN [error opening dir]
+│   │       │       └── OA [error opening dir]
+│   │       ├── multiplot
+│   │       │   └── county
+│   │       │       ├── BI [error opening dir]
+│   │       │       ├── KA [error opening dir]
+│   │       │       ├── MN [error opening dir]
+│   │       │       └── OA [error opening dir]
+│   │       ├── rf_mm
+│   │       │   ├── county
+│   │       │   │   ├── BI [error opening dir]
+│   │       │   │   ├── KA [error opening dir]
+│   │       │   │   ├── MN [error opening dir]
+│   │       │   │   └── OA [error opening dir]
+│   │       │   └── statewide
+│   │       └── variogram
+│   │           └── county
+│   │               ├── BI [error opening dir]
+│   │               ├── KA [error opening dir]
+│   │               ├── MN [error opening dir]
+│   │               └── OA [error opening dir]
+│   ├── tables
+│   │   ├── metadata [error opening dir]
+│   │   ├── rf_station_tracking
+│   │   │   ├── count
+│   │   │   ├── gapFilling
+│   │   │   ├── missing
+│   │   │   └── qaqc_fail
+│   │   ├── station_data
+│   │   │   ├── daily
+│   │   │   │   ├── partial_filled
+│   │   │   │   │   ├── county
+│   │   │   │   │   └── statewide
+│   │   │   │   ├── qc_flag
+│   │   │   │   │   ├── county
+│   │   │   │   │   └── statewide
+│   │   │   │   ├── qc_prob
+│   │   │   │   │   ├── county
+│   │   │   │   │   └── statewide
+│   │   │   │   ├── raw
+│   │   │   │   │   ├── county
+│   │   │   │   │   └── statewide
+│   │   │   │   ├── raw_qc
+│   │   │   │   │   ├── county
+│   │   │   │   │   └── statewide
+│   │   │   │   └── source
+│   │   │   │       ├── county
+│   │   │   │       └── statewide
+│   │   │   └── monthly
+│   │   │       ├── krigInput
+│   │   │       │   ├── county
+│   │   │       │   │   ├── BI [error opening dir]
+│   │   │       │   │   ├── KA [error opening dir]
+│   │   │       │   │   ├── MN [error opening dir]
+│   │   │       │   │   └── OA [error opening dir]
+│   │   │       │   └── statewide
+│   │   │       └── partial_filled
+│   │   │           ├── county
+│   │   │           │   ├── BI [error opening dir]
+│   │   │           │   ├── KA [error opening dir]
+│   │   │           │   ├── MN [error opening dir]
+│   │   │           │   └── OA [error opening dir]
+│   │   │           └── statewide
+│   │   └── validation
+│   │       └── monthly
+│   │           ├── loocv [error opening dir]
+│   │           ├── stats [error opening dir]
+│   │           └── validate [error opening dir]
+│   └── tiffs
+│       ├── daily
+│       │   ├── county
+│       │   │   ├── anom
+│       │   │   │   ├── BI
+│       │   │   │   ├── KA
+│       │   │   │   ├── MN
+│       │   │   │   └── OA
+│       │   │   ├── anom_se
+│       │   │   │   ├── BI
+│       │   │   │   ├── KA
+│       │   │   │   ├── MN
+│       │   │   │   └── OA
+│       │   │   ├── rf_mm
+│       │   │   │   ├── BI
+│       │   │   │   ├── KA
+│       │   │   │   ├── MN
+│       │   │   │   └── OA
+│       │   │   └── rf_mm_se
+│       │   │       ├── BI
+│       │   │       ├── KA
+│       │   │       ├── MN
+│       │   │       └── OA
+│       │   └── statewide
+│       │       ├── anom
+│       │       ├── anom_se
+│       │       ├── rf_mm
+│       │       └── rf_mm_se
+│       └── monthly
+│           ├── anom [error opening dir]
+│           ├── anom_se [error opening dir]
+│           ├── rf_mm [error opening dir]
+│           └── rf_mm_se [error opening dir]
+├── dependencies
+│   ├── daily
+│   │   ├── gapFilling
+│   │   ├── models
+│   │   └── probRasters
+│   │       ├── 6mo
+│   │       └── ann
+│   └── monthly
+│       ├── masks
+│       └── rf_tiffs
+├── docs
+│   ├── daily
+│   └── monthly
+└── working_data
+    ├── hads
+    ├── hi_mesonet
+    ├── madis
+    ├── nws_rr5
+    └── scan
+
+132 directories

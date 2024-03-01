@@ -1,0 +1,13 @@
+#required R packages for daily rf agg workflow:
+xts
+reshape2
+raster
+rgdal
+geosphere
+data.table
+randomForest
+dplyr
+matrixStats
+
+#R package install all
+install.packages(c("xts","reshape2","raster","rgdal","geosphere","data.table","randomForest","dplyr","matrixStats") 
