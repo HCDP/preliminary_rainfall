@@ -45,5 +45,4 @@ python3 add_auth_info_to_config.py config.json
 echo "[task.sh] [7/7] Attempting to upload the final files."
 python3 upload.py
 
-
 echo "[task.sh] All done!"
