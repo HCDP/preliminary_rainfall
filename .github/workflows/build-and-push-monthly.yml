@@ -1,4 +1,4 @@
-name: build_and_push_monthlys
+name: build_and_push_monthly
 
 on:
   push:

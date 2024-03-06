@@ -1,4 +1,4 @@
-name: build_and_push_dailys
+name: build_and_push_daily
 
 on:
   push:
