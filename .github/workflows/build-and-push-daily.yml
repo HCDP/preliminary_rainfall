@@ -5,12 +5,12 @@ on:
     branches:
     - "main"
     paths:
-    - "/code/daily/**"
-    - "/code/source/**"
-    - "/containers/daily/**"
-    - "/tools/**"
-    - "/working_data/**"
-    - "/data_outputs/**"
+    - "code/daily/**"
+    - "code/source/**"
+    - "containers/daily/**"
+    - "tools/**"
+    - "working_data/**"
+    - "data_outputs/**"
   workflow_run:
     workflows:
       - build_and_push_base

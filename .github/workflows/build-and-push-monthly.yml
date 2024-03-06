@@ -5,12 +5,12 @@ on:
     branches:
     - "main"
     paths:
-    - "/code/monthly/**"
-    - "/code/source/**"
-    - "/containers/monthly/**"
-    - "/tools/**"
-    - "/working_data/**"
-    - "/data_outputs/**"
+    - "code/monthly/**"
+    - "code/source/**"
+    - "containers/monthly/**"
+    - "tools/**"
+    - "working_data/**"
+    - "data_outputs/**"
   workflow_run:
     workflows:
       - build_and_push_base
