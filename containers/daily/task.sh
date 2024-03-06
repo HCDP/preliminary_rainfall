@@ -14,46 +14,44 @@ export AGGREGATION_DATE_YESTERDAY=$(date --date="$AGGREGATION_DATE - 1 day" --is
 export AGGREGATION_DATE_YESTERDAY_Y_M=$(date --date="$AGGREGATION_DATE - 1 day" +%Y_%m)
 echo "Yesterday is: " $AGGREGATION_DATE_YESTERDAY
 
-echo "[task.sh] [2/7] Acquiring yesterday's cumulative aggregation file, if it exists."
-cd /home/hawaii_climate_products_container
-echo "---begin dailyRFwget.sh---"
+echo "[task.sh] [2/7] Acquiring yesterday's cumulative aggregation files, if exists."
+cd /home/hawaii_climate_products_container/preliminary/rainfall/code/daily
+echo "---begin daily_rf_wget.sh---"
 # Behavior is slightly inconsistent for the moment - uses environment variable AGGREGATION_DATE_YESTERDAY_Y_M instead of modifying aggregation date.
-bash dailyRFwget.sh
-echo "---end dailyRFwget.sh---"
+bash daily_rf_wget.sh
+echo "---end daily_rf_wget.sh---"
 
 echo "[task.sh] [3/7] Aggregating Rainfall data on the daily timeframe."
-cd /home/hawaii_climate_products_container/preliminary/rainfall/code/daily
-
 echo "---begin hads_daily_rf_FINAL.R---"
-Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/rcode/hads_daily_rf_FINAL.R $AGGREGATION_DATE
+Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/hads_daily_rf_FINAL.R $AGGREGATION_DATE
 echo "---end hads_daily_rf_FINAL.R---"
 
 echo "---begin nws_rr5_daily_rf_FINAL.R---"
-Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/rcode/nws_rr5_daily_rf_FINAL.R $AGGREGATION_DATE
+Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/nws_rr5_daily_rf_FINAL.R $AGGREGATION_DATE
 echo "---end nws_rr5_daily_rf_FINAL.R---"
 
 echo "---begin madis_daily_rf_FINAL.R---"
-Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/rcode/madis_daily_rf_FINAL.R $AGGREGATION_DATE
+Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/madis_daily_rf_FINAL.R $AGGREGATION_DATE
 echo "---end madis_daily_rf_FINAL.R---"
 
 echo "---begin himesoSyno_daily_rf_FINAL.R---"
-Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/rcode/himesoSyno_daily_rf_FINAL.R $AGGREGATION_DATE
+Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/himesoSyno_daily_rf_FINAL.R $AGGREGATION_DATE
 echo "---end himesoSyno_daily_rf_FINAL.R---"
 
 echo "---begin all_data_daily_merge_table_rf_FINAL.R---"
-Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/rcode/all_data_daily_merge_table_rf_FINAL.R $AGGREGATION_DATE
+Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/all_data_daily_merge_table_rf_FINAL.R $AGGREGATION_DATE
 echo "---end all_data_daily_merge_table_rf_FINAL.R---"
 
 echo "---begin qaqc_randfor_bad_data_flag_remove_rf_FINAL.R---"
-Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/rcode/qaqc_randfor_bad_data_flag_remove_rf_FINAL.R $AGGREGATION_DATE
+Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/qaqc_randfor_bad_data_flag_remove_rf_FINAL.R $AGGREGATION_DATE
 echo "---end qaqc_randfor_bad_data_flag_remove_rf_FINAL.R---"
 
 echo "---begin daily_gap_fill_NR_only_rf_FINAL.R---"
-Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/rcode/daily_gap_fill_NR_only_rf_FINAL.R $AGGREGATION_DATE
+Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/daily_gap_fill_NR_only_rf_FINAL.R $AGGREGATION_DATE
 echo "---end daily_gap_fill_NR_only_rf_FINAL.R---"
 
 echo "---begin all_data_daily_last_obs_FINAL.R---"
-Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/rcode/all_data_daily_last_obs_FINAL.R $AGGREGATION_DATE
+Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/all_data_daily_last_obs_FINAL.R $AGGREGATION_DATE
 echo "---end all_data_daily_last_obs_FINAL.R---"
 
 echo "[task.sh] [4/7] Preparing for intermediate data upload."
