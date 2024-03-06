@@ -5,11 +5,11 @@ echo "Starting Daily RF Pull"
 #define TZ as HST
 TZ=Pacific/Honolulu 
 
-
-if [ $AGGREGATION_DATE_YESTERDAY_Y_M ]; then
-    fileDate=$AGGREGATION_DATE_YESTERDAY_Y_M
+#define fileDate year_month of yesterday
+if [ $AGGREGATION_DATE ]; then
+    fileDate=$(date --date="$AGGREGATION_DATE" +"%Y_%m")
 else
-    fileDate=$(date --date="1 day ago" +"%Y_%m") 
+    fileDate=$(date --date="1 day ago" +"%Y_%m")  
 fi
 
 #define master dir

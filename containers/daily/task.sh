@@ -6,19 +6,14 @@ if [ $AGGREGATION_DATE ]; then
     echo "An aggregation date was provided by the environment."
     echo "Aggregation date is: " $AGGREGATION_DATE
 else
-    export AGGREGATION_DATE=$(date --iso-8601)
-    echo "No aggregation date was provided by the environment. Defaulting to today."
+    export AGGREGATION_DATE=$(date -d "1 day ago" --iso-8601)
+    echo "No aggregation date was provided by the environment. Defaulting to yesterday."
     echo "Aggregation date is: " $AGGREGATION_DATE
 fi
-export AGGREGATION_DATE_YESTERDAY=$(date --date="$AGGREGATION_DATE - 1 day" --iso-8601)
-export AGGREGATION_DATE_YESTERDAY_Y_M=$(date --date="$AGGREGATION_DATE - 1 day" +%Y_%m)
-echo "Yesterday is: " $AGGREGATION_DATE_YESTERDAY
 
 echo "[task.sh] [2/7] Acquiring yesterday's cumulative aggregation files, if exists."
-cd /home/hawaii_climate_products_container/preliminary/rainfall/code/daily
 echo "---begin daily_rf_wget.sh---"
-# Behavior is slightly inconsistent for the moment - uses environment variable AGGREGATION_DATE_YESTERDAY_Y_M instead of modifying aggregation date.
-bash daily_rf_wget.sh
+bash /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/daily_rf_wget.sh
 echo "---end daily_rf_wget.sh---"
 
 echo "[task.sh] [3/7] Aggregating Rainfall data on the daily timeframe."
@@ -56,7 +51,7 @@ echo "---end all_data_daily_last_obs_FINAL.R---"
 
 echo "[task.sh] [4/7] Preparing for intermediate data upload."
 cd /sync
-python3 update_date_string_in_config.py intermediate_upload_config.json intermediate_upload_config_datestrings_loaded.json $AGGREGATION_DATE_YESTERDAY
+python3 update_date_string_in_config.py intermediate_upload_config.json intermediate_upload_config_datestrings_loaded.json $AGGREGATION_DATE
 python3 add_upload_list_to_config.py intermediate_upload_config_datestrings_loaded.json config.json
 python3 add_auth_info_to_config.py config.json
 
@@ -65,7 +60,7 @@ python3 upload.py
 
 echo "[task.sh] [6/7] Preparing for production data upload."
 cd /sync
-python3 update_date_string_in_config.py upload_config.json upload_config_datestrings_loaded.json $AGGREGATION_DATE_YESTERDAY
+python3 update_date_string_in_config.py upload_config.json upload_config_datestrings_loaded.json $AGGREGATION_DATE
 python3 add_upload_list_to_config.py upload_config_datestrings_loaded.json config.json
 python3 add_auth_info_to_config.py config.json
 
