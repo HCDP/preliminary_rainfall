@@ -57,7 +57,7 @@ all_meso<-read.csv(meso_filename)
 head(all_meso)
 
 # #read meso parsed table from ikewai data portal NEW
-# ikeUrl<-"https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/workflow_data/preliminary_test" #url
+# ikeUrl<-"https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/workflow_data/preliminary" #url
 # meso_filename<-paste0(format((currentDate),"%Y%m%d"),"_himeso_synoptic.csv") #dynamic file name that includes date
 # all_meso<-read.csv(paste0(ikeUrl,"/data_aqs/data_outputs/meso/parse/",meso_filename))
 # #head(all_meso)

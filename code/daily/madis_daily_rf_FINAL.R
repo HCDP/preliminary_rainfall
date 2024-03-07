@@ -58,7 +58,7 @@ agg_daily_wd<-paste0(mainDir,"/rainfall/working_data/madis")
 # all_madis<-read.csv(madis_filename)
 
 #read MADIS parsed table from ikewai data portal
-ikeUrl<-"https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/workflow_data/preliminary_test" #url
+ikeUrl<-"https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/workflow_data/preliminary" #url
 madis_filename<-paste0(format((currentDate),"%Y%m%d"),"_madis_parsed.csv") #dynamic file name that includes date
 all_madis<-read.csv(paste0(ikeUrl,"/data_aqs/data_outputs/madis/parse/",madis_filename))
 #head(all_madis)

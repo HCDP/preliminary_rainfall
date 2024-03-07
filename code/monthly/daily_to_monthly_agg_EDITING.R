@@ -119,7 +119,7 @@ tail(rf_month_wide)
 
 #get monthly rf annual file table from ikewai data portal
 setwd(outDir)
-ikeUrl<-"https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/workflow_data/preliminary_test" #url
+ikeUrl<-"https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/workflow_data/preliminary" #url
 filename<-paste0("Statewide_Partial_Filled_Monthly_RF_mm_",fileYear,".csv") #dynamic file name that includes year of file
 urlFilename<-paste0(ikeUrl,"/rainfall/data_outputs/tables/station_data/monthly/krigInput/statewide/",filename)
 ikeFileDownload(url=urlFilename,filename=filename) #try catch download

@@ -29,7 +29,7 @@ agg_daily_wd<-paste0(mainDir,"/rainfall/working_data/nws_rr5")
 # nws_hrly_data_final<-read.csv(nws_filename)
 
 #read NWS parsed table from ikewai data portal
-ikeUrl<-"https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/workflow_data/preliminary_test" #url
+ikeUrl<-"https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/workflow_data/preliminary" #url
 nws_filename<-paste0(format((currentDate),"%Y%m%d"),"_nwsrr5_parsed.csv") #dynamic file name that includes date
 nws_hrly_data_final<-read.csv(paste0(ikeUrl,"/data_aqs/data_outputs/nws_rr5/parse/",nws_filename))
 #head(nws_hrly_data_final)
