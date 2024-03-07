@@ -1,8 +1,7 @@
 rm(list = ls())
 
 #install.packages(c("colorRamps","dplyr","randomForest","foreach","doParallel","svMisc","Metrics","gstat","automap","raster","rgdal","rgeos","lubridate"))
-require(rgeos)
-require(rgdal)
+require(terra)
 require(raster)
 require(automap)
 require(gstat)
