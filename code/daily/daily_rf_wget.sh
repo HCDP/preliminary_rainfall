@@ -31,7 +31,7 @@ QAQC_raw=$pathMaster'data_outputs/tables/station_data/daily/raw_qc/statewide/Sta
 RF_fill=$pathMaster'data_outputs/tables/station_data/daily/partial_filled/statewide/Statewide_Partial_Filled_Daily_RF_mm_'$fileDate'.csv'
 Fill_log=$pathMaster'data_outputs/tables/rf_station_tracking/gapFilling/'$fileDate'_gap_fill_log_daily_rf.csv'
 RF_unknown=$pathMaster'data_outputs/tables/rf_station_tracking/missing/'$fileDate'_unknown_rf_sta.csv'
-Count_log=$pathMaster'data_outputs/tables/rf_station_tracking/count/'$fileDate'_count_log_daily_rf.csv'
+Count_log=$pathMaster'data_outputs/tables/rf_station_tracking/count/daily/'$fileDate'_count_log_daily_rf.csv'
 Last_RF=$pathMaster'data_outputs/tables/rf_station_tracking/lastObs/lastRFdayObs.csv'
 
 #set dir
