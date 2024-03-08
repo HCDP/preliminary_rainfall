@@ -337,6 +337,7 @@ source_month_filename<-paste0("Statewide_Daily_Source_",file_date,".csv") #dynam
 if(file.exists(source_month_filename)){
   source_month_df<-read.csv(source_month_filename)
   sub_cols<-c("SKN",names(source_month_df)[grep("X",names(source_month_df))])
+  sub_cols<-sub_cols[!sub_cols==rf_col]
   final_source_data<-merge(source_month_df[,sub_cols],all_sta_data_wide_no_dup_source,by="SKN",all=T)
   final_source_data<-merge(geog_meta,final_source_data,by="SKN")
   write.csv(final_source_data,source_month_filename, row.names=F)

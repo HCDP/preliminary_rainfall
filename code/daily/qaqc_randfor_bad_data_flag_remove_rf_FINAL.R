@@ -224,6 +224,7 @@ if(file.exists(rf_qaqc_flag_month_filename)){
   #load flag day file add all metadata
   rf_month_flag_df<-read.csv(rf_qaqc_flag_month_filename)
   sub_cols<-c("SKN",names(rf_month_flag_df)[grep("X",names(rf_month_flag_df))])
+  sub_cols<-sub_cols[!sub_cols==rfcol]
   rf_month_flag_df<-rf_month_flag_df[,sub_cols]
   rf_month_flag_df_merged<-merge(geog_meta,rf_month_flag_df,by="SKN",all=T)
   #add day flag col to file
@@ -253,6 +254,7 @@ if(file.exists(rf_qaqc_prob_month_filename)){
   #add prob bad day col to file
   rf_month_prob_df<-read.csv(rf_qaqc_prob_month_filename)
   sub_cols<-c("SKN",names(rf_month_prob_df)[grep("X",names(rf_month_prob_df))])
+  sub_cols<-sub_cols[!sub_cols==rfcol]
   rf_month_prob_df<-rf_month_prob_df[,sub_cols]
   rf_month_prob_df_merged<-merge(geog_meta,rf_month_prob_df,by="SKN",all=T)
   #add day prob
@@ -281,6 +283,7 @@ if(file.exists(rf_qaqc_screen_month_filename)){
   #append qaqc rf
   rf_month_screened<-read.csv(rf_qaqc_screen_month_filename)
   sub_cols<-c("SKN",names(rf_month_screened)[grep("X",names(rf_month_screened))])
+  sub_cols<-sub_cols[!sub_cols==rfcol]
   rf_month_screened_merged<-merge(geog_meta,rf_month_screened[,sub_cols],by="SKN",all=T)
   #append screened rf col
   daily_rf_screened<-daily_rf_qaqc_pass[,c("SKN",rfcol)]
