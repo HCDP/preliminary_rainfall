@@ -360,8 +360,8 @@ rf_month_filename<-paste0("Statewide_Raw_Daily_RF_mm_",file_date,".csv") #dynami
 if(file.exists(rf_month_filename)){
 	rf_month_df<-read.csv(rf_month_filename)
 	sub_cols<-c("SKN",names(rf_month_df)[grep("X",names(rf_month_df))])
-	add_rf_data_sub<-merge(rf_month_df[,sub_cols],all_sta_data_wide_no_dup_rf,by="SKN",all=T)
-	final_rf_data<-merge(geog_meta,add_rf_data_sub,by="SKN")
+	add_rf_data_sub<-merge(rf_month_df[,sub_cols],all_sta_data_wide_no_dup_rf,all=T)
+	final_rf_data<-merge(geog_meta,add_rf_data_sub)
 	write.csv(final_rf_data,rf_month_filename, row.names=F)
 	print(paste(rf_month_filename,"daily rainfall table appended!"))
     }else{ #if month year file does not exist make a new month year file
