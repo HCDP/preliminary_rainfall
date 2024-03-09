@@ -91,7 +91,9 @@ if(file.exists(hads_month_filename)){  #does HADS month file exist?
 setwd(nws_daily_wd)#set data source wd
 nws_month_filename<-paste0(file_date,"_nws_daily_rf.csv")#dynamic file name that includes month year so when month is done new file is written
 if(file.exists(nws_month_filename)){
+ print("before read nws")
  nws<-read.csv(nws_month_filename,header=T)
+ print("read nws")
  nws<-nws[,c("nwsli","date","prec_mm_24hr")]
  names(nws)<-c("sourceID","date","x")
  nws$date<-as.Date(nws$date)#format as date
@@ -129,7 +131,9 @@ if(file.exists(nws_month_filename)){
 setwd(scan_daily_wd)#set data source wd
 scan_month_filename<-paste0(file_date,"_scan_daily_rf.csv")
 if(file.exists(scan_month_filename)){
+ print("before read scan")
  scan<-read.csv(scan_month_filename,header=T)
+ print("read scan")
  #subset 24hr obs
  names(scan)<-c("sourceID","date","x")
  scan$date<-as.Date(scan$date)
@@ -166,8 +170,10 @@ if(file.exists(scan_month_filename)){
 #add MADIS data
 setwd(madis_daily_wd)#set data source wd
 madis_month_filename<-paste0(file_date,"_madis_daily_rf.csv")#dynamic file name that includes month year so when month is done new file is written
-if(file.exists(madis_month_filename)){  #does MADIS month file exist? 
+if(file.exists(madis_month_filename)){  #does MADIS month file exist?
+ print("before read madis")
  madis<-read.csv(paste0(madis_month_filename),header=T,colClasses=c("staID"="character"))
+ print("read madis")
  madis<-madis[,c("staID","date","rf")]
  names(madis)<-c("sourceID","date","x") #note 'source_id" IS "NWS.id" for madis
  madis$date<-as.Date(madis$date)
@@ -205,7 +211,9 @@ if(file.exists(madis_month_filename)){  #does MADIS month file exist?
 setwd(synoptic_daily_wd)#set data source wd
 synoptic_month_filename<-paste0(file_date,"_synoMeso_daily_rf.csv")#dynamic file name that includes month year so when month is done new file is written
 if(file.exists(synoptic_month_filename)){
+  print("before read synoptic")
   synoptic<-read.csv(synoptic_month_filename,header=T)
+  print("read synoptic")
   synoptic<-synoptic[,c("staID","date","rf")]
   names(synoptic)<-c("sourceID","date","x")
   synoptic$date<-as.Date(synoptic$date)#format as date
@@ -252,7 +260,9 @@ missing_month_filename<-paste0(file_date,"_unknown_rf_sta.csv") #dynamic file na
 
 #conditional statement that adds obs of missing stations and removes duplicate for the month
 if(file.exists(missing_month_filename)){
+  print("before read missing")
 	rf_missing_df<-read.csv(missing_month_filename)
+  print("read missing")
 	rf_missing_df$lastDate<-as.Date(rf_missing_df$lastDate)
 	rf_missing_df<-rbind(rf_missing_df,all_missing)
 	rf_missing_df<-rf_missing_df[order(rf_missing_df$lastDate, decreasing = TRUE),]
@@ -335,9 +345,11 @@ source_month_filename<-paste0("Statewide_Daily_Source_",file_date,".csv") #dynam
 
 #conditional statement that adds new obs
 if(file.exists(source_month_filename)){
+  print("before read source")
   source_month_df<-read.csv(source_month_filename)
+  print("read source")
   sub_cols<-c("SKN",names(source_month_df)[grep("X",names(source_month_df))])
-  sub_cols<-sub_cols[!sub_cols==rf_col]
+  sub_cols<-sub_cols[sub_cols!=rf_col]
   final_source_data<-merge(source_month_df[,sub_cols],all_sta_data_wide_no_dup_source,by="SKN",all=T)
   final_source_data<-merge(geog_meta,final_source_data,by="SKN")
   write.csv(final_source_data,source_month_filename, row.names=F)
@@ -359,9 +371,11 @@ rf_month_filename<-paste0("Statewide_Raw_Daily_RF_mm_",file_date,".csv") #dynami
 
 #conditional statement that adds new obs day col
 if(file.exists(rf_month_filename)){
+  print("before read raw")
 	rf_month_df<-read.csv(rf_month_filename)
+  print("read raw")
 	sub_cols<-c("SKN",names(rf_month_df)[grep("X",names(rf_month_df))])
-  sub_cols<-sub_cols[!sub_cols==rf_col]
+  sub_cols<-sub_cols[sub_cols!=rf_col]
 	add_rf_data_sub<-merge(rf_month_df[,sub_cols],all_sta_data_wide_no_dup_rf,by="SKN",all=T)
 	final_rf_data<-merge(geog_meta,add_rf_data_sub,by="SKN")
 	write.csv(final_rf_data,rf_month_filename, row.names=F)
