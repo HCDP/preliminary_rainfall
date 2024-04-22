@@ -6,8 +6,8 @@ echo "Starting Daily RF Pull"
 TZ=Pacific/Honolulu 
 
 #define fileDate year_month of yesterday
-if [ $AGGREGATION_DATE ]; then
-    fileDate=$(date --date="$AGGREGATION_DATE" +"%Y_%m")
+if [ $CUSTOM_DATE ]; then
+    fileDate=$(date --date="$CUSTOM_DATE" +"%Y_%m")
 else
     fileDate=$(date --date="1 day ago" +"%Y_%m")  
 fi

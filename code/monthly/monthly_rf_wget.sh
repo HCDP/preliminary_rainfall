@@ -4,9 +4,9 @@
 TZ=Pacific/Honolulu 
 
 #define filedate year_month of yesterday
-if [ $AGGREGATION_DATE ]; then
-    fileDate=$(date --date="$AGGREGATION_DATE" +"%Y_%m")
-    fileYear=$(date --date="$AGGREGATION_DATE" +"%Y")
+if [ $CUSTOM_DATE ]; then
+    fileDate=$(date --date="$CUSTOM_DATE" +"%Y_%m")
+    fileYear=$(date --date="$CUSTOM_DATE" +"%Y")
 else
     fileDate=$(date --date="1 month ago" +"%Y_%m") 
     fileYear=$(date --date="1 month ago" +"%Y") 
