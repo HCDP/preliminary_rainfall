@@ -30,6 +30,16 @@ rf_day_source_wd <- paste0(mainDir,"/rainfall/data_outputs/tables/station_data/d
 rf_day_data_wd <- paste0(mainDir,"/rainfall/data_outputs/tables/station_data/daily/raw/statewide") #final combine daily rainfall data
 
 #functions
+read.csv.TC<-function(file,HADS=FALSE){
+  tryCatch({
+    if(HADS){
+	    out <- read.csv(file, header=TRUE, colClasses=c("staID"="character"))
+    }else{
+	    out <- read.csv(file, header=TRUE)
+   }
+    print(out)},error = function(e) paste("error"))
+}
+
 rbind.all.columns <- function(x, y) {     #function to smart rbind
     x.diff <- setdiff(colnames(x), colnames(y))
     y.diff <- setdiff(colnames(y), colnames(x))
@@ -51,8 +61,8 @@ print("master meta added!")
 #add HADS data
 setwd(hads_daily_wd)#set data source wd
 hads_month_filename<-paste0(file_date,"_hads_daily_rf.csv")#dynamic file name that includes month year so when month is done new file is written
-if(file.exists(hads_month_filename)){  #does HADS month file exist? 
- hads<-read.csv(paste0(hads_month_filename),header=T,colClasses=c("staID"="character"))
+hads<-read.csv.TC(hads_month_filename,HADS=TRUE)
+if(hads!="error"){  #did HADS month file exist? 
  hads<-hads[,c("staID","date","rf")]
  names(hads)<-c("sourceID","date","x") #note 'source_id" IS "NESDIS.id" for hads
  hads$date<-as.Date(hads$date)
@@ -90,8 +100,8 @@ if(file.exists(hads_month_filename)){  #does HADS month file exist?
 #add NWS data 
 setwd(nws_daily_wd)#set data source wd
 nws_month_filename<-paste0(file_date,"_nws_daily_rf.csv")#dynamic file name that includes month year so when month is done new file is written
-if(file.exists(nws_month_filename)){
- nws<-read.csv(nws_month_filename,header=T)
+nws<-read.csv.TC(nws_month_filename)
+if(nws!="error"){  #did nws month file exist? 
  nws<-nws[,c("nwsli","date","prec_mm_24hr")]
  names(nws)<-c("sourceID","date","x")
  nws$date<-as.Date(nws$date)#format as date
@@ -128,8 +138,8 @@ if(file.exists(nws_month_filename)){
 #add SCAN data
 setwd(scan_daily_wd)#set data source wd
 scan_month_filename<-paste0(file_date,"_scan_daily_rf.csv")
-if(file.exists(scan_month_filename)){
- scan<-read.csv(scan_month_filename,header=T)
+scan<-read.csv.TC(scan_month_filename)
+if(scan!="error"){  #did scan month file exist? 
  #subset 24hr obs
  names(scan)<-c("sourceID","date","x")
  scan$date<-as.Date(scan$date)
@@ -166,8 +176,8 @@ if(file.exists(scan_month_filename)){
 #add MADIS data
 setwd(madis_daily_wd)#set data source wd
 madis_month_filename<-paste0(file_date,"_madis_daily_rf.csv")#dynamic file name that includes month year so when month is done new file is written
-if(file.exists(madis_month_filename)){  #does MADIS month file exist?
- madis<-read.csv(paste0(madis_month_filename),header=T,colClasses=c("staID"="character"))
+madis<-read.csv.TC(madis_month_filename,HADS=TRUE)
+if(madis!="error"){  #did madis month file exist? 
  madis<-madis[,c("staID","date","rf")]
  names(madis)<-c("sourceID","date","x") #note 'source_id" IS "NWS.id" for madis
  madis$date<-as.Date(madis$date)
@@ -204,8 +214,8 @@ if(file.exists(madis_month_filename)){  #does MADIS month file exist?
 
 setwd(synoptic_daily_wd)#set data source wd
 synoptic_month_filename<-paste0(file_date,"_synoMeso_daily_rf.csv")#dynamic file name that includes month year so when month is done new file is written
-if(file.exists(synoptic_month_filename)){
-  synoptic<-read.csv(synoptic_month_filename,header=T)
+synoptic<-read.csv.TC(synoptic_month_filename,HADS=FALSE)
+if(synoptic!="error"){  #did synoptic month file exist? 
   synoptic<-synoptic[,c("staID","date","rf")]
   names(synoptic)<-c("sourceID","date","x")
   synoptic$date<-as.Date(synoptic$date)#format as date
