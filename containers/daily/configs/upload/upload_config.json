@@ -1,6 +1,6 @@
 {
 	"global_cache": "cache.pk",
-	"retry": 10,
+	"retry": 3,
 	"print_exec_stats": true,
 	"write_exec_stats": "stats.json",
 	"agave_options": {
