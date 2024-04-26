@@ -5,6 +5,8 @@ rm(list = ls())#start fresh!
 require(reshape2)
 require(xts)
 
+options(error=traceback, show.error.locations = TRUE)
+
 #set dirs
 mainDir <- "/home/hawaii_climate_products_container/preliminary"
 codeDir<-paste0(mainDir,"/rainfall/code/source")
@@ -18,6 +20,7 @@ source(paste0(codeDir,"/dataDateFunc.R"))
 dataDate<-dataDateMkr() #function for importing/defining date as input or as yesterday
 fileDate<-format(dataDate,"%Y_%m")
 fileYear<-format(dataDate,"%Y")
+rf_col<-paste0("X",format(dataDate,"%Y.%m.%d"))#define rf day col name
 print(dataDate)
 
 #custom functions
@@ -76,23 +79,20 @@ RFMonthCheck<-function(rf_month_df,dataDate){
                       )
   return(allDataCheck)
 }
-appendMonthCol<-function(yearDF,monthDF,metafile){
-  yearDFsub<-yearDF[,c(1,grep("X",names(yearDF)))]#keep only SKN and monthly RF cols
+appendMonthCol<-function(yearDF,monthDF,metafile,rf_col){
+  sub_cols<-c(1,grep("X",names(yearDF)))
+  sub_cols<-sub_cols[sub_cols!=rf_col]
+  yearDFsub<-yearDF[,sub_cols]#keep only SKN and monthly RF cols
   monthDF<-monthDF[,c(1,grep("X",names(monthDF)))]#keep only SKN and monthly RF cols
   yearDFsub<-merge(metafile,yearDFsub,by="SKN",all=T)
   yearDFsub<-yearDFsub[,c(1,grep("X",names(yearDFsub)))]#keep only SKN and monthly RF cols
   monthDF<-merge(metafile,monthDF,by="SKN",all=T)
   monthDF<-monthDF[,c(1,grep("X",names(monthDF)))]#keep only SKN and monthly RF cols
-  if(sum(names(yearDFsub) %in% names(monthDF))>1){
-    message("dup month! NOT added")
-    return(yearDF)
-  }else{
-    yearDFsub<-merge(yearDFsub,monthDF,by="SKN")
-    yearDFsub<-removeAllNA(yearDFsub)
-    yearFinal<-merge(metafile,yearDFsub,by="SKN")
-    message("month added to year!")
-    return(yearFinal)
-    }
+  yearDFsub<-merge(yearDFsub,monthDF,by="SKN")
+  yearDFsub<-removeAllNA(yearDFsub)
+  yearFinal<-merge(metafile,yearDFsub,by="SKN")
+  message("month added to year!")
+  return(yearFinal)
 }
 stateSubCounty<-function(stateFile,stateName=NA,outdirCounty=NA,writeCo=F){
   countList<-list(stateFile$Island=="BI",stateFile$Island=="MA"|stateFile$Island=="KO"|stateFile$Island=="MO"|stateFile$Island=="LA",stateFile$Island=="OA",stateFile$Island=="KA")
@@ -136,7 +136,7 @@ filename<-paste0("Statewide_Partial_Filled_Monthly_RF_mm_",fileYear,".csv") #dyn
 filename<-paste0("Statewide_Partial_Filled_Monthly_RF_mm_",fileYear,".csv")
 if(file.exists(filename)){ #check if downloaded file is in wd
   yearFile<-read.csv(filename)
-  yearFile<-appendMonthCol(yearDF=yearFile,monthDF=rf_month_wide,metafile=geo_meta)
+  yearFile<-appendMonthCol(yearDF=yearFile,monthDF=rf_month_wide,metafile=geo_meta,rf_col=rf_col)
   write.csv(yearFile,filename,row.names=F)
   print(paste(fileYear,"appended..."))
 }else{ #if file did not exist/download write new file
