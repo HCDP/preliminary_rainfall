@@ -1,0 +1,34 @@
+{
+    "comment": "Rainfall partially-filled data aggregated to daily",
+    "download_base_url": "https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP",
+    "download": [
+        "/production/rainfall/new/day/statewide/partial/station_data/%y/%m/rainfall_new_day_statewide_partial_station_data_%y_%m.csv"
+    ],
+    "tapis_config": {
+        "tenant_url": "https://agaveauth.its.hawaii.edu/meta/v2/data",
+        "token": "insert_token",
+        "retry": 3,
+        "db_write_api_url": "https://cistore.its.hawaii.edu"
+    },
+    "data": [
+        {   "replace_duplicates": false,
+            "data_col_start": 13,
+            "id_col": 0,
+            "nodata": "NA",
+            "datatype": "rainfall",
+            "period": "day",
+            "start_date": "%y-%m-%d", 
+            "end_date": "%y-%m-%d",
+            "fill": "partial",
+            "additional_properties": {
+                "production": "new"
+            },
+            "additional_key_properties": [
+                "production"
+            ],
+            "files": [
+                "/ingest/rainfall_new_day_statewide_partial_station_data_%y_%m.csv"
+            ]
+        }
+    ]
+}
