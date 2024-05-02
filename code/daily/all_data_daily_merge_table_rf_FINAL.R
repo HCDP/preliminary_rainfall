@@ -2,6 +2,7 @@
 rm(list = ls())#remove all objects in R
 
 options(warn=-1)#suppress warnings for session
+
 print(paste("all data daily merge run:",Sys.time()))#for cron log
 
 #set dirs
@@ -37,7 +38,7 @@ read.csv.TC<-function(file,HADS=FALSE){
     }else{
 	    out <- read.csv(file, header=TRUE)
    }
-    print(out)},error = function(e) paste("error"))
+    },error = function(e) paste("error"))
 }
 
 rbind.all.columns <- function(x, y) {     #function to smart rbind
@@ -96,6 +97,7 @@ if(hads!="error"){  #did HADS month file exist?
 	  count_log_hads<-data.frame(datastream=as.character("hads"),station_count=as.numeric(0),unique=as.logical(0))#log of stations acquired
     print(paste(hads_month_filename,"MISSING empty DF made!"))
     }
+print("hads pau!")
 
 #add NWS data 
 setwd(nws_daily_wd)#set data source wd
@@ -134,6 +136,7 @@ if(nws!="error"){  #did nws month file exist?
 	  count_log_nws<-data.frame(datastream=as.character("nws"),station_count=as.numeric(0),unique=as.logical(0))
     print(paste(nws_month_filename,"MISSING empty DF made!"))
     }
+print("nws pau!")
 
 #add SCAN data
 setwd(scan_daily_wd)#set data source wd
@@ -172,6 +175,7 @@ if(scan!="error"){  #did scan month file exist?
     count_log_scan<-data.frame(datastream=as.character("scan"),station_count=as.numeric(0),unique=as.logical(0))
 	  print(paste(scan_month_filename,"MISSING empty DF made!"))
     }
+print("scan pau!")
 
 #add MADIS data
 setwd(madis_daily_wd)#set data source wd
@@ -211,6 +215,7 @@ if(madis!="error"){  #did madis month file exist?
 	  count_log_madis<-data.frame(datastream=as.character("madis"),station_count=as.numeric(0),unique=as.logical(0))#log of stations acquired
     print(paste(madis_month_filename,"MISSING empty DF made!"))
     }
+print("madis pau!")
 
 setwd(synoptic_daily_wd)#set data source wd
 synoptic_month_filename<-paste0(file_date,"_synoMeso_daily_rf.csv")#dynamic file name that includes month year so when month is done new file is written
@@ -248,7 +253,7 @@ if(synoptic!="error"){  #did synoptic month file exist?
     count_log_synoptic<-data.frame(datastream=as.character("synoptic"),station_count=as.numeric(0),unique=as.logical(0))
     print(paste(synoptic_month_filename,"MISSING empty DF made!"))
   }
-
+print("synoptic pau!")
 
 #make and write table of all missing stations from acquired data
 all_missing<-rbind(missing_hads,missing_nws,missing_scan,missing_madis,missing_synoptic)
@@ -259,7 +264,7 @@ if(nrow(all_missing)==0){
 all_missing$lastDate<-as.Date(map_date)
 setwd(missing_sta_wd) #set output wd for missing station
 missing_month_filename<-paste0(file_date,"_unknown_rf_sta.csv") #dynamic file name that includes month year so when month is done new file is written
-
+print("missing file made... saving")
 #conditional statement that adds obs of missing stations and removes duplicate for the month
 if(file.exists(missing_month_filename)){
 	rf_missing_df<-read.csv(missing_month_filename)
