@@ -38,7 +38,7 @@ read.csv.TC<-function(file,HADS=FALSE){
     }else{
 	    out <- read.csv(file, header=TRUE)
    }
-    },error = function(e) paste("csv read error"))
+    },error = function(e) paste("error"))
 }
 
 rbind.all.columns <- function(x, y) {     #function to smart rbind
