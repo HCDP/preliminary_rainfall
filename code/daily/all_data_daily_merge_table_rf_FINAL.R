@@ -2,6 +2,8 @@
 rm(list = ls())#remove all objects in R
 
 options(warn=-1)#suppress warnings for session
+options(error=traceback, show.error.locations = TRUE) #error investigating 
+
 print(paste("all data daily merge run:",Sys.time()))#for cron log
 
 #set dirs
