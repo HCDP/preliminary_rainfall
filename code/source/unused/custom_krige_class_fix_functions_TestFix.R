@@ -2,8 +2,10 @@
 #packages used
 #install.packages(c("dplyr","randomForest","raster","automap","gstat","Metrics","svMisc"))
 
+#vario fit values
+NugRanSil<-read.csv("/home/hawaii_climate_products_container/preliminary/rainfall/dependencies/monthly/krige_county_vars_final.csv",stringsAsFactors=F) #define values (nug, range & sill) if map is ugly for each county
 
-#custom funtions to for auto kriging 
+#custom functions to for auto kriging 
 
 #substrRight func 
 substrRight <- function(x, n){
@@ -44,22 +46,18 @@ rf_dat_stats<-function(dat,space,var,monyr,set){ #fun to calc stats per dataset
 	return(stats_df)
 	} #rf_dat_stats func end
 
-
-
-
-
 #is ugly class/prob function
 isUglyClass<-function(rf_points,rf_ras,countyIntials){
-    options(warn = -1)
+  options(warn = -1)
   #packages
 	require(raster)
 	require(dplyr)
 	require(randomForest)
 
   #load rf model
-	setwd("/home/hawaii_climate_products_container/preliminary/rainfall/dependencies/monthly")
-	uglyClassfier<- readRDS("./isUgly_RF_classfier.rds")
-
+  setwd("/home/hawaii_climate_products_container/preliminary/rainfall/dependencies/monthly")
+  uglyClassfier<- readRDS("./isUgly_RF_classfier.rds")
+  
   #make dist to station rasters
 	crs(rf_points)<-crs(rf_ras)
 	dist<-mask(distanceFromPoints(rf_ras,rf_points),rf_ras)
@@ -178,22 +176,17 @@ isUglyClass<-function(rf_points,rf_ras,countyIntials){
 
 }#isUgly funtion end
 
-varioMaker<-function(anom_sp,rasmask,county,level,none){
-
+varioMaker<-function(anom_sp,rasmask,county,level,none,NugRanSil=NugRanSil){
+    options(warn = -1)
+  
 		#required packages
 		require(automap)
 		require(gstat)
 
-		#define values (nug, range & sill) if map is uglyfor each county
-		NugRanSil<-read.csv("/home/hawaii_climate_products_container/preliminary/rainfall/dependencies/monthly/krige_county_vars_final.csv",stringsAsFactors=F)
-		#print(NugRanSil)
-
 		#subset rf points and make temp points
-		anom_sp<-anom_sp[!is.na(extract(rasmask,anom_sp)),]#subset county
+		anom_sp<-anom_sp[!is.na(extract(rasmask,anom_sp)),] #subset points in the county only
 		crs(anom_sp)<-CRS() #remove crs
-		temppoints<-SpatialPoints(as.data.frame(rasmask,xy=T,na.rm=T)[,c(1,2)]) #make spatial points data frame with x y coords from mask and remove NA pixels
-		#crs(rasmask)<-CRS() #remove crs
-		
+
 		#make all vatiograms for level
 		varioList<-list()
 		if(as.logical(none)){
@@ -212,7 +205,7 @@ varioMaker<-function(anom_sp,rasmask,county,level,none){
 		}#end varioMaker function
 
 #ugly map fix function
-uglyMapFix<-function(anom_sp,moYr,rasmask,county,varioList,level){
+uglyMapFix<-function(anom_sp,moYr,rasmask,county,varioList,level,NugRanSil=NugRanSil){
 
 		#required packages
 		require(automap)
@@ -220,16 +213,16 @@ uglyMapFix<-function(anom_sp,moYr,rasmask,county,varioList,level){
 		require(Metrics)
 		require(svMisc)
 
-		#define values (nug, range & sill) if map is uglyfor each county
-		setwd("/home/hawaii_climate_products_container/preliminary/rainfall/dependencies/monthly")
-		NugRanSil<-read.csv("krige_county_vars_final.csv",stringsAsFactors=F)
-
 		#make masterlist to store all the goodies
 		runList<-list()
 		rf_fix_df_all<-data.frame()#blank df to storm final all vario df
 
+		#make spatial points data frame with x y coords from mask and remove NA pixels
+		temppoints<-SpatialPoints(as.data.frame(rasmask,xy=T,na.rm=T)[,c(1,2)]) 
+		
+		
 		#subset rf points and make temp points
-		anom_sp<-anom_sp[!is.na(extract(rasmask,anom_sp)),]#subset county
+		anom_sp<-anom_sp[!is.na(extract(rasmask,anom_sp)),]# subset county
 		crs(anom_sp)<-CRS() #remove crs
 		temppoints<-SpatialPoints(as.data.frame(rasmask,xy=T,na.rm=T)[,c(1,2)]) #make spatial points data frame with x y coords from mask and remove NA pixels
 		
@@ -397,7 +390,6 @@ vario_name_func<-function(map_check,noFix=as.logical(0),freePriority=as.logical(
 	}#end all vario_name_func function
 
 ##multiplot all kriges
-
 
 multiKrigePlot<-function(kriges,map_check_all,best_vario_name){
 

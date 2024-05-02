@@ -1,8 +1,8 @@
-rm(list = ls()) #fresh start
+rm(list = ls())
 
 #install.packages(c("colorRamps","dplyr","randomForest","foreach","doParallel","svMisc","Metrics","gstat","automap","raster","rgdal","rgeos","lubridate"))
-#require(rgeos)
-#require(rgdal)
+require(rgeos)
+require(rgdal)
 require(raster)
 require(automap)
 require(gstat)
@@ -16,10 +16,7 @@ require(colorRamps)
 require(lubridate)
 
 #pkg vec for para loop
-#pkgs_vec<-c("colorRamps","dplyr","randomForest","foreach","doParallel","svMisc","Metrics","gstat","automap","raster","rgdal","rgeos","lubridate")
-
-#define data version
-version<-"preliminary"
+pkgs_vec<-c("colorRamps","dplyr","randomForest","foreach","doParallel","svMisc","Metrics","gstat","automap","raster","rgdal","rgeos","lubridate")
 
 #dirs
 masterDir<-"/home/hawaii_climate_products_container/preliminary/rainfall" #master dir 
@@ -42,24 +39,25 @@ loocvAllOut<-paste0(masterDir,"/data_outputs/tables/validation/monthly/loocv/sta
 validAllOut<-paste0(masterDir,"/data_outputs/tables/validation/monthly/validate/statewide")
 metaStateOut<-paste0(masterDir,"/data_outputs/tables/metadata/monthly/statewide")
 
+
+#dependencies 
 setwd(codeDir)
 source("custom_krige_class_fix_functions_final.R") #load custom functions
 source("dataDateFunc.R")
 
-##define dataDate
-dataDate<-dataDateMkr() #function for importing/defining date as input or as yesterday
-
-##dependencies 
-setwd(dependDir)
 
 #add in island rasters masks
+setwd(dependDir)#set mean rf raster: local pc
 bi_mask<-raster("masks/bi_mask.tif")
 mn_mask<-raster("masks/mn_mask.tif")
 oa_mask<-raster("masks/oa_mask.tif")
 ka_mask<-raster("masks/ka_mask.tif")
 statewide_mask<-mosaic(mosaic(bi_mask,mn_mask, fun=max),mosaic(oa_mask,ka_mask, fun=max), fun=max)#make statewide raster mask
 
-###Read in file contain Monthly all RF observations load MonYr rf version
+#define dataDate
+dataDate<-dataDateMkr() #function for importing/defining date as input or as yesterday
+
+#Read in file contain Monthly all RF observations load MonYr rf version
 setwd(inDir) #set monthly rf data: local pc
 dataYear<-format(dataDate,"%Y")
 RF_MoYr_filename<-paste0("Statewide_Partial_Filled_Monthly_RF_mm_",dataYear,".csv")
@@ -70,7 +68,6 @@ head(RF_MoYr_ALL)
 date_cols<-grep("X",names(RF_MoYr_ALL))
 date_col_name<-format(dataDate,"X%Y.%m")                
 date_col<-grep(date_col_name,names(RF_MoYr_ALL))
-
 s<-Sys.time()#time process
 
 #sub month rf col
@@ -79,7 +76,12 @@ RF_MoYr<-RF_MoYr_ALL[!is.na(RF_MoYr_ALL[,date_col]),c(1:(min(date_cols)-1),date_
 names(RF_MoYr)[grep("X",names(RF_MoYr))]<-"total_rf_mm" #rename date col as total_rf_mm
 #head(RF_MoYr)
   
-
+#define data version
+diffDays<-as.numeric(difftime(Sys.Date(),dataDate,units="days"))
+if(diffDays==1){version<-"preliminary"
+  }else if(diffDays>1 & diffDays<=32){version<-"provisional"
+  }else if(diffDays>30 & diffDays<=180){version<-"operational"
+  }else if(diffDays>180){version<-"archival"}
   
 #Read in Mean RF Grids from a folder and convert to raster 
 setwd(paste0(dependDir,"/rf_tiffs"))#set mean rf raster
@@ -109,16 +111,16 @@ RF_MoYr$RF_MoYr_Anom <- RF_MoYr$total_rf_mm / RF_MoYr$RF_Mean_Extract #calc anom
 RF_MoYr$RF_MoYr_Anom_logK <- log((RF_MoYr$total_rf_mm + C * RF_MoYr$RF_Mean_Extract)/(RF_MoYr$RF_Mean_Extract))#Make suggested transformation a column to back transform
 head(RF_MoYr)
 print("Anoms and log + C anoms Calculated!")
-
-#make network priority 
-net_priority<-c("Mesonet","HaleNet","CraterNet","Little,HaleNet","HavoNet","HIPPNET","USCRN","ESRL/GMD","NWS","USGS","HydroNet-UaNet","SCAN","NREL","RAWS","STATE","NREM","PrivateObs","HC&S","COOP","CoCoRaHS","CoCoRaHs")
-RF_MoYr<-RF_MoYr[order(match(RF_MoYr$Network, net_priority)),]  #reorder by network 
-
-#remove station obs by dist
-crs(RF_MoYr)<-NA #remove CRS for vario and location
-dupLocal<-zerodist(RF_MoYr,zero = 0.00225) #distance of dup
-if(nrow(dupLocal)>0){RF_MoYr <- RF_MoYr[-dupLocal[,2],]} #remove dup local
-crs(RF_MoYr)<-crs(Mean_RF) #re-add crs from raster
+  
+#remove dup/grouped station locations by network priority and dist in meter buffer 'mBuff'
+mBuff<-250 #buff dist m
+net_priority<-c("HaleNet","CraterNet","Little,HaleNet","HavoNet","HIPPNET","USCRN","ESRL/GMD","NWS","USGS","HydroNet-UaNet","SCAN","NREL","RAWS","unknown","STATE","NREM","PrivateObs","HC&S","COOP","CoCoRaHS","CoCoRaHs")
+distbuff<-disaggregate(buffer(RF_MoYr,mBuff))
+distbuff$proxID<-as.numeric(row.names(distbuff))
+proxID_ras<-rasterize(distbuff, statewide_mask, distbuff$proxID) 
+RF_MoYr$proxID<-extract(proxID_ras,RF_MoYr)
+RF_MoYr<-RF_MoYr[order(match(RF_MoYr$Network, net_priority)),]
+RF_MoYr$map_data<-!duplicated(RF_MoYr$proxID)
 print("Close stations removed!")
   
 #Write Anom File
@@ -196,7 +198,7 @@ jpeg(paste0(plotsMultiOut,"/county/",toupper(co),"/",co,"_",data_mon_yr,"_rfComb
 multiKrigePlot(kriges=bi_kriges,map_check_all=bi_map_check_all,best_vario_name=best_vario_name_bi)
 dev.off()
   
-#variogram
+  #variogram
 jpeg(paste0(plotsVarioOut,"/county/",toupper(co),"/",co,"_",data_mon_yr,"_vg.jpg"),width = 7, height = 5, unit="in", res=300)
 plot(best_krige_list_bi$variogram,sub=paste(toupper(co),data_mon_yr,best_vario_name_bi))
 dev.off()
@@ -354,6 +356,7 @@ mn_meta<-metamaker(map_validation_df=mn_map_validation_df,grid=mn_rf_mm_ras,file
 mn_meta_name<-paste0(data_mon_yr,"_",co,"_rf_mm_meta.txt") #rf meta filename
 write.table(mn_meta, mn_meta_name,sep ="\t",row.names = F, quote = F)
 print(paste(mn_meta_name,"...written!"))
+
 
 
 ##OA best krige##
@@ -584,7 +587,6 @@ ka_meta<-metamaker(map_validation_df=ka_map_validation_df,grid=ka_rf_mm_ras,file
 ka_meta_name<-paste0(data_mon_yr,"_",co,"_rf_mm_meta.txt") #rf meta filename
 write.table(ka_meta, ka_meta_name,sep ="\t",row.names = F, quote = F)
 print(paste(ka_meta_name,"...written!"))
-
 ### County KRIGING maps pau ###  
   
 ###Final all county plot

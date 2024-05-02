@@ -1,3 +1,13 @@
+**/*.txt
 **/*.pdf
 **/*.xml
 **/*.jpg
+**/*.tif
+dependencies/**
+**/*.zip
+**/*.csv
+**/*.DS_Store
+**/*.rds
+**/*.html
+**/*.gz*
+**/*.gz
