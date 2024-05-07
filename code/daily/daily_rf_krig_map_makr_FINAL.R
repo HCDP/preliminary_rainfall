@@ -11,8 +11,9 @@ dailyRFout<-paste0(mainDir,"/rainfall/dailyRF_test")
 #define dates
 source(paste0(codeDir,"/dataDateFunc.R"))
 source(paste0(codeDir,"/daily_rf_funcs.R"))
+s<-Sys.time()
 
-dataDate<-dataDateMkr("2024-05-01") #function for importing/defining date as input or as yesterday
+dataDate<-dataDateMkr() #function for importing/defining date as input or as yesterday
 
 ##get monthly RF file
 #partial fill 
@@ -30,18 +31,18 @@ head(dailyRFdfRaw)
 setwd(varioDFwd)
 varioDFAll<-read.csv("all_vario_median_exp.csv")
 
-s<-Sys.time()
 #subset day
 testOut<-dailyRFkrig(rfdailyDFmaster=dailyRFdf,
             rfdailyRawDFmaster=dailyRFdfRaw,
             varioDFAll=varioDFAll,
             data_date=dataDate,
             meanRFgridwd=meanRFwd,
-            outdir=dailyRFout
+            outdir=dailyRFout,
+            dataVersion="preliminary"
             )
 
+
+print(testOut)
 e<-Sys.time()
 e-s
-print(testOut)
-
 #pau
