@@ -1,6 +1,7 @@
 {
 	"global_cache": "cache.pk",
 	"retry": 3,
+    "processes": 1,
 	"print_exec_stats": true,
 	"write_exec_stats": "stats.json",
 	"agave_options": {
@@ -17,7 +18,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/statewide/data_map/%y",
             "rename": "rainfall_new_month_statewide_data_map_%y_%m.tif",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -29,7 +30,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/statewide/se/%y",
             "rename": "rainfall_new_month_statewide_se_%y_%m.tif",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -41,7 +42,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/statewide/anom/%y",
             "rename": "rainfall_new_month_statewide_anom_%y_%m.tif",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -53,7 +54,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/statewide/anom_se/%y",
             "rename": "rainfall_new_month_statewide_anom_se_%y_%m.tif",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -65,7 +66,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/statewide/metadata/%y",
             "rename": "rainfall_new_month_statewide_metadata_%y_%m.txt",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -77,7 +78,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/statewide/partial/station_data/%y",
             "rename": "rainfall_new_month_statewide_partial_station_data_%y.csv",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -89,7 +90,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/bi/data_map/%y",
             "rename": "rainfall_new_month_bi_data_map_%y_%m.tif",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -101,7 +102,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/bi/se/%y",
             "rename": "rainfall_new_month_bi_se_%y_%m.tif",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -113,7 +114,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/bi/anom/%y",
             "rename": "rainfall_new_month_bi_anom_%y_%m.tif",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -125,7 +126,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/bi/anom_se/%y",
             "rename": "rainfall_new_month_bi_anom_se_%y_%m.tif",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -137,7 +138,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/bi/metadata/%y",
             "rename": "rainfall_new_month_bi_metadata_%y_%m.txt",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -149,7 +150,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/bi/partial/station_data/%y",
             "rename": "rainfall_new_month_bi_partial_station_data_%y.csv",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -161,7 +162,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/mn/data_map/%y",
             "rename": "rainfall_new_month_mn_data_map_%y_%m.tif",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -173,7 +174,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/mn/se/%y",
             "rename": "rainfall_new_month_mn_se_%y_%m.tif",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -185,7 +186,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/mn/anom/%y",
             "rename": "rainfall_new_month_mn_anom_%y_%m.tif",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -197,7 +198,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/mn/anom_se/%y",
             "rename": "rainfall_new_month_mn_anom_se_%y_%m.tif",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -209,7 +210,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/mn/metadata/%y",
             "rename": "rainfall_new_month_mn_metadata_%y_%m.txt",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -221,7 +222,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/mn/partial/station_data/%y",
             "rename": "rainfall_new_month_mn_partial_station_data_%y.csv",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -233,7 +234,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/oa/data_map/%y",
             "rename": "rainfall_new_month_oa_data_map_%y_%m.tif",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -245,7 +246,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/oa/se/%y",
             "rename": "rainfall_new_month_oa_se_%y_%m.tif",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -257,7 +258,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/oa/anom/%y",
             "rename": "rainfall_new_month_oa_anom_%y_%m.tif",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -269,7 +270,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/oa/anom_se/%y",
             "rename": "rainfall_new_month_oa_anom_se_%y_%m.tif",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -281,7 +282,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/oa/metadata/%y",
             "rename": "rainfall_new_month_oa_metadata_%y_%m.txt",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -293,7 +294,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/oa/partial/station_data/%y",
             "rename": "rainfall_new_month_oa_partial_station_data_%y.csv",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -305,7 +306,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/ka/data_map/%y",
             "rename": "rainfall_new_month_ka_data_map_%y_%m.tif",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -317,7 +318,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/ka/se/%y",
             "rename": "rainfall_new_month_ka_se_%y_%m.tif",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -329,7 +330,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/ka/anom/%y",
             "rename": "rainfall_new_month_ka_anom_%y_%m.tif",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -341,7 +342,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/ka/anom_se/%y",
             "rename": "rainfall_new_month_ka_anom_se_%y_%m.tif",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -353,7 +354,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/ka/metadata/%y",
             "rename": "rainfall_new_month_ka_metadata_%y_%m.txt",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -365,7 +366,7 @@
             "remote_path": "HCDP/production/rainfall/new/month/ka/partial/station_data/%y",
             "rename": "rainfall_new_month_ka_partial_station_data_%y.csv",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "dir_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
