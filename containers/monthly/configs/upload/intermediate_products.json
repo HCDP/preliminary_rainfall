@@ -16,7 +16,7 @@
             "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs",
             "remote_path": "HCDP/workflow_data/preliminary/rainfall/data_outputs",
             "system_id": "ikewai-annotated-data",
-            "dir_permissions": [
+            "file_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -28,7 +28,7 @@
             "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs",
             "remote_path": "HCDP/workflow_data/preliminary/rainfall/data_outputs/iterations/%y",
             "system_id": "ikewai-annotated-data",
-            "dir_permissions": [
+            "file_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,

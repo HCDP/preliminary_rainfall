@@ -7,7 +7,7 @@ fin.close()
 upload_config = json.loads(fin_string)
 
 # Default permission setup for uploading data for public access.
-dir_permissions = [
+file_permissions = [
     {
         "permission": "READ",
         "recursive": True,
@@ -15,9 +15,9 @@ dir_permissions = [
     }
 ]
 
-# inject dir_permissions
+# inject file_permissions
 for upload_dir in upload_config['upload']:
-    upload_dir['dir_permissions'] = dir_permissions
+    upload_dir['file_permissions'] = file_permissions
 
 # write updated config to disk
 fout = open(sys.argv[2], "wt")
