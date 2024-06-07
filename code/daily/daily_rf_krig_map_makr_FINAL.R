@@ -15,15 +15,20 @@ s<-Sys.time()
 
 dataDate<-dataDateMkr() #function for importing/defining date as input or as yesterday
 
-##get monthly RF file
-#partial fill 
-ikeUrl<-"https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/workflow_data/preliminary" #url
-dailyRFname<-paste0(ikeUrl,"/rainfall/data_outputs/tables/station_data/daily/partial_filled/statewide/Statewide_Partial_Filled_Daily_RF_mm_",format(dataDate,"%Y_%m"),".csv")
+##get monthly RF files partial fill & raw
+
+#ikewai OFF
+#ikeUrl<-"https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/workflow_data/preliminary" #url
+#dailyRFname<-paste0(ikeUrl,"/rainfall/data_outputs/tables/station_data/daily/partial_filled/statewide/Statewide_Partial_Filled_Daily_RF_mm_",format(dataDate,"%Y_%m"),".csv")
+#dailyRFnameRaw<-paste0(ikeUrl,"/rainfall/data_outputs/tables/station_data/daily/raw/statewide/Statewide_Raw_Daily_RF_mm_",format(dataDate,"%Y_%m"),".csv")
+
+#local ON
+dailyRFname<-paste0(mainDir,"/rainfall/data_outputs/tables/station_data/daily/partial_filled/statewide/Statewide_Partial_Filled_Daily_RF_mm_",format(dataDate,"%Y_%m"),".csv")
+dailyRFnameRaw<-paste0(mainDir,"/rainfall/data_outputs/tables/station_data/daily/raw/statewide/Statewide_Raw_Daily_RF_mm_",format(dataDate,"%Y_%m"),".csv")
+
 dailyRFdf<-read.csv(dailyRFname)
 head(dailyRFdf)
 
-#raw
-dailyRFnameRaw<-paste0(ikeUrl,"/rainfall/data_outputs/tables/station_data/daily/raw/statewide/Statewide_Raw_Daily_RF_mm_",format(dataDate,"%Y_%m"),".csv")
 dailyRFdfRaw<-read.csv(dailyRFnameRaw)
 head(dailyRFdfRaw)
 
