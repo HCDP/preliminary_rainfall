@@ -1,6 +1,7 @@
 {
 	"global_cache": "cache.pk",
 	"retry": 3,
+    "processes": 1,
 	"print_exec_stats": true,
 	"write_exec_stats": "stats.json",
 	"agave_options": {
@@ -17,7 +18,7 @@
             "remote_path": "HCDP/production/rainfall/new/day/statewide/partial/station_data/%y/%m",
             "rename": "rainfall_new_day_statewide_partial_station_data_%y_%m.csv",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "file_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
@@ -29,7 +30,7 @@
             "remote_path": "HCDP/production/rainfall/new/day/statewide/raw/station_data/%y/%m",
             "rename": "rainfall_new_day_statewide_raw_station_data_%y_%m.csv",
             "system_id": "ikewai-annotated-data",
-	    "dir_permissions": [
+	        "file_permissions": [
                 {
                     "permission": "READ",
                     "recursive": true,
