@@ -6,7 +6,7 @@ mainDir <- "/home/hawaii_climate_products_container/preliminary"
 codeDir<-paste0(mainDir,"/rainfall/code/source")
 meanRFwd<-"/home/hawaii_climate_products_container/preliminary/rainfall/dependencies/daily/co_daily"
 varioDFwd<-"/home/hawaii_climate_products_container/preliminary/rainfall/dependencies/daily/varios"
-dailyRFout<-paste0(mainDir,"/rainfall/dailyRF_test")
+dailyRFout<-paste0(mainDir,"/rainfall/data_outputs")
 
 #define dates
 source(paste0(codeDir,"/dataDateFunc.R"))
