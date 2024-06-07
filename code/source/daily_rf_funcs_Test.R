@@ -21,10 +21,10 @@ rbindAll <- function(x, y) {     #function to smart rbind
 scale_values <- function(x, ...) {(x - min(x, ...)) / (max(x, ...) - min(x, ...))}
 
 rankMean<-function(x){
-  scaleDF<-data.frame(
-    RMSE=scale_values(x$rmse_rf_mm),
-    MAE=scale_values(x$mae_rf_mm),
-    BIAS=scale_values(abs(x$bias_rf_mm)))
+    scaleDF<-data.frame(
+      RMSE=scale_values(x$rmse_rf_mm),
+      MAE=scale_values(x$mae_rf_mm),
+      BIAS=scale_values(abs(x$bias_rf_mm)))
   meanScore<-rowMeans(scaleDF)
   return(meanScore)
 }
@@ -43,6 +43,8 @@ getValidMets<-function(county=NA,data_date,addC=NA,stationCount,useVario=NA,nugF
         stationCountFill=stationCount-length(unique(loocv_df$SKN)),
         staRFmmMin=min(loocv_df$obs_rf),
         staRFmmMax=max(loocv_df$obs_rf),
+        staRFmmMean=NA,staRFmmSD=NA,staRFmmCV=NA,
+        predRFmmMean=NA,predRFmmSD=NA,predRFmmCV=NA,
         noRF=TRUE,
         rsq_rf_mm=NA,rmse_rf_mm=NA,mae_rf_mm=NA,
         bias_rf_mm=NA,nse_rf_mm=NA,kge_rf_mm=NA,
@@ -58,6 +60,12 @@ getValidMets<-function(county=NA,data_date,addC=NA,stationCount,useVario=NA,nugF
         stationCountFill=stationCount-length(unique(loocv_df$SKN)),
         staRFmmMin=min(loocv_df$obs_rf),
         staRFmmMax=max(loocv_df$obs_rf),
+        staRFmmMean=mean(loocv_df$obs_rf),
+        staRFmmSD=sd(loocv_df$obs_rf),
+        staRFmmCV=sd(loocv_df$obs_rf) / mean(loocv_df$obs_rf),
+        predRFmmMean=mean(loocv_df$pred_rf),
+        predRFmmSD=sd(loocv_df$pred_rf),
+        predRFmmCV=sd(loocv_df$pred_rf) / mean(loocv_df$pred_rf),
         noRF=FALSE,
         rsq_rf_mm=summary(lm(loocv_df$obs_rf~loocv_df$pred_rf))$r.squared,
         rmse_rf_mm=Metrics::rmse(loocv_df$obs_rf,loocv_df$pred_rf),
@@ -81,6 +89,12 @@ getValidMets<-function(county=NA,data_date,addC=NA,stationCount,useVario=NA,nugF
       stationCountFill=stationCount-nrow(RF_day_raw),
       staRFmmMin=min(loocv_df$obs_rf),
       staRFmmMax=max(loocv_df$obs_rf),
+      staRFmmMean=mean(loocv_df$obs_rf),
+      staRFmmSD=sd(loocv_df$obs_rf),
+      staRFmmCV=sd(loocv_df$obs_rf) / mean(loocv_df$obs_rf),
+      predRFmmMean=mean(loocv_df$pred_rf),
+      predRFmmSD=sd(loocv_df$pred_rf),
+      predRFmmCV=sd(loocv_df$pred_rf) / mean(loocv_df$pred_rf),
       noRF=FALSE,
       addC=addC,
       fixedVario=useVario,
@@ -106,7 +120,8 @@ getValidMets<-function(county=NA,data_date,addC=NA,stationCount,useVario=NA,nugF
 } #end validation metrics func
 
 metamaker<-function(map_validation_df,grid,filenames,datatype,rfDay,statewide=F,state_validation=NA,loocv_df=NA){
-  validRanks<-c(0.02,0.04,0.06,0.08) #ranks of high,good,moderate,low respectively 
+  validRanks<-c(0.025,0.05,0.075,0.1) #ranks of high,good,moderate,low respectively 
+  map_validation_df$qualMetric<-map_validation_df$mae_rf_mm/map_validation_df$staRFmmMax
   
   #packages
   require(raster)
@@ -116,8 +131,6 @@ metamaker<-function(map_validation_df,grid,filenames,datatype,rfDay,statewide=F,
   dataconvert<-function(x){return(ifelse(is.numeric(x),as.character(round(x,5)),as.character(x)))}
   function(x){return(ifelse(is.numeric(x),as.character(round(x,5)),as.character(x)))}
   if(statewide==F){
-    qualMetric<-map_validation_df$mae_rf_mm/map_validation_df$staRFmmMax #make quality metric
-    
     valid_meta<-data.frame(attribute=as.character(names(map_validation_df)),value=as.character(lapply(map_validation_df[1,], dataconvert)))
     
     countyText<-ifelse(map_validation_df$county=="ka"|map_validation_df$county=="KA","Kauai County",
@@ -130,17 +143,17 @@ metamaker<-function(map_validation_df,grid,filenames,datatype,rfDay,statewide=F,
                                      format(dataStartDate,"%b %d %Y"),"to midnight HST",format(dataEndDate,"%b %d %Y."),
                                      ifelse(map_validation_df$noRF,as.character(paste("All",map_validation_df$stationCount, "observed and statistically gap filled unique station locations within",countyText, "county reported no measured or estimated rainfall. Without any observed rainfall the county wide map was created by setting all pixels to 0. As such, no validation metric data is availible, and an rainfall SE map was not produced.", 
                                                                                       "Unknown rainfall errors could be present, if unreported rainfall occured at locations without known station observations. If so this map might be underestimating accual rainfall in unknown areas. All maps are subject to change as new data becomes available or unknown errors are corrected in reoccurring versions.")),
-                                            #IDW statement here
+                                          #IDW statement here
                                             as.character(paste("This was produced using a climate-aided modified automatic kriging interpolation of a log transformed daily rainfall anomaly ratio calculated from a mean monthly daily disaggrigated rf map, plus a consteint (observed mm + 1 / (mean daily mm + c). This kriging process used", 
                                                                map_validation_df$stationCount, "unique station locations within",countyText,
                                                                "and their",format(dataStartDate,"%B %Y"), 
                                                                "recorded and/or estimated rainfall (mm) totals. A leave one out cross validation (LOOCV) between observed station data and the interpolated estimate used in this map produced a mean absolute error (MAE) of:",
-                                                               round(map_validation_df$mae_rf_mm,3),"with a maximum observed rainfall of",round(map_validation_df$staRFmmMax,3),"mm, meaning this",format(dataStartDate,"%b %d %Y"),
+                                                               round(map_validation_df$mae_rf_mm,3),"with a maximum observed rainfall of",map_validation_df$staRFmmMax,"mm, meaning this",format(dataStartDate,"%b %d %Y"),
                                                                countyText,"daily rainfall (mm) map is a", 
-                                                               ifelse(qualMetric<=validRanks[1],"high quality estimate of daily rainfall.",
-                                                                      ifelse(qualMetric<=validRanks[2],"good quality estimate of daily rainfall.",
-                                                                             ifelse(qualMetric<=validRanks[3],"moderate quality estimate of daily rainfall.",
-                                                                                    ifelse(qualMetric<=validRanks[4],"low quality estimate of daily rainfall, and should be used with dilligence.","lowest quality estimate of daily rainfall, and should be used with caution.")))),
+                                                               ifelse(map_validation_df$qualMetric>=validRanks[1],"high quality estimate of daily rainfall.",
+                                                                      ifelse(map_validation_df$qualMetric>=validRanks[2],"good quality estimate of daily rainfall.",
+                                                                             ifelse(map_validation_df$qualMetric>=validRanks[3],"moderate quality estimate of daily rainfall.",
+                                                                                    ifelse(map_validation_df$qualMetric>=validRanks[4],"low quality estimate of daily rainfall, and should be used with dilligence.","lowest quality estimate of daily rainfall, and should be used with caution.")))),
                                                                "All maps are subject to change as new data becomes available or unknown errors are corrected in reoccurring versions.", 
                                                                "Errors in rainfall estimates do vary over space meaning any gridded rainfall value, even on higher quality maps, could still produce incorrect estimates.",
                                                                "Check standard error (SE) maps to better understand spatial estimates of prediction error")))))
@@ -182,9 +195,6 @@ metamaker<-function(map_validation_df,grid,filenames,datatype,rfDay,statewide=F,
   }# county meta
   
   if(statewide){
-    #make statewide qualMetric
-    qualMetric<-state_validation$mae_rf_mm/state_validation$staRFmmMax #make quality metric
-    
     #make state per county validation metrics
     map_validation_df_t<-as.data.frame(t(map_validation_df))
     colapseValidation_t <- as.character(apply( map_validation_df_t , 1 , paste , collapse = ", " ))
@@ -197,7 +207,7 @@ metamaker<-function(map_validation_df,grid,filenames,datatype,rfDay,statewide=F,
     state_statement<-as.character(paste("This",format(dataStartDate,"%B %d %Y"),"mosaic rainfall map of the State of Hawaii",
                                         "is a high spatial resolution (~250m) gridded prediction of cumulative rainfall in millimeters from midnight HST",
                                         format(dataStartDate,"%b %d %Y"),"to midnight HST",format(dataEndDate,"%b %d %Y."),
-                                        #IDW statement here
+                                      #IDW statement here
                                         "This was produced by performing a climate-aided modified automatic kriging interpolations for each county extent. This kriging used log transformed daily rainfall anomaly ratios calculated from a mean monthly daily disaggrigated rf map, plus a consteint (observed mm + 1 / (mean daily mm + c) as an input. This process was done for four individually produced maps of Kauai, Honolulu (Oahu), Maui (Maui, Lanai, Molokai, & Kahoolawe) and Hawaii counties.", 
                                         "These kriging processes used", 
                                         sum(map_validation_df$stationCount), "unique station locations statewide",
@@ -210,11 +220,11 @@ metamaker<-function(map_validation_df,grid,filenames,datatype,rfDay,statewide=F,
                                               round(map_validation_df[map_validation_df$county=="BI","mae_rf_mm"],3),collapse=", "),
                                         "for Kauai, Honolulu (Oahu), Maui (Maui, Lanai, Molokai, & Kahoolawe) and Hawaii counties respectively.",
                                         "As a whole leave one out cross validation (LOOCV) data between observed station data and the interpolated estimate used in this map produced a mean absolute error (MAE) of:", 
-                                        round(state_validation$mae_rf_mm ,3), "with a maximum observed rainfall of",round(map_validation_df$staRFmmMax,3),"mm, meaning overall this",format(dataStartDate,"%B %Y"),"statewide mosaic daily rainfall (mm) map is a",  
-                                        ifelse(qualMetric<=validRanks[1],"high quality estimate of daily rainfall.",
-                                               ifelse(qualMetric<=validRanks[2],"good quality estimate of daily rainfall.",
-                                                      ifelse(qualMetric<=validRanks[3],"moderate quality estimate of daily rainfall.",
-                                                             ifelse(qualMetric<=validRanks[4],"low quality estimate of daily rainfall, and should be used with dilligence.","lowest quality estimate of daily rainfall, and should be used with caution.")))),
+                                        round(state_validation$mae_rf_mm ,3), "with a maximum observed rainfall of",map_validation_df$staRFmmMax,"mm, meaning overall this",format(dataStartDate,"%B %Y"),"statewide mosaic daily rainfall (mm) map is a",  
+                                        ifelse(state_validation$qualMetric>=validRanks[1],"high quality estimate of daily rainfall.",
+                                               ifelse(state_validation$qualMetric>=validRanks[2],"good quality estimate of daily rainfall.",
+                                                      ifelse(state_validation$qualMetric>=validRanks[3],"moderate quality estimate of daily rainfall.",
+                                                             ifelse(state_validation$qualMetric>=validRanks[4],"low quality estimate of daily rainfall, and should be used with dilligence.","lowest quality estimate of daily rainfall, and should be used with caution.")))),
                                         "All maps are subject to change as new data becomes available or unknown errors are corrected in reoccurring versions.", 
                                         "Errors in rainfall estimates do vary over space meaning any gridded rainfall value, even on higher quality maps, could still produce incorrect estimates.",
                                         "Check standard error (SE) maps to better understand spatial estimates of prediction error." 
@@ -284,6 +294,12 @@ noRFoutputs<-function(meanRFgridwd,county,data_date,RF_day,realVals){
     stationCountFill=nrow(RF_day)-sum(realVals),
     staRFmmMin=0,
     staRFmmMax=0,
+    staRFmmMean=0,
+    staRFmmSD=0,
+    staRFmmCV=0,
+    predRFmmMean=0,
+    predRFmmSD=0,
+    predRFmmCV=0,
     noRF=TRUE,
     addC=addC,
     fixedVario=NA,
@@ -321,7 +337,7 @@ noRFoutputs<-function(meanRFgridwd,county,data_date,RF_day,realVals){
   outList[["rf_mm_SE_ras"]]<-(Mean_RF/Mean_RF)*(-9999) #NA se raster
   outList[["rf_anom_ras"]]<- outList[["rf_mm_ras"]]/(Mean_RF) #rf mm anom 0
   outList[["rf_anom_SE_ras"]]<- (Mean_RF/Mean_RF)*(-9999) #NA #NA se raster
-  outList[["varioModel"]]<- NA
+  
   message(paste(county,"Map set to 0mm no krigging... complete"))
   
   #return
@@ -339,7 +355,7 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
   allCList<-list() #blank list
   for(useVario in c(TRUE,FALSE)){ #NOTE fixed and free ON 
     for(k in 1:length(addCvec)){
-      
+      #if(useVario & addC==-1) next
       #define mean rf add C
       addC<-addCvec[k]
       message(paste(county,addC,"addC fix vario:",useVario,"run..."))
@@ -360,9 +376,11 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
         
         if(useVario){
           #build vario
-          Nugget<-varioDFAll[varioDFAll$month==month(data_date) & varioDFAll$addC==addC & varioDFAll$county==county,c("nugget")]
-          Sill<-varioDFAll[varioDFAll$month==month(data_date) & varioDFAll$addC==addC & varioDFAll$county==county,c("sill")]
-          Range<-varioDFAll[varioDFAll$month==month(data_date) & varioDFAll$addC==addC& varioDFAll$county==county,c("range")]
+          #Nugget<-varioDFAll[varioDFAll$month==month(data_date) & varioDFAll$addC==addC,c("nugget")]
+          Nugget<-var(RF_day$total_rf_mm_logC)*0.5
+          #Sill<-varioDFAll[varioDFAll$month==month(data_date) & varioDFAll$addC==addC,c("sill")]
+          Sill<-NA
+          Range<-varioDFAll[varioDFAll$month==month(data_date) & varioDFAll$addC==addC,c("range")]
           nugFixZero<-FALSE
           vario<-try(automap::autofitVariogram(as.formula("total_rf_mm_logC ~ 1"), RF_day, model="Exp",fix.values = as.numeric(c(Nugget,Range,Sill)))) #fit mat variogram fix parameters
           if(!is.na(grep("error",vario[1],ignore.case = T)[1])){ #if error make nug 0
@@ -373,11 +391,10 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
           #plot(vario)
         }else{
           nugFixZero<-FALSE
-          vario<-try(automap::autofitVariogram(as.formula("total_rf_mm_logC ~ 1"), RF_day, fix.values = as.numeric(c(NA,NA,NA)))) #fit mat variogram all parameters free
-          
+          vario<-try(automap::autofitVariogram(as.formula("total_rf_mm_logC ~ 1"), RF_day, model="Exp",fix.values = as.numeric(c(NA,NA,NA)))) #fit mat variogram all parameters free
           if(!is.na(grep("error",vario[1],ignore.case = T)[1])){ #if error make nug 0
             Nugget<- 0 #set nugget value when needed
-            vario<-try(automap::autofitVariogram(as.formula("total_rf_mm_logC ~ 1"), RF_day,fix.values = as.numeric(c(Nugget,NA,NA)))) #fit mat variogram all parameters free
+            vario<-try(automap::autofitVariogram(as.formula("total_rf_mm_logC ~ 1"), RF_day, model="Exp",fix.values = as.numeric(c(Nugget,NA,NA)))) #fit mat variogram all parameters free
             nugFixZero<-TRUE
           }
           #plot(vario)
@@ -418,7 +435,8 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
         #validation
         if(sum(is.na(loocv_df$pred_rf))==length(loocv_df$pred_rf)){
           rf_validation<-data.frame(county=county,date=data_date,stationCount=nrow(RF_day),stationCountReal=sum(realVals),stationCountFill=nrow(RF_day)-sum(realVals),
-                                    staRFmmMin=NA,staRFmmMax=NA,noRF=NA,addC=addC,fixedVario=useVario,nugFixZero=NA,mod=NA,nugget=NA,range=NA,sill=NA,
+                                    staRFmmMin=NA,staRFmmMax=NA,staRFmmMean=NA,staRFmmSD=NA,staRFmmCV=NA,predRFmmMean=NA,predRFmmSD=NA,predRFmmCV=NA,
+                                    noRF=NA,addC=addC,fixedVario=useVario,nugFixZero=NA,mod=NA,nugget=NA,range=NA,sill=NA,
                                     rsq_rf_mm=NA,rmse_rf_mm=NA,mae_rf_mm=NA,bias_rf_mm=NA,nse_rf_mm=NA,kge_rf_mm=NA,
                                     rsq_rf_anom=NA,rmse_rf_anom=NA,mae_rf_anom=NA,bias_rf_anom=NA,nse_rf_anom=NA,kge_rf_anom=NA
           )
@@ -427,7 +445,7 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
           rf_validation<-getValidMets(county=county,data_date=data_date,addC=addC,stationCount=stationCount,useVario=useVario,nugFixZero=nugFixZero,vario=vario,RF_day_raw=RF_day_raw,loocv_df=loocv_df)
         }#end validation
         
-        dfC<-rbind(dfC,rf_validation[,c("addC","fixedVario","rsq_rf_mm","rmse_rf_mm","mae_rf_mm","bias_rf_mm","nse_rf_mm","kge_rf_mm","nugget","range","sill")])
+        dfC<-rbind(dfC,rf_validation[,c("addC","fixedVario","staRFmmCV","predRFmmCV","rsq_rf_mm","rmse_rf_mm","mae_rf_mm","bias_rf_mm","nse_rf_mm","kge_rf_mm","nugget","range","sill")])
         if(useVario){
           allCList[[k]]<-list(RF_day,vario,loocv_df,rf_validation)
           names(allCList)[k]<-paste0("add",addC,useVario)
@@ -453,9 +471,9 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
         
         if(useVario){
           #build vario
-          Nugget<-varioDFAll[varioDFAll$month==month(data_date) & varioDFAll$addC==addC & varioDFAll$county==county,c("nugget")]
-          Sill<-varioDFAll[varioDFAll$month==month(data_date) & varioDFAll$addC==addC & varioDFAll$county==county,c("sill")]
-          Range<-varioDFAll[varioDFAll$month==month(data_date) & varioDFAll$addC==addC& varioDFAll$county==county,c("range")]
+          Nugget<-varioDFAll[varioDFAll$month==month(data_date) & varioDFAll$addC==addC,c("nugget")]
+          Sill<-varioDFAll[varioDFAll$month==month(data_date) & varioDFAll$addC==addC,c("sill")]
+          Range<-varioDFAll[varioDFAll$month==month(data_date) & varioDFAll$addC==addC,c("range")]
           nugFixZero<-FALSE
           vario<-try(automap::autofitVariogram(as.formula("RF_day_Anom_logK ~ 1"), RF_day, model="Exp",fix.values = as.numeric(c(Nugget,Range,Sill)))) #fit mat variogram fix parameters
           if(!is.na(grep("error",vario[1],ignore.case = T)[1])){ #if error make nug 0
@@ -466,11 +484,11 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
           #plot(vario)
         }else{
           nugFixZero<-FALSE
-          vario<-try(automap::autofitVariogram(as.formula("RF_day_Anom_logK ~ 1"), RF_day, fix.values = as.numeric(c(NA,NA,NA)))) #fit mat variogram all parameters free
+          vario<-try(automap::autofitVariogram(as.formula("RF_day_Anom_logK ~ 1"), RF_day, model="Exp",fix.values = as.numeric(c(NA,NA,NA)))) #fit mat variogram all parameters free
           if(!is.na(grep("error",vario[1],ignore.case = T)[1])){ #if error make nug 0
             Nugget<- 0 #set nugget value when needed           
             nugFixZero<-TRUE
-            vario<-try(automap::autofitVariogram(as.formula("RF_day_Anom_logK ~ 1"), RF_day, fix.values = as.numeric(c(Nugget,NA,NA))))#fit mat variogram all parameters free
+            vario<-try(automap::autofitVariogram(as.formula("RF_day_Anom_logK ~ 1"), RF_day, model="Exp",fix.values = as.numeric(c(Nugget,NA,NA))))#fit mat variogram all parameters free
           }
           #plot(vario)
         }#end conditional free vario
@@ -510,7 +528,8 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
         #validation metrics
         if(sum(is.na(loocv_df$pred_rf))==length(loocv_df$pred_rf)){
           rf_validation<-data.frame(county=county,date=data_date,stationCount=nrow(RF_day),stationCountReal=sum(realVals),stationCountFill=nrow(RF_day)-sum(realVals),
-                                    staRFmmMin=NA,staRFmmMax=NA,noRF=NA,addC=addC,fixedVario=useVario,nugFixZero=NA,mod=NA,nugget=NA,range=NA,sill=NA,
+                                    staRFmmMin=NA,staRFmmMax=NA,staRFmmMean=NA,staRFmmSD=NA,staRFmmCV=NA,predRFmmMean=NA,predRFmmSD=NA,predRFmmCV=NA,
+                                    noRF=NA,addC=addC,fixedVario=useVario,nugFixZero=NA,mod=NA,nugget=NA,range=NA,sill=NA,
                                     rsq_rf_mm=NA,rmse_rf_mm=NA,mae_rf_mm=NA,bias_rf_mm=NA,nse_rf_mm=NA,kge_rf_mm=NA,
                                     rsq_rf_anom=NA,rmse_rf_anom=NA,mae_rf_anom=NA,bias_rf_anom=NA,nse_rf_anom=NA,kge_rf_anom=NA
           )
@@ -520,7 +539,7 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
         }#end validation
         
         #gather addC items
-        dfC<-rbind(dfC,rf_validation[,c("addC","fixedVario","rsq_rf_mm","rmse_rf_mm","mae_rf_mm","bias_rf_mm","nse_rf_mm","kge_rf_mm","nugget","range","sill")])
+        dfC<-rbind(dfC,rf_validation[,c("addC","fixedVario","staRFmmCV","predRFmmCV","rsq_rf_mm","rmse_rf_mm","mae_rf_mm","bias_rf_mm","nse_rf_mm","kge_rf_mm","nugget","range","sill")])
         if(useVario){
           allCList[[k]]<-list(RF_day,vario,loocv_df,rf_validation)
           names(allCList)[k]<-paste0("add",addC,useVario)
@@ -543,6 +562,7 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
   dfCFree<-dfC[nugsill & rangeLim & !dfC$fixedVario,] #subset free
   dfCFix<-dfC[dfC$fixedVario,] #subset fixed
   dfC<-rbind(dfCFix,dfCFree) #redefine dfc
+  #dfC<-dfC[dfC$staRFmmCV/10 < dfC$predRFmmCV,] #best result must have at least 1/10 pred co var compared to station co var
   
   #conditional has data 
   if(sum(!is.na(dfC$mae_rf_mm))>0 & nrow(dfC)>0){
@@ -555,8 +575,10 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
     
     #get bestC rmse
     bestRun<-dfC[which.min(dfC$mae_rf_mm),"listName"]
-    bestC<-dfC[which.min(dfC$mae_rf_mm),"addC"]
-    bestFixVario<-dfC[which.min(dfC$mae_rf_mm),"fixedVario"]
+    #bestRun<-dfC[which.min(abs(dfC$staRFmmCV - dfC$predRFmmCV)),"listName"] #min Co Var diff obs pred
+    
+    bestC<-dfC[dfC$listName==bestRun,"addC"]
+    bestFixVario<-dfC[dfC$listName==bestRun,"fixedVario"]
     bestCList<-allCList[[bestRun]]
     
     #get bestC objects from best cc list 
@@ -622,12 +644,11 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
     outList[["rf_mm_SE_ras"]]<-rf_mm_SE_ras
     outList[["rf_anom_ras"]]<-rf_anom_ras
     outList[["rf_anom_SE_ras"]]<-rf_anom_SE_ras
-    outList[["varioBestC"]]<-varioBestC
   }else{ 
     #no krige 
     outList[["bestC"]]<-NA
     #print(dfC)
-    stop(paste("null krige",data_date,county)) #stop function kick error
+    stop(paste("no suitable krige results",data_date,county)) #stop function kick error
     #try IDW here
   }    
   return(outList)
@@ -670,7 +691,7 @@ dailyRFkrig<-function(rfdailyDFmaster,rfdailyRawDFmaster,varioDFAll,data_date,me
     if(!is.na(testRun)){
       county=testRun #test run county define
     }else{
-      county<-counties[dom] #define co for loop
+        county<-counties[dom] #define co for loop
     }
     if(county=="MN"){islands<-c("MA","LA","MO","KO")}else{islands<-county}
     rfdailyDF<-rfdailyDF[rfdailyDF$Island %in% islands,] #subset county data
@@ -685,7 +706,7 @@ dailyRFkrig<-function(rfdailyDFmaster,rfdailyRawDFmaster,varioDFAll,data_date,me
     names(RF_day_raw)[2]<-"total_rf_mm" #rename date col as total_rf_mm
     realVals<-realFill(RF_day,RF_day_raw) #real daily rf values only subset vec
     #print(RF_day) #check final rf day df
-    
+
     #make spatial data frame with Lat and Lon
     RF_day$x<-RF_day$LON
     RF_day$y<-RF_day$LAT
@@ -703,6 +724,12 @@ dailyRFkrig<-function(rfdailyDFmaster,rfdailyRawDFmaster,varioDFAll,data_date,me
         stationCountFill=nrow(RF_day)-sum(realVals),
         staRFmmMin=NA,
         staRFmmMax=NA,
+        staRFmmMean=NA,
+        staRFmmSD=NA,
+        staRFmmCV=NA,
+        predRFmmMean=NA,
+        predRFmmSD=NA,
+        predRFmmCV=NA,
         noRF=NA,
         addC=addC,
         fixedVario=NA,
@@ -748,7 +775,7 @@ dailyRFkrig<-function(rfdailyDFmaster,rfdailyRawDFmaster,varioDFAll,data_date,me
       staRFmin<-min(RF_day$total_rf_mm) #save station min stat
       staRFmax<-max(RF_day$total_rf_mm) #save station max stat
       staRFmaxNoFill<-max(RF_day_real$total_rf_mm) #save station max no fill station stat
-      
+
       if(staRFmaxNoFill==0 | staRFmax==0){
         #no RF function and outputs
         message("no rf observed...")
@@ -772,22 +799,6 @@ dailyRFkrig<-function(rfdailyDFmaster,rfdailyRawDFmaster,varioDFAll,data_date,me
       bestFixVario<-rf_validationBestC$fixedVario
       
       ##county plots##
-      dir.create(paste0(outdir,"/plots"), showWarnings = FALSE)
-      dir.create(paste0(outdir,"/plots/daily"), showWarnings = FALSE)
-      
-      #variogram
-      dir.create(paste0(outdir,"/plots/daily/variogram"), showWarnings = FALSE)
-      dir.create(paste0(outdir,"/plots/daily/variogram/county"), showWarnings = FALSE)
-      dir.create(paste0(outdir,"/plots/daily/variogram/county/",county), showWarnings = FALSE)
-      setwd(paste0(outdir,"/plots/daily/variogram/county/",county))
-      if(!rf_validationBestC$noRF){
-        subVG<-paste0(county," ",format(data_date,"%Y-%m-%d"),"; Fix Vario:",bestFixVario,"; BestC:",bestC,"; RSQ:",round(rf_validationBestC$rsq_rf_mm,2),"; RMSE:",round(rf_validationBestC$rmse_rf_mm,2),"; MAE:",round(rf_validationBestC$mae_rf_mm,2),"; BIAS:",round(rf_validationBestC$bias_rf_mm,2))
-        bitmap(file = paste0(county,"_vario_",format(data_date,"%Y%m%d"),".jpg"),width=7,height=5,units="in",res=300,type="jpeg")
-          plot(varioBestC,sub=subVG)
-          dev.off()
-        message(paste(county,"vario plotted!"))
-      }
-      
       #rf mm plotting
       rf_mm_ras[rf_mm_ras<0]<-0 #edit neg values to zero
       #rf_mm_ras_zero<-rf_mm_ras<=0.001
@@ -798,8 +809,8 @@ dailyRFkrig<-function(rfdailyDFmaster,rfdailyRawDFmaster,varioDFAll,data_date,me
       #rf_mm_poly_zero<-rasterToPolygons(rf_mm_ras_zero, digits=8, dissolve=TRUE)
       
       #save rf plot
-      # dir.create(paste0(outdir,"/plots"), showWarnings = FALSE)
-      # dir.create(paste0(outdir,"/plots/daily"), showWarnings = FALSE)
+      dir.create(paste0(outdir,"/plots"), showWarnings = FALSE)
+      dir.create(paste0(outdir,"/plots/daily"), showWarnings = FALSE)
       dir.create(paste0(outdir,"/plots/daily/rf_mm"), showWarnings = FALSE)
       dir.create(paste0(outdir,"/plots/daily/rf_mm/county"), showWarnings = FALSE)
       dir.create(paste0(outdir,"/plots/daily/rf_mm/county/",county), showWarnings = FALSE)
@@ -913,10 +924,10 @@ dailyRFkrig<-function(rfdailyDFmaster,rfdailyRawDFmaster,varioDFAll,data_date,me
       
       message(county," complete")
     }#less then 3 station else end
-    if(!is.na(testRun)){
-      break # break loop if test ie: only run test county
-      stop("county test run ended")
-    }#end test county run
+   if(!is.na(testRun)){
+    break # break loop if test ie: only run test county
+    stop("county test run ended")
+   }#end test county run
   }#end county loop
   t2<-Sys.time()
   t2-t1
@@ -959,7 +970,7 @@ dailyRFkrig<-function(rfdailyDFmaster,rfdailyRawDFmaster,varioDFAll,data_date,me
   setwd(paste0(outdir,"/tables/validation/daily/validate/statewide"))
   statevalidFilename<-paste0(format(data_date,"%Y%m%d_"),"Statewide_rf_daily_validation.csv")
   write.csv(statewide_rf_validation,statevalidFilename,row.names=F)
-  
+
   message("statewide tables saved")
   
   #STATEWIDE RASTERS

@@ -1,4 +1,4 @@
-#this codes grabs data dates montlth file of daily rf and makes a interpolated daily grid
+#this codes grabs data dates monthly file of daily rf and makes a interpolated daily rf grid map
 rm(list = ls())#remove all objects in R
 
 #set dirs
@@ -32,17 +32,19 @@ setwd(varioDFwd)
 varioDFAll<-read.csv("all_vario_median_exp.csv")
 
 #subset day
-testOut<-dailyRFkrig(rfdailyDFmaster=dailyRFdf,
+validOut<-dailyRFkrig(rfdailyDFmaster=dailyRFdf,
             rfdailyRawDFmaster=dailyRFdfRaw,
             varioDFAll=varioDFAll,
             data_date=dataDate,
             meanRFgridwd=meanRFwd,
             outdir=dailyRFout,
-            dataVersion="preliminary"
+            dataVersion="experimental",
             )
 
 
-print(testOut)
+print(validOut)
 e<-Sys.time()
-e-s
-#pau
+print(e-s)
+print("daily rf PAU.")
+
+# code pau

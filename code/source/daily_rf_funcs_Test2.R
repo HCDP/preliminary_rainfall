@@ -106,7 +106,8 @@ getValidMets<-function(county=NA,data_date,addC=NA,stationCount,useVario=NA,nugF
 } #end validation metrics func
 
 metamaker<-function(map_validation_df,grid,filenames,datatype,rfDay,statewide=F,state_validation=NA,loocv_df=NA){
-  validRanks<-c(0.02,0.04,0.06,0.08) #ranks of high,good,moderate,low respectively 
+  validRanks<-c(0.025,0.05,0.075,0.1) #ranks of high,good,moderate,low respectively 
+  map_validation_df$qualMetric<-map_validation_df$mae_rf_mm/map_validation_df$staRFmmMax
   
   #packages
   require(raster)
@@ -116,8 +117,6 @@ metamaker<-function(map_validation_df,grid,filenames,datatype,rfDay,statewide=F,
   dataconvert<-function(x){return(ifelse(is.numeric(x),as.character(round(x,5)),as.character(x)))}
   function(x){return(ifelse(is.numeric(x),as.character(round(x,5)),as.character(x)))}
   if(statewide==F){
-    qualMetric<-map_validation_df$mae_rf_mm/map_validation_df$staRFmmMax #make quality metric
-    
     valid_meta<-data.frame(attribute=as.character(names(map_validation_df)),value=as.character(lapply(map_validation_df[1,], dataconvert)))
     
     countyText<-ifelse(map_validation_df$county=="ka"|map_validation_df$county=="KA","Kauai County",
@@ -135,12 +134,12 @@ metamaker<-function(map_validation_df,grid,filenames,datatype,rfDay,statewide=F,
                                                                map_validation_df$stationCount, "unique station locations within",countyText,
                                                                "and their",format(dataStartDate,"%B %Y"), 
                                                                "recorded and/or estimated rainfall (mm) totals. A leave one out cross validation (LOOCV) between observed station data and the interpolated estimate used in this map produced a mean absolute error (MAE) of:",
-                                                               round(map_validation_df$mae_rf_mm,3),"with a maximum observed rainfall of",round(map_validation_df$staRFmmMax,3),"mm, meaning this",format(dataStartDate,"%b %d %Y"),
+                                                               round(map_validation_df$mae_rf_mm,3),"with a maximum observed rainfall of",map_validation_df$staRFmmMax,"mm, meaning this",format(dataStartDate,"%b %d %Y"),
                                                                countyText,"daily rainfall (mm) map is a", 
-                                                               ifelse(qualMetric<=validRanks[1],"high quality estimate of daily rainfall.",
-                                                                      ifelse(qualMetric<=validRanks[2],"good quality estimate of daily rainfall.",
-                                                                             ifelse(qualMetric<=validRanks[3],"moderate quality estimate of daily rainfall.",
-                                                                                    ifelse(qualMetric<=validRanks[4],"low quality estimate of daily rainfall, and should be used with dilligence.","lowest quality estimate of daily rainfall, and should be used with caution.")))),
+                                                               ifelse(map_validation_df$qualMetric>=validRanks[1],"high quality estimate of daily rainfall.",
+                                                                      ifelse(map_validation_df$qualMetric>=validRanks[2],"good quality estimate of daily rainfall.",
+                                                                             ifelse(map_validation_df$qualMetric>=validRanks[3],"moderate quality estimate of daily rainfall.",
+                                                                                    ifelse(map_validation_df$qualMetric>=validRanks[4],"low quality estimate of daily rainfall, and should be used with dilligence.","lowest quality estimate of daily rainfall, and should be used with caution.")))),
                                                                "All maps are subject to change as new data becomes available or unknown errors are corrected in reoccurring versions.", 
                                                                "Errors in rainfall estimates do vary over space meaning any gridded rainfall value, even on higher quality maps, could still produce incorrect estimates.",
                                                                "Check standard error (SE) maps to better understand spatial estimates of prediction error")))))
@@ -182,9 +181,6 @@ metamaker<-function(map_validation_df,grid,filenames,datatype,rfDay,statewide=F,
   }# county meta
   
   if(statewide){
-    #make statewide qualMetric
-    qualMetric<-state_validation$mae_rf_mm/state_validation$staRFmmMax #make quality metric
-    
     #make state per county validation metrics
     map_validation_df_t<-as.data.frame(t(map_validation_df))
     colapseValidation_t <- as.character(apply( map_validation_df_t , 1 , paste , collapse = ", " ))
@@ -210,11 +206,11 @@ metamaker<-function(map_validation_df,grid,filenames,datatype,rfDay,statewide=F,
                                               round(map_validation_df[map_validation_df$county=="BI","mae_rf_mm"],3),collapse=", "),
                                         "for Kauai, Honolulu (Oahu), Maui (Maui, Lanai, Molokai, & Kahoolawe) and Hawaii counties respectively.",
                                         "As a whole leave one out cross validation (LOOCV) data between observed station data and the interpolated estimate used in this map produced a mean absolute error (MAE) of:", 
-                                        round(state_validation$mae_rf_mm ,3), "with a maximum observed rainfall of",round(map_validation_df$staRFmmMax,3),"mm, meaning overall this",format(dataStartDate,"%B %Y"),"statewide mosaic daily rainfall (mm) map is a",  
-                                        ifelse(qualMetric<=validRanks[1],"high quality estimate of daily rainfall.",
-                                               ifelse(qualMetric<=validRanks[2],"good quality estimate of daily rainfall.",
-                                                      ifelse(qualMetric<=validRanks[3],"moderate quality estimate of daily rainfall.",
-                                                             ifelse(qualMetric<=validRanks[4],"low quality estimate of daily rainfall, and should be used with dilligence.","lowest quality estimate of daily rainfall, and should be used with caution.")))),
+                                        round(state_validation$mae_rf_mm ,3), "with a maximum observed rainfall of",map_validation_df$staRFmmMax,"mm, meaning overall this",format(dataStartDate,"%B %Y"),"statewide mosaic daily rainfall (mm) map is a",  
+                                        ifelse(state_validation$qualMetric>=validRanks[1],"high quality estimate of daily rainfall.",
+                                               ifelse(state_validation$qualMetric>=validRanks[2],"good quality estimate of daily rainfall.",
+                                                      ifelse(state_validation$qualMetric>=validRanks[3],"moderate quality estimate of daily rainfall.",
+                                                             ifelse(state_validation$qualMetric>=validRanks[4],"low quality estimate of daily rainfall, and should be used with dilligence.","lowest quality estimate of daily rainfall, and should be used with caution.")))),
                                         "All maps are subject to change as new data becomes available or unknown errors are corrected in reoccurring versions.", 
                                         "Errors in rainfall estimates do vary over space meaning any gridded rainfall value, even on higher quality maps, could still produce incorrect estimates.",
                                         "Check standard error (SE) maps to better understand spatial estimates of prediction error." 
