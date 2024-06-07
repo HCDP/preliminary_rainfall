@@ -48,6 +48,10 @@ echo "---begin all_data_daily_last_obs_FINAL.R---"
 Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/all_data_daily_last_obs_FINAL.R $CUSTOM_DATE
 echo "---end all_data_daily_last_obs_FINAL.R---"
 
+echo "---begin daily_rf_krig_map_makr_FINAL.R---"
+Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/daily_rf_krig_map_makr_FINAL.R $CUSTOM_DATE
+echo "---end daily_rf_krig_map_makr_FINAL.R---"
+
 echo "[task.sh] [4/7] Preparing for intermediate data upload."
 cd /sync
 python3 update_date_string_in_config.py intermediate_upload_config.json intermediate_upload_config_datestrings_loaded.json $CUSTOM_DATE
