@@ -976,6 +976,18 @@ dailyRFkrig<-function(rfdailyDFmaster,rfdailyRawDFmaster,varioDFAll,data_date,me
   staterfmmSEfilename<-paste0(format(data_date,"%Y%m%d_"),"Statewide_rf_mm_SE.tif")
   writeRaster(state_rf_mm_SE_ras,staterfmmSEfilename,overwrite=TRUE)
   
+  #anom
+  dir.create(paste0(outdir,"/tiffs/daily/statewide/anom"), showWarnings = FALSE)
+  setwd(paste0(outdir,"/tiffs/daily/statewide/anom"))
+  stateanomfilename<-paste0(format(data_date,"%Y%m%d_"),"Statewide_anom.tif")
+  writeRaster(state_rf_anom_ras,stateanomfilename,overwrite=TRUE)
+  
+  #anom SE
+  dir.create(paste0(outdir,"/tiffs/daily/statewide/rf_mm_se"), showWarnings = FALSE)
+  setwd(paste0(outdir,"/tiffs/daily/statewide/anom_se"))
+  stateanomSEfilename<-paste0(format(data_date,"%Y%m%d_"),"Statewide_anom_SE.tif")
+  writeRaster(state_rf_anom_SE_ras,stateanomSEfilename,overwrite=TRUE)
+  
   message("statewide rf rasters saved")
   
   
