@@ -107,6 +107,11 @@ RUN R -e 'install.packages("hydroGOF", version="0.5-4", repos="https://ftp.ussg.
 # `hydroGOF@0.5-4`: R >= 2.10.0, zoo >= 1.7-2
 RUN R -e 'install.packages("lubridate", version="1.8.0", repos="https://ftp.ussg.iu.edu/CRAN/")'
 # `lubridate@1.8.0`: R >= 3.2.0
+RUN R -e 'install.packages("grDevices", version="4.1.2", repos="https://ftp.ussg.iu.edu/CRAN/")'
+# `grDevices@4.1.2`: R base
+RUN R -e 'install.packages("parallel", version="4.1.2", repos="https://ftp.ussg.iu.edu/CRAN/")'
+# `parallel@4.1.2`: R base
+
 
 RUN mkdir -p /sync
 RUN wget https://raw.githubusercontent.com/ikewai/data-uploader/main/upload.py -O /sync/upload.py
