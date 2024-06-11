@@ -111,7 +111,7 @@ RUN R -e 'install.packages("grDevices", version="4.1.2", repos="https://ftp.ussg
 # `grDevices@4.1.2`: R base
 RUN R -e 'install.packages("parallel", version="4.1.2", repos="https://ftp.ussg.iu.edu/CRAN/")'
 # `parallel@4.1.2`: R base
-
+RUN apt install apt install ghostscript=9.55.0~dfsg1-0ubuntu5.6
 
 RUN mkdir -p /sync
 RUN wget https://raw.githubusercontent.com/ikewai/data-uploader/main/upload.py -O /sync/upload.py

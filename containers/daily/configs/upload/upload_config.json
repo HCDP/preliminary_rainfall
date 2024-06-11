@@ -50,7 +50,7 @@
                 }
             ]
 		},{
-            "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tiffs/daily/statewide/anom_se/%y%m%d_Statewide_anom_se.tif",
+            "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tiffs/daily/statewide/anom_se/%y%m%d_Statewide_anom_SE.tif",
             "remote_path": "HCDP/production/rainfall/new/day/statewide/anom_se/%y/%m",
             "rename": "rainfall_new_day_statewide_anom_se_%y_%m_%d.tif",
             "system_id": "ikewai-annotated-data",
