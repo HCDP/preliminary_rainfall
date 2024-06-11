@@ -17,12 +17,12 @@ dataDate<-dataDateMkr() #function for importing/defining date as input or as yes
 
 ##get monthly RF files partial fill & raw
 
-#ikewai OFF
-#ikeUrl<-"https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/workflow_data/preliminary" #url
-#dailyRFname<-paste0(ikeUrl,"/rainfall/data_outputs/tables/station_data/daily/partial_filled/statewide/Statewide_Partial_Filled_Daily_RF_mm_",format(dataDate,"%Y_%m"),".csv")
-#dailyRFnameRaw<-paste0(ikeUrl,"/rainfall/data_outputs/tables/station_data/daily/raw/statewide/Statewide_Raw_Daily_RF_mm_",format(dataDate,"%Y_%m"),".csv")
+# #ikewai OFF (use for dev server)
+# ikeUrl<-"https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/workflow_data/preliminary" #url
+# dailyRFname<-paste0(ikeUrl,"/rainfall/data_outputs/tables/station_data/daily/partial_filled/statewide/Statewide_Partial_Filled_Daily_RF_mm_",format(dataDate,"%Y_%m"),".csv")
+# dailyRFnameRaw<-paste0(ikeUrl,"/rainfall/data_outputs/tables/station_data/daily/raw/statewide/Statewide_Raw_Daily_RF_mm_",format(dataDate,"%Y_%m"),".csv")
 
-#local ON
+#local ON (use for container run) 
 dailyRFname<-paste0(mainDir,"/rainfall/data_outputs/tables/station_data/daily/partial_filled/statewide/Statewide_Partial_Filled_Daily_RF_mm_",format(dataDate,"%Y_%m"),".csv")
 dailyRFnameRaw<-paste0(mainDir,"/rainfall/data_outputs/tables/station_data/daily/raw/statewide/Statewide_Raw_Daily_RF_mm_",format(dataDate,"%Y_%m"),".csv")
 
@@ -43,7 +43,7 @@ validOut<-dailyRFkrig(rfdailyDFmaster=dailyRFdf,
             data_date=dataDate,
             meanRFgridwd=meanRFwd,
             outdir=dailyRFout,
-            dataVersion="experimental",
+            dataVersion="experimental"
             )
 
 
