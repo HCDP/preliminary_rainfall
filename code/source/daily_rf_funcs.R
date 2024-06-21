@@ -391,7 +391,7 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
         for(j in 1:nrow(RF_day)){
           check<-realFill(RF_day,RF_day_raw)[2] #check if real or gap fill val
           if(check){
-            krigeLOO<-krige(as.formula("total_rf_mm_logC ~ 1") ,RF_day[-j,], RF_day[j,], model=vario$var_model)
+            krigeLOO<-krige(as.formula("total_rf_mm_logC ~ 1") ,RF_day[-j,], RF_day[j,], model=vario$var_model,debug.level = 0)
             #back transform to rf mm and anom
             krig_logC<-krigeLOO$var1.pred
             if(!is.na(krig_logC)){
@@ -482,7 +482,7 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
         for(j in 1:nrow(RF_day)){
           check<-realFill(RF_day,RF_day_raw)[j] #check if real or gap fill val
           if(check){
-            krigeLOO<-krige(as.formula("RF_day_Anom_logK ~ 1") ,RF_day[-j,], RF_day[j,], model=vario$var_model)
+            krigeLOO<-krige(as.formula("RF_day_Anom_logK ~ 1") ,RF_day[-j,], RF_day[j,], model=vario$var_model,debug.level = 0)
             #back transform to rf mm and anom
             krig_logC_anom<-krigeLOO$var1.pred
             if(!is.na(krig_logC_anom)){
@@ -577,7 +577,7 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
     if(bestC==-1){ #make non-climate aid raster
       
       #raw krige
-      krigeObj<-krige(as.formula("total_rf_mm_logC ~ 1") ,RF_dayBestC, temppoints, model=varioBestC$var_model)
+      krigeObj<-krige(as.formula("total_rf_mm_logC ~ 1") ,RF_dayBestC, temppoints, model=varioBestC$var_model,debug.level = 0)
       krig_logC<-rasterize(krigeObj, Mean_RF, krigeObj$var1.pred) #make krig log points into raster
       krig_logC_SE<-rasterize(krigeObj, Mean_RF, krigeObj$var1.var) #make krig SD logk points into raster
       
@@ -596,7 +596,7 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
       Mean_RF<-(Mean_RF+bestC) #add best addC to mean
       
       #clim aid kriging
-      krigeObj<-krige(as.formula("RF_day_Anom_logK ~ 1") ,RF_dayBestC, temppoints, model=varioBestC$var_model)
+      krigeObj<-krige(as.formula("RF_day_Anom_logK ~ 1") ,RF_dayBestC, temppoints, model=varioBestC$var_model,debug.level = 0)
       krig_logC_anom<-rasterize(krigeObj, Mean_RF, krigeObj$var1.pred) #make krig log points into raster
       krig_logC_anom_SE<-rasterize(krigeObj, Mean_RF, krigeObj$var1.var) #make krig SD logk points into raster
       krig_logC_anom[krig_logC_anom>=708]<-700
