@@ -63,7 +63,7 @@ print("master meta added!")
 setwd(hads_daily_wd)#set data source wd
 hads_month_filename<-paste0(file_date,"_hads_daily_rf.csv")#dynamic file name that includes month year so when month is done new file is written
 hads<-read.csv.TC(hads_month_filename,HADS=TRUE)
-if(length(hads) > 0 && hads!="error"){  #did HADS month file exist? 
+if(isTRUE(hads!="error")){  #did HADS month file exist? 
  hads<-hads[,c("staID","date","rf")]
  names(hads)<-c("sourceID","date","x") #note 'source_id" IS "NESDIS.id" for hads
  hads$date<-as.Date(hads$date)
@@ -103,7 +103,7 @@ print("hads pau!")
 setwd(nws_daily_wd)#set data source wd
 nws_month_filename<-paste0(file_date,"_nws_daily_rf.csv")#dynamic file name that includes month year so when month is done new file is written
 nws<-read.csv.TC(nws_month_filename)
-if(length(nws) > 0 && nws!="error"){  #did nws month file exist? 
+if(isTRUE(nws!="error")){  #did nws month file exist? 
  nws<-nws[,c("nwsli","date","prec_mm_24hr")]
  names(nws)<-c("sourceID","date","x")
  nws$date<-as.Date(nws$date)#format as date
@@ -142,7 +142,7 @@ print("nws pau!")
 setwd(scan_daily_wd)#set data source wd
 scan_month_filename<-paste0(file_date,"_scan_daily_rf.csv")
 scan<-read.csv.TC(scan_month_filename)
-if(length(scan) > 0 && scan!="error"){  #did scan month file exist? 
+if(isTRUE(scan!="error")){  #did scan month file exist? 
  #subset 24hr obs
  names(scan)<-c("sourceID","date","x")
  scan$date<-as.Date(scan$date)
@@ -181,7 +181,7 @@ print("scan pau!")
 setwd(madis_daily_wd)#set data source wd
 madis_month_filename<-paste0(file_date,"_madis_daily_rf.csv")#dynamic file name that includes month year so when month is done new file is written
 madis<-read.csv.TC(madis_month_filename,HADS=TRUE)
-if(length(madis) > 0 && madis!="error"){  #did madis month file exist? 
+if(isTRUE(madis!="error")){  #did madis month file exist? 
  madis<-madis[,c("staID","date","rf")]
  names(madis)<-c("sourceID","date","x") #note 'source_id" IS "NWS.id" for madis
  madis$date<-as.Date(madis$date)
@@ -220,7 +220,7 @@ print("madis pau!")
 setwd(synoptic_daily_wd)#set data source wd
 synoptic_month_filename<-paste0(file_date,"_synoMeso_daily_rf.csv")#dynamic file name that includes month year so when month is done new file is written
 synoptic<-read.csv.TC(synoptic_month_filename,HADS=FALSE)
-if(length(synoptic) > 0 && synoptic!="error"){  #did synoptic month file exist? 
+if(isTRUE(synoptic!="error")){  #did synoptic month file exist? 
   synoptic<-synoptic[,c("staID","date","rf")]
   names(synoptic)<-c("sourceID","date","x")
   synoptic$date<-as.Date(synoptic$date)#format as date
