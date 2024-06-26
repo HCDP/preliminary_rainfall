@@ -149,15 +149,7 @@ for(i in unique(daily_rf$co)){
   setwd(qaqc_models_wd)
   modNZ<-readRDS(paste0(i,"_no_human_rf_nonzero_randfor.rds"))
   modZ<-readRDS(paste0(i,"_no_human_rf_zero_randfor.rds"))
-  close10DF<-close10RF(day_df=daily_rf_co,ln6moRas=state_6mo,lnAnnRas=state_ann)
-  daily_rf_co_pred<-pred_bad(close10DF,rfcol,modZ,modNZ)
-  if(daily_rf_co_pred[which.max(daily_rf_co_pred$probBad),"statusPred"]==1){
-    daily_rf_qaqc_fail<-rbind(daily_rf_qaqc_fail,daily_rf_co_pred[which.max(daily_rf_co_pred$probBad),])
-    daily_rf_co_pred<-daily_rf_co_pred[-which.max(daily_rf_co_pred$probBad),]
-  }
-  nbad<-sum(daily_rf_co_pred$statusPred)
-  while(nbad>0){
-    daily_rf_co<-daily_rf_co_pred[,1:4]
+  if(nrow(daily_rf_co)>=11){
     close10DF<-close10RF(day_df=daily_rf_co,ln6moRas=state_6mo,lnAnnRas=state_ann)
     daily_rf_co_pred<-pred_bad(close10DF,rfcol,modZ,modNZ)
     if(daily_rf_co_pred[which.max(daily_rf_co_pred$probBad),"statusPred"]==1){
@@ -165,9 +157,24 @@ for(i in unique(daily_rf$co)){
       daily_rf_co_pred<-daily_rf_co_pred[-which.max(daily_rf_co_pred$probBad),]
     }
     nbad<-sum(daily_rf_co_pred$statusPred)
-    if(nrow(daily_rf_co_pred)<=11){nbad<-0}
-  }#remove bad while loop
-  daily_rf_qaqc_pass<-rbind(daily_rf_qaqc_pass,daily_rf_co_pred)
+    while(nbad>0){
+      daily_rf_co<-daily_rf_co_pred[,1:4]
+      close10DF<-close10RF(day_df=daily_rf_co,ln6moRas=state_6mo,lnAnnRas=state_ann)
+      daily_rf_co_pred<-pred_bad(close10DF,rfcol,modZ,modNZ)
+      if(daily_rf_co_pred[which.max(daily_rf_co_pred$probBad),"statusPred"]==1){
+        daily_rf_qaqc_fail<-rbind(daily_rf_qaqc_fail,daily_rf_co_pred[which.max(daily_rf_co_pred$probBad),])
+        daily_rf_co_pred<-daily_rf_co_pred[-which.max(daily_rf_co_pred$probBad),]
+      }
+      nbad<-sum(daily_rf_co_pred$statusPred)
+      if(nrow(daily_rf_co_pred)<=11){nbad<-0}
+    }#remove bad while loop
+  }else{
+    daily_rf_co_pred<-daily_rf_co
+    daily_rf_co_pred$statusPred<-NA
+    daily_rf_co_pred$probBad<-NA
+  }
+    daily_rf_qaqc_pass<-rbind(daily_rf_qaqc_pass,daily_rf_co_pred)
+    
 }#co loop end
 e<-Sys.time()
 print("rf daily value screening...")
