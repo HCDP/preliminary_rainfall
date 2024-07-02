@@ -10,19 +10,24 @@ else
 fi
 echo "Aggregation date is: " $CUSTOM_DATE
 
-
 echo "[task.sh] [2/7] Acquiring Statewide Partially-filled Daily Rainfall data for this month."
 cd /home/hawaii_climate_products_container/
-echo "---monthly_rf_wget.sh---"
+
+echo "---begin monthly_rf_wget.sh---"
 #uses CUSTOM_DATE env variable for date
 bash /home/hawaii_climate_products_container/preliminary/rainfall/code/monthly/monthly_rf_wget.sh
+echo "---end monthly_rf_wget.sh---"
 
 echo "[task.sh] [3/7] Aggregating Rainfall data on the monthly timeframe."
 cd /home/hawaii_climate_products_container/preliminary/rainfall/code/monthly
-echo "---daily_to_monthly_agg_FINAL.R---"
+
+echo "---begin daily_to_monthly_agg_FINAL.R---"
 Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/monthly/daily_to_monthly_agg_FINAL.R $CUSTOM_DATE
-echo "---monthly_rf_krig_map_makr_FINAL.R---"
+echo "---end daily_to_monthly_agg_FINAL.R---"
+
+echo "---begin monthly_rf_krig_map_makr_FINAL.R---"
 Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/monthly/monthly_rf_krig_map_makr_FINAL.R $CUSTOM_DATE
+echo "---end monthly_rf_krig_map_makr_FINAL.R---"
 
 echo "[task.sh] [4/7] Preparing to upload intermediate products."
 cd /sync
