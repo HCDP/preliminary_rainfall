@@ -31,11 +31,11 @@ removeAllNA<-function(df){
     df[!is.na(df[,grep("X",names(df))]),]
   }
 }#remove rows where all months are NA
-makeMonthlyRF<-function(rf_month_df){
-  dateCols<-grep("X",names(rf_month_df)) #date col numbers
-  rf_month_sub<-rf_month_df[,c(1,dateCols)]#keep only SKN and RF cols
+makeMonthlyRF<-function(rf_day_month_df){
+  dateCols<-grep("X",names(rf_day_month_df)) #date col numbers
+  rf_month_sub<-rf_day_month_df[,c(1,dateCols)]#keep only SKN and RF cols
   rf_month_long<-melt(rf_month_sub, id=c("SKN"))
-  stations<-unique(rf_month_df$SKN)
+  stations<-unique(rf_day_month_df$SKN)
   rf_year_df<-data.frame()#blank df
   for(i in stations){
     rf_day_sta<-rf_month_long[rf_month_long$SKN==i,]
@@ -51,34 +51,104 @@ makeMonthlyRF<-function(rf_month_df){
   rf_month_final<-merge(geo_meta,rf_month_wide,by="SKN")
   return(rf_month_final)
 }
-RFMonthCheck<-function(rf_month_df,dataDate){
+RFMonthCheck<-function(rf_day_month_df,rf_month_df,dataDate,nSta){
   allMonthDays<-seq.Date(as.Date(format(dataDate,"%Y-%m-01")),dataDate,by="days")
-  countyMonthDayRF<-list(rf_month_df$Island=="BI",rf_month_df$Island=="MA"|rf_month_df$Island=="KO"|rf_month_df$Island=="MO"|rf_month_df$Island=="LA",rf_month_df$Island=="OA",rf_month_df$Island=="KA")
-  names(countyMonthDayRF)<-c("BI","MN","OA","KA")
-  allDataCheck<-data.frame()
+  countyMonthDayRF<-list(rf_day_month_df$Island=="BI",rf_day_month_df$Island=="MA"|rf_day_month_df$Island=="KO"|rf_day_month_df$Island=="MO"|rf_day_month_df$Island=="LA",rf_day_month_df$Island=="OA",rf_day_month_df$Island=="KA")
   counties<-c("BI","MN","OA","KA")
+  names(countyMonthDayRF)<-c("BI","MN","OA","KA")
+  StaCounties<-ifelse(rf_month_df$Island=="MA"|rf_month_df$Island=="KO"|rf_month_df$Island=="MO"|rf_month_df$Island=="LA","MN",rf_month_df$Island)
+  allDataCheck<-data.frame()
   for(c in counties){
-    co_rf_month_df<-rf_month_df[countyMonthDayRF[[c]],]
-    dateCols<-grep("X",names(co_rf_month_df)) #date col numbers
-    #co_rf_month_df<-co_rf_month_df[,dateCols]
-    #co_rf_month_df <- co_rf_month_df[,colSums(is.na(co_rf_month_df))<nrow(co_rf_month_df)]    
-    colDates<-as.Date(names(co_rf_month_df)[dateCols],format="X%Y.%m.%d")
+    co_rf_day_month_df<-rf_day_month_df[countyMonthDayRF[[c]],]
+    co_rf_month_df<-rf_month_df[StaCounties==c,]
+    dateCols<-grep("X",names(co_rf_day_month_df)) #date col numbers
+    #co_rf_day_month_df<-co_rf_day_month_df[,dateCols]
+    #co_rf_day_month_df <- co_rf_day_month_df[,colSums(is.na(co_rf_day_month_df))<nrow(co_rf_day_month_df)]    
+    colDates<-as.Date(names(co_rf_day_month_df)[dateCols],format="X%Y.%m.%d")
+    co_rf_day_month_df_dates<-co_rf_day_month_df[,c(1,dateCols)]
     coDataCheck<-data.frame(yearMonth=format(dataDate,"X%Y.%m"),County=c,
-                            CountRFstation=nrow(co_rf_month_df),
-                            TotalMissingRFdays=sum(!allMonthDays%in%colDates),    
+                            MaximumRFstation=nrow(co_rf_day_month_df),
+                            CompleteMonthRFstation=sum(complete.cases(co_rf_day_month_df_dates)),
+                            MonthyPCstations=nrow(co_rf_month_df)-sum(complete.cases(co_rf_day_month_df_dates)),
+                            DailyQAQCperformed=sum(complete.cases(co_rf_day_month_df_dates))>=nSta,
+                            TotalMissingRFdays=sum(!allMonthDays%in%colDates),  
                             MissingRFdays=paste(allMonthDays[!allMonthDays%in%colDates],collapse = ","))
     allDataCheck<-rbind(allDataCheck,coDataCheck)
   }
-  dateColsAll<-grep("X",names(rf_month_df)) #date col numbers
-  colDatesAll<-as.Date(names(rf_month_df)[dateCols],format="X%Y.%m.%d")
+  dateColsAll<-grep("X",names(rf_day_month_df)) #date col numbers
+  colDatesAll<-as.Date(names(rf_day_month_df)[dateCols],format="X%Y.%m.%d")
   allDataCheck<-rbind(allDataCheck,
                       data.frame(yearMonth=format(dataDate,"X%Y.%m"),County="All",
-                                 CountRFstation=sum(allDataCheck$CountRFstation),
+                                 MaximumRFstation=sum(allDataCheck$MaximumRFstation),
+                                 CompleteMonthRFstation=sum(allDataCheck$CompleteMonthRFstation),
+                                 MonthyPCstations=sum(allDataCheck$MonthyPCstations),
+                                 DailyQAQCperformed=NA,
                                  TotalMissingRFdays=sum(!allMonthDays%in%colDatesAll),    
                                  MissingRFdays=paste(allMonthDays[!allMonthDays%in%colDatesAll],collapse = ","))
                       )
+  
   return(allDataCheck)
 }
+MonthPC2rf<-function(doi,missingCo){
+  
+  firstDate<-as.Date(format(doi,"%Y-%m-01"))
+  lastDate<-doi
+  
+  dtoi1<-strptime(paste(firstDate, "00:00:00"),format="%Y-%m-%d %H:%M:%S")
+  dtoi2<-strptime(paste(lastDate+1, "00:00:00"),format="%Y-%m-%d %H:%M:%S")
+  attr(dtoi1,"tzone") <- "Pacific/Honolulu" #convert TZ attribute to HST
+  attr(dtoi2,"tzone") <- "Pacific/Honolulu" #convert TZ attribute to HST
+  
+  #hads url
+  URL<-"https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/workflow_data/preliminary/data_aqs/data_outputs/hads/parse/"
+  
+  #get first day of month hads
+  file<-paste0(format(firstDate,"%Y%m%d"),"_hads_parsed.csv")
+  firstHADS<-read.csv(paste0(URL,file))
+  
+  #get last day of month hads
+  file<-paste0(format(lastDate,"%Y%m%d"),"_hads_parsed.csv")
+  lastHADS<-read.csv(paste0(URL,file))
+  
+  #rbind together
+  allHADS<-rbind(firstHADS,lastHADS)
+  hads_pc<-subset(allHADS,var=="PC")# subset precip only
+  hads_pc$random<-trimws(as.character(hads_pc$random))
+  hads_pc<-subset(hads_pc, random == "" | is.na(random))[,-c(6)] #remove random samples and random col
+  hads_pc$value<-hads_pc$value*25.4 #convert to MM
+  hads_pc<-hads_pc[complete.cases(hads_pc),] #remove NA rows
+  hads_pc$obs_time<-strptime(hads_pc$obs_time, format="%Y-%m-%d %H:%M", tz="UTC")
+  attr(hads_pc$obs_time,"tzone") <- "Pacific/Honolulu" #convert TZ attribute to HST
+  hads_pc$obs_time<-(hads_pc$obs_time-36000) #minus 10 hrs for UTC to HST
+  
+  #pc1
+  hads_pc1<-hads_pc[hads_pc$obs_time==dtoi1,]  #subset only matching date time pc obs
+  hads_pc1<-hads_pc1[,c("staID","NWS_sid","value")]
+  names(hads_pc1)[ncol(hads_pc1)]<-"PC1"
+  row.names(hads_pc1)<-NULL
+  #pc2
+  hads_pc2<-hads_pc[hads_pc$obs_time==dtoi2,]  #subset only matching date time pc obs
+  hads_pc2<-hads_pc2[,c("staID","value")]
+  names(hads_pc2)[ncol(hads_pc2)]<-"PC2"
+  row.names(hads_pc2)<-NULL
+  
+  #merge
+  mergedPC<-merge(hads_pc1,hads_pc2,by="staID")
+  mergedPC$PCdiff<-mergedPC$PC2-mergedPC$PC1
+  mergedPC<-mergedPC[mergedPC$PCdiff>=0 & !is.na(mergedPC$PCdiff),c("staID","PCdiff")] #subset minus values
+  
+  #add metadata
+  subCols<-c(names(geo_meta),"PCdiff")
+  meta_mergedPC<-merge(geo_meta,mergedPC,by.x="NESDIS.id",by.y="staID")
+  StaCounties<-ifelse(meta_mergedPC$Island=="MA"|meta_mergedPC$Island=="KO"|meta_mergedPC$Island=="MO"|meta_mergedPC$Island=="LA","MN",
+                      meta_mergedPC$Island)
+  
+  #make month matching DF 
+  meta_mergedPC<-meta_mergedPC[StaCounties %in% missingCo,subCols]
+  names(meta_mergedPC)[ncol(meta_mergedPC)]<-format(firstDate,"X%Y.%m") #change RF name
+  row.names(meta_mergedPC)<-NULL
+  return(meta_mergedPC)
+}#end MonthPC2rf
 appendMonthCol<-function(yearDF,monthDF,metafile,rf_col){
   sub_cols<-c(1,grep("X",names(yearDF)))
   sub_cols<-sub_cols[sub_cols!=rf_col]
@@ -128,6 +198,22 @@ str(rf_month_wide)
 head(rf_month_wide)
 tail(rf_month_wide)
 
+#monthly rf check 
+nSta<-10 #min stations per county
+rf_month_track<-RFMonthCheck(rf_month_df,rf_month_wide,dataDate,nSta)
+
+#check each county has station data and run stop gap month hads process if county has no stations
+rf_month_track<-rf_month_track[rf_month_track$County!="All",]
+missingCo<-rf_month_track[rf_month_track$CompleteMonthRFstation<nSta,"County"]
+
+#get hads PC stations for county month values
+if(length(missingCo)>0){
+  missingCoRF<-MonthPC2rf(doi=dataDate,missingCo=missingCo)
+  rf_month_wide<-rbind(rf_month_wide,missingCoRF)
+  rf_month_wide<-rf_month_wide[!duplicated(rf_month_wide$SKN),]
+  rf_month_track<-RFMonthCheck(rf_month_df,rf_month_wide,dataDate,nSta)
+}
+
 #save monthly rf annual file table
 setwd(outDir)
 filename<-paste0("Statewide_Partial_Filled_Monthly_RF_mm_",fileYear,".csv") #dynamic file name that includes year of file
@@ -148,9 +234,6 @@ if(file.exists(filename)){ #check if downloaded file is in wd
 #sub county data and save
 stateCoList<-stateSubCounty(stateFile=yearFile,stateName=filename,outdirCounty=outdirCounty,writeCo=TRUE)
 head(stateCoList) #county sub list
-
-#monthly rf check 
-rf_month_track<-RFMonthCheck(rf_month_df,dataDate)
 
 #write monthly check
 setwd(outDirTrack)
