@@ -181,7 +181,12 @@ stateSubCounty<-function(stateFile,stateName=NA,outdirCounty=NA,writeCo=F){
   }#end county loop
   return(stateCoList)
 }#county sub function
-
+rbind.all.columns <- function(x, y) {     #function to smart rbind
+  x.diff <- setdiff(colnames(x), colnames(y))
+  y.diff <- setdiff(colnames(y), colnames(x))
+  x[, c(as.character(y.diff))] <- NA 
+  y[, c(as.character(x.diff))] <- NA 
+  return(rbind(x, y))}
 #add master metadata with SKN and lat long
 meta_url <- "https://raw.githubusercontent.com/ikewai/hawaii_wx_station_mgmt_container/main/Hawaii_Master_Station_Meta.csv"
 geo_meta<-read.csv(meta_url, colClasses=c("NESDIS.id"="character"))
@@ -240,7 +245,8 @@ setwd(outDirTrack)
 rf_month_track_filename<-paste0(fileYear,"_count_log_monthly_rf.csv") #dynamic file name
 
 if(file.exists(rf_month_track_filename)){
-  write.table(rf_month_track,rf_month_track_filename, row.names=F,sep = ",",col.names = F, append = T)
+  rf_month_track<-rbind.all.columns(read.csv(rf_month_track_filename),rf_month_track) #load old table and append new table
+  write.csv(rf_month_track,rf_month_track_filename, row.names=F) #write appended table
   print(paste(rf_month_track_filename,"monthly station count appended!"))
 }else{
   write.csv(rf_month_track,rf_month_track_filename, row.names=F)
