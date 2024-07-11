@@ -126,7 +126,7 @@ hads_daily_pp_rf<-data.frame()
 stations<-unique(all_hads_pp$staID)
 
 #start daily RF loop for PP
-print("daily rf loop started...")
+print("PP daily rf loop started...")
 for(j in stations){
   sta_data<-subset(all_hads_pp,staID==j)
   sta_data_xts<-xts(sta_data$value,order.by=sta_data$obs_time,unique = TRUE) #make xtended timeseries object
@@ -144,7 +144,7 @@ for(j in stations){
     hads_daily_pp_rf<-rbind(hads_daily_pp_rf,sta_daily_df)
   }
 }
-print("loop complete!")
+print("PP loop complete!")
 
 #head(hads_daily_pp_rf)
 #tail(hads_daily_pp_rf)
@@ -161,7 +161,6 @@ row.names(hads_daily_pp_rf)<-NULL #rename rows
 ##process PC vars
 all_hads_pc<-subset(all_hads_pc_pp,var=="PC")# subset precip only
 str(all_hads_pc)
-all_hads_pc[all_hads_pc$staID=="1560740C","obs_time"]
 
 #blank DF to store daily data
 hads_daily_pc_rf<-data.frame()
@@ -170,7 +169,7 @@ hads_daily_pc_rf<-data.frame()
 stations<-unique(all_hads_pc$staID)
 
 #start daily RF loop for PC
-print("daily rf loop started...")
+print("PC daily rf loop started...")
 for(j in stations){
   sta_data<-subset(all_hads_pc,staID==j)
   sta_data_xts<-xts(sta_data$value,order.by=sta_data$obs_time,unique = TRUE) #make xtended timeseries object
@@ -190,7 +189,7 @@ for(j in stations){
     hads_daily_pc_rf<-rbind(hads_daily_pc_rf,sta_daily_df)
   }
 }
-print("loop complete!")
+print("PC loop complete!")
 
 #head(hads_daily_pc_rf)
 #tail(hads_daily_pc_rf)
