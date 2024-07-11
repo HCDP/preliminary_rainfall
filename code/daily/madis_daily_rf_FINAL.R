@@ -238,10 +238,10 @@ rf_month_filename<-paste0(format((currentDate),"%Y_%m"),"_madis_daily_rf.csv") #
 
 #local write/append
 if(file.exists(rf_month_filename)){
-	 write.table(madis_daily_rf_today_final,rf_month_filename, row.names=F,sep = ",", col.names = F, append = T)
+	 write.table(all_madis_daily_rf_final,rf_month_filename, row.names=F,sep = ",", col.names = F, append = T)
 	 print(paste(rf_month_filename,"appended"))
       }else{
-	 write.csv(madis_daily_rf_today_final,rf_month_filename, row.names=F)
+	 write.csv(all_madis_daily_rf_final,rf_month_filename, row.names=F)
 	 print(paste(rf_month_filename,"written"))
       }
 
