@@ -11,7 +11,7 @@
         "db_write_api_url": "https://cistore.its.hawaii.edu"
     },
     "data": [
-        {   "replace_duplicates": true,
+        {   "replace_duplicates": false,
             "data_col_start": 13,
             "id_col": 0,
             "nodata": "NA",
