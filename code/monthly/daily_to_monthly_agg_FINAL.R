@@ -17,7 +17,7 @@ outdirCounty<-paste0(mainDir,"/rainfall/data_outputs/tables/station_data/monthly
 
 #define date
 source(paste0(codeDir,"/dataDateFunc.R"))
-dataDate<-dataDateMkr("2024-06-30") #function for importing/defining date as input or as yesterday
+dataDate<-dataDateMkr() #function for importing/defining date as input or as yesterday
 fileDate<-format(dataDate,"%Y_%m")
 fileYear<-format(dataDate,"%Y")
 rf_col<-paste0("X",format(dataDate,"%Y.%m"))#define rf day col name
@@ -150,17 +150,22 @@ MonthPC2rf<-function(doi,missingCo){
   return(meta_mergedPC)
 }#end MonthPC2rf
 appendMonthCol<-function(yearDF,monthDF,metafile,rf_col){
-  sub_cols<-c(1,grep("X",names(yearDF)))
-  sub_cols<-sub_cols[sub_cols!=rf_col]
-  yearDFsub<-yearDF[,sub_cols]#keep only SKN and monthly RF cols
-  monthDF<-monthDF[,c(1,grep("X",names(monthDF)))]#keep only SKN and monthly RF cols
-  yearDFsub<-merge(metafile,yearDFsub,by="SKN",all=T)
-  yearDFsub<-yearDFsub[,c(1,grep("X",names(yearDFsub)))]#keep only SKN and monthly RF cols
-  monthDF<-merge(metafile,monthDF,by="SKN",all=T)
-  monthDF<-monthDF[,c(1,grep("X",names(monthDF)))]#keep only SKN and monthly RF cols
-  yearDFsub<-merge(yearDFsub,monthDF,by="SKN")
-  yearDFsub<-removeAllNA(yearDFsub)
-  yearFinal<-merge(metafile,yearDFsub,by="SKN")
+  yearDFcols<-names(yearDF)
+  yearDFcols<-yearDFcols[yearDFcols!=rf_col]
+  sub_cols<-c(1,grep("X",yearDFcols))
+  if(length(sub_cols)>1){
+    yearDFsub<-yearDF[,sub_cols]#keep only SKN and monthly RF cols
+    monthDF<-monthDF[,c(1,grep("X",names(monthDF)))]#keep only SKN and monthly RF cols
+    yearDFsub<-merge(metafile,yearDFsub,by="SKN",all=T)
+    yearDFsub<-yearDFsub[,c(1,grep("X",names(yearDFsub)))]#keep only SKN and monthly RF cols
+    monthDF<-merge(metafile,monthDF,by="SKN",all=T)
+    monthDF<-monthDF[,c(1,grep("X",names(monthDF)))]#keep only SKN and monthly RF cols
+    yearDFsub<-merge(yearDFsub,monthDF,by="SKN")
+    yearDFsub<-removeAllNA(yearDFsub)
+    yearFinal<-merge(metafile,yearDFsub,by="SKN")
+  }else{
+    yearFinal<-monthDF
+  }
   message("month added to year!")
   return(yearFinal)
 }
@@ -247,7 +252,7 @@ if(file.exists(filename)){ #check if downloaded file is in wd
 
 #sub county data and save
 stateCoList<-stateSubCounty(stateFile=yearFile,stateName=filename,outdirCounty=outdirCounty,writeCo=TRUE)
-head(stateCoList) #county sub list
+#head(stateCoList) #county sub list
 
 #write monthly check
 setwd(outDirTrack)
