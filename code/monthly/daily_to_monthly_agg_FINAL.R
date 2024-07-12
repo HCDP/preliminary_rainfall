@@ -17,10 +17,10 @@ outdirCounty<-paste0(mainDir,"/rainfall/data_outputs/tables/station_data/monthly
 
 #define date
 source(paste0(codeDir,"/dataDateFunc.R"))
-dataDate<-dataDateMkr() #function for importing/defining date as input or as yesterday
+dataDate<-dataDateMkr("2024-06-30") #function for importing/defining date as input or as yesterday
 fileDate<-format(dataDate,"%Y_%m")
 fileYear<-format(dataDate,"%Y")
-rf_col<-paste0("X",format(dataDate,"%Y.%m.%d"))#define rf day col name
+rf_col<-paste0("X",format(dataDate,"%Y.%m"))#define rf day col name
 print(dataDate)
 
 #custom functions
@@ -190,22 +190,29 @@ rbind.all.columns <- function(x, y) {     #function to smart rbind
 #add master metadata with SKN and lat long
 meta_url <- "https://raw.githubusercontent.com/ikewai/hawaii_wx_station_mgmt_container/main/Hawaii_Master_Station_Meta.csv"
 geo_meta<-read.csv(meta_url, colClasses=c("NESDIS.id"="character"))
-head(geo_meta)
+#head(geo_meta)
 
-#add daily rf monthly file
+#add daily rf monthly file local
 setwd(inDir) #wd of & monthly and daily rf data
 rf_month_df<-read.csv(paste0("Statewide_Partial_Filled_Daily_RF_mm_",fileDate,".csv"))
 head(rf_month_df)
 
+# #add daily rf monthly file url
+# URL<-"https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/workflow_data/preliminary/rainfall/data_outputs/tables/station_data/daily/partial_filled/statewide/"
+# rf_month_df<-read.csv(paste0(URL,"Statewide_Partial_Filled_Daily_RF_mm_",fileDate,".csv"))
+# head(rf_month_df)
+
 #make monthly
-rf_month_wide<-makeMonthlyRF(rf_month_df) #subset station loop to process monthly agg 
-str(rf_month_wide)
-head(rf_month_wide)
-tail(rf_month_wide)
+rf_month_wide<-makeMonthlyRF(rf_day_month_df=rf_month_df) #subset station loop to process monthly agg 
+#str(rf_month_wide)
+#head(rf_month_wide)
+#tail(rf_month_wide)
 
 #monthly rf check 
 nSta<-10 #min stations per county
 rf_month_track<-RFMonthCheck(rf_month_df,rf_month_wide,dataDate,nSta)
+print("station tracking...")
+print(rf_month_track)
 
 #check each county has station data and run stop gap month hads process if county has no stations
 rf_month_track<-rf_month_track[rf_month_track$County!="All",]
@@ -217,6 +224,8 @@ if(length(missingCo)>0){
   rf_month_wide<-rbind(rf_month_wide,missingCoRF)
   rf_month_wide<-rf_month_wide[!duplicated(rf_month_wide$SKN),]
   rf_month_track<-RFMonthCheck(rf_month_df,rf_month_wide,dataDate,nSta)
+  print("station tracking REDO...")
+  print(rf_month_track)
 }
 
 #save monthly rf annual file table
@@ -252,7 +261,7 @@ if(file.exists(rf_month_track_filename)){
   write.csv(rf_month_track,rf_month_track_filename, row.names=F)
   print(paste(rf_month_track_filename,"monthly station count written!"))
 }
-print("final station count table below...")
-print(rf_month_track) #station count and missing day check per county and statewide
 
+
+print("day to month rf pau!")
 #PAU
