@@ -3,11 +3,14 @@ echo "[task.sh] [1/7] Starting Execution."
 export TZ="HST"
 echo "It is currently $(date)."
 if [ $CUSTOM_DATE ]; then
+    export CUSTOM_DATE=$(date -d "$CUSTOM_DATE" +"%Y-%m-01")
+    export CUSTOM_DATE=$(date -d "$CUSTOM_DATE +1 month -1 day" --iso-8601)
     echo "An aggregation date was provided by the environment."
 else
-    export CUSTOM_DATE=$(date -d "1 month ago" --iso-8601)
+    export CUSTOM_DATE=$(date -d "-$(date +%d) days" --iso-8601)
     echo "No aggregation date was provided by the environment. Defaulting to last month."
 fi
+
 echo "Aggregation date is: " $CUSTOM_DATE
 
 echo "[task.sh] [2/7] Acquiring Statewide Partially-filled Daily Rainfall data for this month."
