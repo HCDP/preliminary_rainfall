@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "[task.sh] [1/7] Starting Execution."
+echo "[task.sh] [1/5] Starting Execution."
 export TZ="HST"
 echo "It is currently $(date)."
 if [ $CUSTOM_DATE ]; then
@@ -10,12 +10,12 @@ else
 fi
 echo "Aggregation date is: " $CUSTOM_DATE
 
-echo "[task.sh] [2/7] Acquiring yesterday's cumulative aggregation files, if exists."
+echo "[task.sh] [2/5] Acquiring yesterday's cumulative aggregation files, if exists."
 echo "---begin daily_rf_wget.sh---"
 bash /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/daily_rf_wget.sh
 echo "---end daily_rf_wget.sh---"
 
-echo "[task.sh] [3/7] Aggregating Rainfall data on the daily timeframe."
+echo "[task.sh] [3/5] Aggregating Rainfall data on the daily timeframe."
 echo "---begin hads_daily_rf_FINAL.R---"
 Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/hads_daily_rf_FINAL.R $CUSTOM_DATE
 echo "---end hads_daily_rf_FINAL.R---"
@@ -52,22 +52,13 @@ echo "---begin daily_rf_krig_map_makr_FINAL.R---"
 Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/daily_rf_krig_map_makr_FINAL.R $CUSTOM_DATE
 echo "---end daily_rf_krig_map_makr_FINAL.R---"
 
-echo "[task.sh] [4/7] Preparing for intermediate data upload."
+echo "[task.sh] [4/5] Preparing upload config."
 cd /sync
-python3 update_date_string_in_config.py intermediate_upload_config.json intermediate_upload_config_datestrings_loaded.json $CUSTOM_DATE
-python3 add_upload_list_to_config.py intermediate_upload_config_datestrings_loaded.json config.json
-python3 add_auth_info_to_config.py config.json
-
-echo "[task.sh] [5/7] Attempting to upload the aggregated intermediate data."
-python3 upload.py
-
-echo "[task.sh] [6/7] Preparing for production data upload."
-cd /sync
-python3 update_date_string_in_config.py upload_config.json upload_config_datestrings_loaded.json $CUSTOM_DATE
+python3 update_date_string_in_config.py upload.json upload_config_datestrings_loaded.json $CUSTOM_DATE
 python3 add_upload_list_to_config.py upload_config_datestrings_loaded.json config.json
 python3 add_auth_info_to_config.py config.json
 
-echo "[task.sh] [7/7] Attempting to upload the aggregated production data."
+echo "[task.sh] [5/5] Uploading data."
 python3 upload.py
 
 echo "[task.sh] All done!"

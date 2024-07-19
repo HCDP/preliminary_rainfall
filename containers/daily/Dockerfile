@@ -21,18 +21,14 @@ ADD /code/source /home/hawaii_climate_products_container/preliminary/rainfall/co
 
 ADD /tools /sync
 
-
 RUN mkdir -p /home/hawaii_climate_products_container/preliminary/rainfall/code/daily
 ADD /code/daily /home/hawaii_climate_products_container/preliminary/rainfall/code/daily
 
 # Add upload config
-ADD /containers/daily/configs/upload/upload_config.json /sync/upload_config.json
+ADD /containers/daily/configs/upload.json /sync/upload.json
 
 # Add the task wrapper script.
 ADD /containers/daily/task.sh /actor/task.sh
-
-# Get the container's upload configs.
-ADD /containers/daily/configs/upload /sync
 
 # This container is intended to run the task wrapper at launch, unless otherwise specified at run-time.
 CMD [ "/bin/bash", "/actor/task.sh" ]

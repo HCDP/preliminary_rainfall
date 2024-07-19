@@ -1,0 +1,49 @@
+{
+    "tapis_config": {
+        "tenant_url": "https://agaveauth.its.hawaii.edu",
+        "hcdp_api_url": "https://cistore.its.hawaii.edu",
+        "retry": 3
+    },
+    "data": [
+        {   
+            "replace_duplicates": true,
+            "data_col_start": 13,
+            "id_col": 0,
+            "nodata": "NA",
+            "datatype": "rainfall",
+            "period": "day",
+            "start_date": "%y-%m-%d", 
+            "end_date": "%y-%m-%d",
+            "fill": "partial",
+            "additional_properties": {
+                "production": "new"
+            },
+            "additional_key_properties": [
+                "production"
+            ],
+            "files": [
+                "https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/production/rainfall/new/day/statewide/partial/station_data/%y/%m/rainfall_new_day_statewide_partial_station_data_%y_%m.csv"
+            ]
+        },
+        {  
+            "replace_duplicates": true,
+            "data_col_start": 13,
+            "id_col": 0,
+            "nodata": "NA",
+            "datatype": "rainfall",
+            "period": "day",
+            "start_date": "%y-%m-%d", 
+            "end_date": "%y-%m-%d",
+            "fill": "raw",
+            "additional_properties": {
+                "production": "new"
+            },
+            "additional_key_properties": [
+                "production"
+            ],
+            "files": [
+                "https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/production/rainfall/new/day/statewide/raw/station_data/%y/%m/rainfall_new_day_statewide_raw_station_data_%y_%m.csv"
+            ]
+        }
+    ]
+}
