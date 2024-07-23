@@ -31,9 +31,9 @@ config["agave_options"]["api_secret"] = os.environ["IW_API_SECRET"]
 
 inject_date = datetime.fromisoformat(date_s)
 config_s = json.dumps(config, indent = 4)
-config_s = data.replace("%y", inject_date.strftime("%Y"))
-config_s = data.replace("%m", inject_date.strftime("%m"))
-config_s = data.replace("%d", inject_date.strftime("%d"))
+config_s = config_s.replace("%y", inject_date.strftime("%Y"))
+config_s = config_s.replace("%m", inject_date.strftime("%m"))
+config_s = config_s.replace("%d", inject_date.strftime("%d"))
 
 # write updated config
 with open(config_file, "w") as f:
