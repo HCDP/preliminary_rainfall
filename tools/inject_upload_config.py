@@ -1,4 +1,5 @@
-import json, sys
+import json, sys, os
+from datetime import datetime
 
 config_file = sys.argv[1]
 date_s = sys.argv[2]
