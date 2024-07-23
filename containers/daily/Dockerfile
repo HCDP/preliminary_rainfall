@@ -25,7 +25,7 @@ RUN mkdir -p /home/hawaii_climate_products_container/preliminary/rainfall/code/d
 ADD /code/daily /home/hawaii_climate_products_container/preliminary/rainfall/code/daily
 
 # Add upload config
-ADD /containers/daily/configs/upload.json /sync/upload.json
+ADD /containers/daily/configs/upload.json /sync/config.json
 
 # Add the task wrapper script.
 ADD /containers/daily/task.sh /actor/task.sh
