@@ -1,7 +1,7 @@
 {
     "tapis_config": {
         "tenant_url": "https://agaveauth.its.hawaii.edu",
-        "hcdp_api_url": "https://cistore.its.hawaii.edu",
+        "hcdp_api_url": "https://api.hcdp.ikewai.org",
         "retry": 3
     },
     "data": [

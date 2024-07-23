@@ -54,9 +54,7 @@ echo "---end daily_rf_krig_map_makr_FINAL.R---"
 
 echo "[task.sh] [4/5] Preparing upload config."
 cd /sync
-python3 update_date_string_in_config.py upload.json upload_config_datestrings_loaded.json $CUSTOM_DATE
-python3 add_upload_list_to_config.py upload_config_datestrings_loaded.json config.json
-python3 add_auth_info_to_config.py config.json
+python3 inject_upload_config.py upload.json $CUSTOM_DATE
 
 echo "[task.sh] [5/5] Uploading data."
 python3 upload.py
