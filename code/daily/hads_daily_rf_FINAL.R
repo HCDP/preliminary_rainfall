@@ -19,7 +19,7 @@ agg_daily_wd<-paste0(mainDir,"/rainfall/working_data/hads")
 
 #define dates
 source(paste0(codeDir,"/dataDateFunc.R"))
-dataDate<-dataDateMkr() #function for importing/defining date as input or as yesterday
+dataDate<-dataDateMkr("2020-01-01") #function for importing/defining date as input or as yesterday
 currentDate<-dataDate #dataDate as currentDate
 
 #functions
@@ -119,96 +119,124 @@ all_hads_pc_pp$obs_time<-(all_hads_pc_pp$obs_time)-1 #minus 1 second to put midn
 all_hads_pp<-subset(all_hads_pc_pp,var=="PP")# subset precip only
 str(all_hads_pp)
 
-#blank DF to store daily data
-hads_daily_pp_rf<-data.frame()
 
-#unique hads stations
-stations<-unique(all_hads_pp$staID)
 
-#start daily RF loop for PP
-print("PP daily rf loop started...")
-for(j in stations){
-  sta_data<-subset(all_hads_pp,staID==j)
-  sta_data_xts<-xts(sta_data$value,order.by=sta_data$obs_time,unique = TRUE) #make xtended timeseries object
-  sta_data_xts_sub<- sta_data_xts[!duplicated(index(sta_data_xts)),] #remove duplicate time obs
-  if(nrow(sta_data_xts_sub)>=23){
-    sta_data_hrly_xts<-apply.hourly(sta_data_xts_sub,FUN=sum,roundtime = "trunc")#agg to hourly and truncate hour
-    indexTZ(sta_data_hrly_xts) <- "Pacific/Honolulu"
-    sta_data_daily_xts<-apply.daily(sta_data_hrly_xts,FUN=sum,na.rm = F)#daily sum of all all lag observations
-    obs_ints<-diff(index(sta_data_xts_sub),lag=1) #calculate vector of obs intervals
-    obs_int_hr<-getmode(as.numeric(obs_ints, units="hours"))
-    obs_int_minutes<-obs_int_hr*60
-    obs_per_day<-((1/obs_int_hr)*24)#calculate numbers of obs per day based on obs interval
-    sta_per_obs_daily_xts<-as.numeric(apply.daily(sta_data_xts_sub,FUN=length)/obs_per_day)#vec of % percentage of obs per day
-    sta_daily_df<-data.frame(NWS_sid=rep(as.character(unique(sta_data$NWS_sid)),length(sta_data_daily_xts)),staID=rep(as.character(j),length(sta_data_daily_xts)),date=as.Date(strptime(index(sta_data_daily_xts),format="%Y-%m-%d %H:%M"),format="%Y-%m-%d"),obs_int_mins=rep(obs_int_minutes,length(sta_data_daily_xts)),data_per=sta_per_obs_daily_xts,rf=sta_data_daily_xts)#make df row
-    hads_daily_pp_rf<-rbind(hads_daily_pp_rf,sta_daily_df)
+if(nrow(all_hads_pp)>0){ #run loop if pp subset has any data
+  #blank DF to store daily data
+  hads_daily_pp_rf<-data.frame()
+  
+  #unique hads stations
+  stations<-unique(all_hads_pp$staID)
+  
+  #start daily RF loop for PP
+  print("PP daily rf loop started...")
+  for(j in stations){
+    sta_data<-subset(all_hads_pp,staID==j)
+    sta_data_xts<-xts(sta_data$value,order.by=sta_data$obs_time,unique = TRUE) #make xtended timeseries object
+    sta_data_xts_sub<- sta_data_xts[!duplicated(index(sta_data_xts)),] #remove duplicate time obs
+    if(nrow(sta_data_xts_sub)>=23){
+      sta_data_hrly_xts<-apply.hourly(sta_data_xts_sub,FUN=sum,roundtime = "trunc")#agg to hourly and truncate hour
+      indexTZ(sta_data_hrly_xts) <- "Pacific/Honolulu"
+      sta_data_daily_xts<-apply.daily(sta_data_hrly_xts,FUN=sum,na.rm = F)#daily sum of all all lag observations
+      obs_ints<-diff(index(sta_data_xts_sub),lag=1) #calculate vector of obs intervals
+      obs_int_hr<-getmode(as.numeric(obs_ints, units="hours"))
+      obs_int_minutes<-obs_int_hr*60
+      obs_per_day<-((1/obs_int_hr)*24)#calculate numbers of obs per day based on obs interval
+      sta_per_obs_daily_xts<-as.numeric(apply.daily(sta_data_xts_sub,FUN=length)/obs_per_day)#vec of % percentage of obs per day
+      sta_daily_df<-data.frame(NWS_sid=rep(as.character(unique(sta_data$NWS_sid)),length(sta_data_daily_xts)),staID=rep(as.character(j),length(sta_data_daily_xts)),date=as.Date(strptime(index(sta_data_daily_xts),format="%Y-%m-%d %H:%M"),format="%Y-%m-%d"),obs_int_mins=rep(obs_int_minutes,length(sta_data_daily_xts)),data_per=sta_per_obs_daily_xts,rf=sta_data_daily_xts)#make df row
+      hads_daily_pp_rf<-rbind(hads_daily_pp_rf,sta_daily_df)
+    }
   }
+  print("PP loop complete!")
+  
+  #head(hads_daily_pp_rf)
+  #tail(hads_daily_pp_rf)
+  
+  #subset yesterday 
+  hads_daily_pp_rf<-hads_daily_pp_rf[hads_daily_pp_rf$date==(currentDate),]#subset yesterday
+
+  #subset 95% data
+  hads_daily_pp_rf<-hads_daily_pp_rf[hads_daily_pp_rf$data_per>=0.95,]#subset days with at least 95% data
+  hads_daily_pp_rf<-hads_daily_pp_rf[order(hads_daily_pp_rf$data_per,decreasing = T),] #sort descending by data percent
+  row.names(hads_daily_pp_rf)<-NULL #rename rows
+}else{
+  hads_daily_pp_rf<-data.frame()
 }
-print("PP loop complete!")
-
-#head(hads_daily_pp_rf)
-#tail(hads_daily_pp_rf)
-
-#subset yesterday 
-hads_daily_pp_rf<-hads_daily_pp_rf[hads_daily_pp_rf$date==(currentDate),]#subset yesterday
-
-#subset 95% data
-hads_daily_pp_rf<-hads_daily_pp_rf[hads_daily_pp_rf$data_per>=0.95,]#subset days with at least 95% data
-hads_daily_pp_rf<-hads_daily_pp_rf[order(hads_daily_pp_rf$data_per,decreasing = T),] #sort descending by data percent
-row.names(hads_daily_pp_rf)<-NULL #rename rows
-
 
 ##process PC vars
 all_hads_pc<-subset(all_hads_pc_pp,var=="PC")# subset precip only
 str(all_hads_pc)
 
-#blank DF to store daily data
-hads_daily_pc_rf<-data.frame()
-
-#unique hads stations
-stations<-unique(all_hads_pc$staID)
-
-#start daily RF loop for PC
-print("PC daily rf loop started...")
-for(j in stations){
-  sta_data<-subset(all_hads_pc,staID==j)
-  sta_data_xts<-xts(sta_data$value,order.by=sta_data$obs_time,unique = TRUE) #make xtended timeseries object
-  sta_data_xts_sub<- sta_data_xts[!duplicated(index(sta_data_xts)),] #remove duplicate time obs
-  if(nrow(sta_data_xts_sub)>=23){
-    sta_data_xts_sub_lag<-diff(sta_data_xts_sub,lag=1)
-    sta_data_xts_sub_lag[sta_data_xts_sub_lag<0]<-NA #NA to neg values when lag 1 dif
-    sta_data_hrly_xts<-apply.hourly(sta_data_xts_sub_lag,FUN=sum,roundtime = "trunc")#agg to hourly and truncate hour
-    indexTZ(sta_data_hrly_xts) <- "Pacific/Honolulu"
-    sta_data_daily_xts<-apply.daily(sta_data_hrly_xts,FUN=sum,na.rm = F)#daily sum of all all lag observations
-    obs_ints<-diff(index(sta_data_xts_sub),lag=1) #calculate vector of obs intervals
-    obs_int_hr<-getmode(as.numeric(obs_ints, units="hours"))
-    obs_int_minutes<-obs_int_hr*60
-    obs_per_day<-((1/obs_int_hr)*24)#calculate numbers of obs per day based on obs interval
-    sta_per_obs_daily_xts<-as.numeric(apply.daily(sta_data_xts_sub_lag,FUN=length)/obs_per_day)#vec of % percentage of obs per day
-    sta_daily_df<-data.frame(NWS_sid=rep(as.character(unique(sta_data$NWS_sid)),length(sta_data_daily_xts)),staID=rep(as.character(j),length(sta_data_daily_xts)),date=as.Date(strptime(index(sta_data_daily_xts),format="%Y-%m-%d %H:%M"),format="%Y-%m-%d"),obs_int_mins=rep(obs_int_minutes,length(sta_data_daily_xts)),data_per=sta_per_obs_daily_xts,rf=sta_data_daily_xts)#make df row
-    hads_daily_pc_rf<-rbind(hads_daily_pc_rf,sta_daily_df)
+if(nrow(all_hads_pc)>0){ #run loop if pc subset has any data
+  
+  #blank DF to store daily data
+  hads_daily_pc_rf<-data.frame()
+  
+  #unique hads stations
+  stations<-unique(all_hads_pc$staID)
+  
+  #start daily RF loop for PC
+  print("PC daily rf loop started...")
+  for(j in stations){
+    sta_data<-subset(all_hads_pc,staID==j)
+    sta_data_xts<-xts(sta_data$value,order.by=sta_data$obs_time,unique = TRUE) #make xtended timeseries object
+    sta_data_xts_sub<- sta_data_xts[!duplicated(index(sta_data_xts)),] #remove duplicate time obs
+    if(nrow(sta_data_xts_sub)>=23){
+      sta_data_xts_sub_lag<-diff(sta_data_xts_sub,lag=1)
+      sta_data_xts_sub_lag[sta_data_xts_sub_lag<0]<-NA #NA to neg values when lag 1 dif
+      sta_data_hrly_xts<-apply.hourly(sta_data_xts_sub_lag,FUN=sum,roundtime = "trunc")#agg to hourly and truncate hour
+      indexTZ(sta_data_hrly_xts) <- "Pacific/Honolulu"
+      sta_data_daily_xts<-apply.daily(sta_data_hrly_xts,FUN=sum,na.rm = F)#daily sum of all all lag observations
+      obs_ints<-diff(index(sta_data_xts_sub),lag=1) #calculate vector of obs intervals
+      obs_int_hr<-getmode(as.numeric(obs_ints, units="hours"))
+      obs_int_minutes<-obs_int_hr*60
+      obs_per_day<-((1/obs_int_hr)*24)#calculate numbers of obs per day based on obs interval
+      sta_per_obs_daily_xts<-as.numeric(apply.daily(sta_data_xts_sub_lag,FUN=length)/obs_per_day)#vec of % percentage of obs per day
+      sta_daily_df<-data.frame(NWS_sid=rep(as.character(unique(sta_data$NWS_sid)),length(sta_data_daily_xts)),staID=rep(as.character(j),length(sta_data_daily_xts)),date=as.Date(strptime(index(sta_data_daily_xts),format="%Y-%m-%d %H:%M"),format="%Y-%m-%d"),obs_int_mins=rep(obs_int_minutes,length(sta_data_daily_xts)),data_per=sta_per_obs_daily_xts,rf=sta_data_daily_xts)#make df row
+      hads_daily_pc_rf<-rbind(hads_daily_pc_rf,sta_daily_df)
+    }
   }
+  print("PC loop complete!")
+  
+  #head(hads_daily_pc_rf)
+  #tail(hads_daily_pc_rf)
+  
+  #subset yesterday 
+  hads_daily_pc_rf<-hads_daily_pc_rf[hads_daily_pc_rf$date==(currentDate),]#subset yesterday
+  
+  #subset 95% data
+  hads_daily_pc_rf<-hads_daily_pc_rf[hads_daily_pc_rf$data_per>=0.95,]#subset days with at least 95% data
+  hads_daily_pc_rf<-hads_daily_pc_rf[order(hads_daily_pc_rf$data_per,decreasing = T),] #sort descending by data percent
+  row.names(hads_daily_pc_rf)<-NULL #rename rows
+}else{ 
+  hads_daily_pc_rf<-data.frame()
 }
-print("PC loop complete!")
-
-#head(hads_daily_pc_rf)
-#tail(hads_daily_pc_rf)
-
-#subset yesterday 
-hads_daily_pc_rf<-hads_daily_pc_rf[hads_daily_pc_rf$date==(currentDate),]#subset yesterday
-
-#subset 95% data
-hads_daily_pc_rf<-hads_daily_pc_rf[hads_daily_pc_rf$data_per>=0.95,]#subset days with at least 95% data
-hads_daily_pc_rf<-hads_daily_pc_rf[order(hads_daily_pc_rf$data_per,decreasing = T),] #sort descending by data percent
-row.names(hads_daily_pc_rf)<-NULL #rename rows
-
 ##alternate 24hr PC processing
 hads_daily_pc_rf_alt<-PC2rf24hr(data=all_hads,doi=currentDate)
 
-all_hads_daily_pc<-rbind(rbind(hads_daily_pc_rf[hads_daily_pc_rf$data_per==1,],hads_daily_pc_rf_alt),hads_daily_pc_rf[hads_daily_pc_rf$data_per<1,]) #rbind all processed PC data with 100% data then, alt 24hr pc, then pc with 95%> & <100%
-all_hads_daily_rf<-rbind(all_hads_daily_pc,hads_daily_pp_rf) #add pp station data
-all_hads_daily_rf_final<-all_hads_daily_rf[!duplicated(all_hads_daily_rf$staID),] #remove dup stations
-row.names(all_hads_daily_rf_final)<-NULL #rename rows
+#final all daily rf hads 
+if(nrow(hads_daily_pc_rf)>0){
+  all_hads_daily_pc<-rbind(rbind(hads_daily_pc_rf[hads_daily_pc_rf$data_per==1,],hads_daily_pc_rf_alt),hads_daily_pc_rf[hads_daily_pc_rf$data_per<1,]) #rbind all processed PC data with 100% data then, alt 24hr pc, then pc with 95%> & <100%
+}else if(nrow(hads_daily_pc_rf_alt)>0){
+  all_hads_daily_pc<-hads_daily_pc_rf_alt
+  }else{
+  all_hads_daily_pc<-data.frame()
+  }
+
+if(nrow(hads_daily_pp_rf)>0){
+  all_hads_daily_rf<-rbind(all_hads_daily_pc,hads_daily_pp_rf) #add pp station data
+}else if(nrow(all_hads_daily_pc)>0){
+  all_hads_daily_rf<-all_hads_daily_pc
+}else{
+  all_hads_daily_rf<-data.frame()
+}
+if(nrow(all_hads_daily_rf)>0){
+  all_hads_daily_rf_final<-all_hads_daily_rf[!duplicated(all_hads_daily_rf$staID),] #remove dup stations
+  row.names(all_hads_daily_rf_final)<-NULL #rename rows
+}else{
+  all_hads_daily_rf_final<-data.frame()
+}
+
 
 #final data check
 #print(all_hads_daily_rf_final)
@@ -222,9 +250,11 @@ rf_month_filename<-paste0(format((currentDate),"%Y_%m"),"_hads_daily_rf.csv") #d
 if(file.exists(rf_month_filename)){
   write.table(all_hads_daily_rf_final,rf_month_filename, row.names=F,sep = ",", col.names = F, append = T)
   print(paste(rf_month_filename,"appended"))
-}else{
+}else if(nrow(all_hads_daily_rf_final)>0){
   write.csv(all_hads_daily_rf_final,rf_month_filename, row.names=F)
   print(paste(rf_month_filename,"written"))
+}else{
+  print(paste(rf_month_filename,"... FILE NOT WRITTEN, NO DATA IN AFTER PROCESS"))
 }
 
 print("PAU!")

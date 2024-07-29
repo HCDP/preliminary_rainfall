@@ -108,9 +108,8 @@ agg_daily_wd<-paste0(mainDir,"/rainfall/working_data/madis")
 #read MADIS parsed table from ikewai data portal
 ikeUrl<-"https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/workflow_data/preliminary" #url
 madis_filename<-paste0(ikeUrl,"/data_aqs/data_outputs/madis/parse/",format((currentDate),"%Y%m%d"),"_madis_parsed.csv") #dynamic file name that includes date
-madis_filename1<-paste0(ikeUrl,"/data_aqs/data_outputs/madis/parse/",format((currentDate-1),"%Y%m%d"),"_madis_parsed.csv") #dynamic file name that includes date-1
 
-all_madis<-rbind(read.csv(madis_filename),read.csv(madis_filename1))#read data date and day before data date csv
+all_madis<-read.csv(madis_filename) #read data csv
 #head(all_madis)
 
 #subset precip var, convert inch to mm and convert UTC to HST
