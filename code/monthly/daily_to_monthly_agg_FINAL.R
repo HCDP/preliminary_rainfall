@@ -97,7 +97,7 @@ RFMonthCheck<-function(rf_day_month_df,rf_month_df,dataDate){
   return(allDataCheck)
 }
 MonthPC2rf<-function(doi,missingCo){
-  
+  doi <- as.Date(doi)
   firstDate<-as.Date(format(doi,"%Y-%m-01"))
   lastDate<-doi+1
   
@@ -114,7 +114,7 @@ MonthPC2rf<-function(doi,missingCo){
   firstHADS<-read.csv(paste0(URL,file))
   
   #get last day of month hads
-  file<-paste0(format(lastDate,"%Y%m%d"),"_hads_parsed.csv")
+  file<-paste0(format(doi,"%Y%m%d"),"_hads_parsed.csv")
   lastHADS<-read.csv(paste0(URL,file))
   
   #rbind together
@@ -156,26 +156,34 @@ MonthPC2rf<-function(doi,missingCo){
   row.names(meta_mergedPC)<-NULL
   return(meta_mergedPC)
 }#end MonthPC2rf
-appendMonthCol<-function(yearDF,monthDF,metafile,rf_col){
-  yearDFcols<-names(yearDF)
-  yearDFcols<-yearDFcols[yearDFcols!=rf_col]
-  sub_cols<-c(1,grep("X",yearDFcols))
-  if(length(sub_cols)>1){
-    yearDFsub<-yearDF[,sub_cols]#keep only SKN and monthly RF cols
-    monthDF<-monthDF[,c(1,grep("X",names(monthDF)))]#keep only SKN and monthly RF cols
-    yearDFsub<-merge(metafile,yearDFsub,by="SKN",all=T)
-    yearDFsub<-yearDFsub[,c(1,grep("X",names(yearDFsub)))]#keep only SKN and monthly RF cols
-    monthDF<-merge(metafile,monthDF,by="SKN",all=T)
-    monthDF<-monthDF[,c(1,grep("X",names(monthDF)))]#keep only SKN and monthly RF cols
-    yearDFsub<-merge(yearDFsub,monthDF,by="SKN")
-    yearDFsub<-removeAllNA(yearDFsub)
-    yearFinal<-merge(metafile,yearDFsub,by="SKN")
-  }else{
-    yearFinal<-monthDF
+
+appendMonthCol<-function(yearDF, monthDF, metafile, rf_col) {
+  yearDFcols <- names(yearDF)
+  yearDFcols <- yearDFcols[yearDFcols != rf_col]
+  sub_cols <- c(1, grep("X", yearDFcols))
+  # Check if this was the only row in the file
+  if(length(sub_cols) > 1) {
+    yearDFsub <- yearDF[,sub_cols]#keep only SKN and monthly RF cols
+    monthDF <- monthDF[,c(1, grep("X", names(monthDF)))]#keep only SKN and monthly RF cols
+    yearDFsub <- merge(yearDFsub, monthDF, by="SKN")
+
+    # Sort columns to ensure dates are properly ordered
+    yearDFsub <- yearDFsub[,order(colnames(yearDFsub))]
+    # Add metadata
+    yearDFsub <- merge(metafile, yearDFsub, by="SKN")
+    # Remove rows with all NAs
+    yearFinal <- removeAllNA(yearDFsub)
+    
+  }
+  # If this is the first month of the year just set to monthDF
+  # DOES THIS NEED TO HAVE METADATA APPENDED????
+  else {
+    yearFinal <- monthDF
   }
   message("month added to year!")
   return(yearFinal)
 }
+
 stateSubCounty<-function(stateFile,stateName=NA,outdirCounty=NA,writeCo=F){
   countList<-list(stateFile$Island=="BI",stateFile$Island=="MA"|stateFile$Island=="KO"|stateFile$Island=="MO"|stateFile$Island=="LA",stateFile$Island=="OA",stateFile$Island=="KA")
   names(countList)<-c("BI","MN","OA","KA")

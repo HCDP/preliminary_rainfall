@@ -25,6 +25,26 @@ rf_qaqc_prob_data_wd<- paste0(mainDir,"/rainfall/data_outputs/tables/station_dat
 rf_qaqc_screen_data_wd<- paste0(mainDir,"/rainfall/data_outputs/tables/station_data/daily/raw_qc/statewide")
 rf_qaqc_count_data_wd <- paste0(mainDir,"/rainfall/data_outputs/tables/rf_station_tracking/qaqc_count")
 
+combine_data <- function(df, new_data, new_date_col, geog_meta) {
+  # Read data from file
+  file_data <- read.csv(source_month_filename)
+  # Subset data by SKN and date cols
+  sub_cols <- c("SKN", names(file_data)[grep("X", names(file_data))])
+  # Remove old data for day being processed from source table cols
+  sub_cols <- sub_cols[sub_cols != new_date_col]
+  file_data = source_month_df[,sub_cols]
+
+  # Merge data from file with new data
+  merged_data <- merge(file_data, new_data, by="SKN", all=T)
+
+  # Sort columns to ensure dates are properly ordered
+  merged_data <- merged_data[,order(colnames(merged_data))]
+
+  # Add geographical metadata
+  merged_data <- merge(geog_meta, merged_data, by="SKN")
+  return(merged_data)
+}
+
 #rf to prob function
 rf_Prob<-function(rf,meanlog,sdlog,pop){
   if(rf>0){
@@ -207,6 +227,7 @@ if(file.exists(rf_qaqc_flag_month_filename)){
   #load flag day file add all metadata
   rf_month_flag_df<-read.csv(rf_qaqc_flag_month_filename)
   sub_cols<-c("SKN",names(rf_month_flag_df)[grep("X",names(rf_month_flag_df))])
+  # Remove old data for day being processed from source table cols
   sub_cols<-sub_cols[sub_cols!=rfcol]
   rf_month_flag_df<-rf_month_flag_df[,sub_cols]
   rf_month_flag_df_merged<-merge(geog_meta,rf_month_flag_df,by="SKN",all=T)
@@ -237,6 +258,7 @@ if(file.exists(rf_qaqc_prob_month_filename)){
   #add prob bad day col to file
   rf_month_prob_df<-read.csv(rf_qaqc_prob_month_filename)
   sub_cols<-c("SKN",names(rf_month_prob_df)[grep("X",names(rf_month_prob_df))])
+  # Remove old data for day being processed from source table cols
   sub_cols<-sub_cols[sub_cols!=rfcol]
   rf_month_prob_df<-rf_month_prob_df[,sub_cols]
   rf_month_prob_df_merged<-merge(geog_meta,rf_month_prob_df,by="SKN",all=T)
@@ -266,6 +288,7 @@ if(file.exists(rf_qaqc_screen_month_filename)){
   #append qaqc rf
   rf_month_screened<-read.csv(rf_qaqc_screen_month_filename)
   sub_cols<-c("SKN",names(rf_month_screened)[grep("X",names(rf_month_screened))])
+  # Remove old data for day being processed from source table cols
   sub_cols<-sub_cols[sub_cols!=rfcol]
   rf_month_screened_merged<-merge(geog_meta,rf_month_screened[,sub_cols],by="SKN",all=T)
   #append screened rf col

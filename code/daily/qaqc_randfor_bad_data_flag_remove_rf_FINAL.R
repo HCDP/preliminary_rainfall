@@ -25,6 +25,32 @@ rf_qaqc_prob_data_wd<- paste0(mainDir,"/rainfall/data_outputs/tables/station_dat
 rf_qaqc_screen_data_wd<- paste0(mainDir,"/rainfall/data_outputs/tables/station_data/daily/raw_qc/statewide")
 rf_qaqc_count_data_wd <- paste0(mainDir,"/rainfall/data_outputs/tables/rf_station_tracking/qaqc_count")
 
+combine_data <- function(data_filename, new_data, new_date_col, geog_meta) {
+  # Read data from file
+  file_data <- read.csv(data_filename)
+  # Subset data by SKN and date cols
+  sub_cols <- c("SKN", names(file_data)[grep("X", names(file_data))])
+  # Remove old data for day being processed from source table cols
+  sub_cols <- sub_cols[sub_cols != new_date_col]
+  file_data = source_month_df[,sub_cols]
+
+  # Merge data from file with new data
+  merged_data <- merge(file_data, new_data, by="SKN", all=T)
+
+  # Sort columns to ensure dates are properly ordered
+  merged_data <- merged_data[,order(colnames(merged_data))]
+
+  # Add geographical metadata
+  merged_data <- merge(geog_meta, merged_data, by="SKN")
+
+  # Remove rows that are all NA
+  dateCols<-grep("X",names(merged_data))
+  allNA <- apply(merged_data[,dateCols], 1, function(x) all(is.na(x)))
+  merged_data <- merged_data[!allNA,]
+
+  return(merged_data)
+}
+
 #rf to prob function
 rf_Prob<-function(rf,meanlog,sdlog,pop){
   if(rf>0){
@@ -228,19 +254,11 @@ rf_qaqc_flag_month_filename<-paste0("Statewide_RF_QAQC_Daily_Bad_Flag_",file_dat
 
 #conditional statement that adds new qaqc daily data
 if(file.exists(rf_qaqc_flag_month_filename)){
-  #load flag day file add all metadata
-  rf_month_flag_df<-read.csv(rf_qaqc_flag_month_filename)
-  sub_cols<-c("SKN",names(rf_month_flag_df)[grep("X",names(rf_month_flag_df))])
-  sub_cols<-sub_cols[sub_cols!=rfcol]
-  rf_month_flag_df<-rf_month_flag_df[,sub_cols]
-  rf_month_flag_df_merged<-merge(geog_meta,rf_month_flag_df,by="SKN",all=T)
   #add day flag col to file
   daily_rf_flag<-daily_rf_checked[,c("SKN","statusPred")] #get skn and flag cols
   names(daily_rf_flag)[2]<-rfcol #rename flag col as date
-  final_rf_daily_month_qaqc_flag<-merge(rf_month_flag_df_merged,daily_rf_flag,by="SKN",all=T)
-  dateCols<-grep("X",names(final_rf_daily_month_qaqc_flag))
-  allNA <- apply(final_rf_daily_month_qaqc_flag[,dateCols], 1, function(x) all(is.na(x)))
-  final_rf_daily_month_qaqc_flag<-final_rf_daily_month_qaqc_flag[!allNA,]
+  final_rf_daily_month_qaqc_flag <- combine_data(rf_qaqc_flag_month_filename, daily_rf_flag, rfcol, geog_meta)
+  
   write.csv(final_rf_daily_month_qaqc_flag,rf_qaqc_flag_month_filename, row.names=F)
   print(paste(rf_qaqc_flag_month_filename,"daily rf flag table appended!"))
   }else{ #if month year file does not exist make a new month year file
@@ -258,19 +276,11 @@ rf_qaqc_prob_month_filename<-paste0("Statewide_RF_QAQC_Daily_Bad_Prob_",file_dat
 
 #conditional statement that adds new qaqc daily data
 if(file.exists(rf_qaqc_prob_month_filename)){
-  #add prob bad day col to file
-  rf_month_prob_df<-read.csv(rf_qaqc_prob_month_filename)
-  sub_cols<-c("SKN",names(rf_month_prob_df)[grep("X",names(rf_month_prob_df))])
-  sub_cols<-sub_cols[sub_cols!=rfcol]
-  rf_month_prob_df<-rf_month_prob_df[,sub_cols]
-  rf_month_prob_df_merged<-merge(geog_meta,rf_month_prob_df,by="SKN",all=T)
   #add day prob
   daily_rf_prob<-daily_rf_checked[,c("SKN","probBad")] #get skn and prob cols
   names(daily_rf_prob)[2]<-rfcol #rename prob col as date
-  final_rf_daily_month_qaqc_prob<-merge(rf_month_prob_df_merged,daily_rf_prob,by="SKN",all=T)
-  dateCols<-grep("X",names(final_rf_daily_month_qaqc_prob))
-  allNA <- apply(final_rf_daily_month_qaqc_prob[,dateCols], 1, function(x) all(is.na(x)))
-  final_rf_daily_month_qaqc_prob<-final_rf_daily_month_qaqc_prob[!allNA,]
+  final_rf_daily_month_qaqc_prob <- combine_data(rf_qaqc_prob_month_filename, daily_rf_prob, rfcol, geog_meta)
+
   write.csv(final_rf_daily_month_qaqc_prob,rf_qaqc_prob_month_filename, row.names=F)
   print(paste(rf_qaqc_prob_month_filename,"daily rf prob table appended!"))
   }else{ #if month year file does not exist make a new month year file
@@ -287,17 +297,10 @@ setwd(rf_qaqc_screen_data_wd) #set qaqc rainfall output wd
 rf_qaqc_screen_month_filename<-paste0("Statewide_QAQC_Raw_Daily_RF_mm_",file_date,".csv") #dynamic file name that includes month year so when month is done new file is written
 
 if(file.exists(rf_qaqc_screen_month_filename)){
-  #append qaqc rf
-  rf_month_screened<-read.csv(rf_qaqc_screen_month_filename)
-  sub_cols<-c("SKN",names(rf_month_screened)[grep("X",names(rf_month_screened))])
-  sub_cols<-sub_cols[sub_cols!=rfcol]
-  rf_month_screened_merged<-merge(geog_meta,rf_month_screened[,sub_cols],by="SKN",all=T)
   #append screened rf col
   daily_rf_screened<-daily_rf_qaqc_pass[,c("SKN",rfcol)]
-  final_rf_daily_month_qaqc_flag<-merge(rf_month_screened_merged,daily_rf_screened,by="SKN",all=T)
-  dateCols<-grep("X",names(final_rf_daily_month_qaqc_flag))
-  allNA <- apply(final_rf_daily_month_qaqc_flag[,dateCols], 1, function(x) all(is.na(x)))
-  final_rf_daily_month_qaqc_flag<-final_rf_daily_month_qaqc_flag[!allNA,]
+  final_rf_daily_month_qaqc_flag <- combine_data(rf_qaqc_prob_month_filename, daily_rf_screened, rfcol, geog_meta)
+
   write.csv(final_rf_daily_month_qaqc_flag,rf_qaqc_screen_month_filename, row.names=F)
   print(paste(rf_qaqc_screen_month_filename,"daily screened rainfall table appended!"))
 }else{ #if month year file does not exist make a new month year file

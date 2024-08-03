@@ -41,6 +41,26 @@ read.csv.TC<-function(file,HADS=FALSE){
     },error = function(e) NULL)
 }
 
+combine_data <- function(data_filename, new_data, new_date_col, geog_meta) {
+  # Read data from file
+  file_data <- read.csv(data_filename)
+  # Subset data by SKN and date cols
+  sub_cols <- c("SKN", names(file_data)[grep("X", names(file_data))])
+  # Remove old data for day being processed from source table cols
+  sub_cols <- sub_cols[sub_cols != new_date_col]
+  file_data = source_month_df[,sub_cols]
+
+  # Merge data from file with new data
+  merged_data <- merge(file_data, new_data, by="SKN", all=T)
+
+  # Sort columns to ensure dates are properly ordered
+  merged_data <- merged_data[,order(colnames(merged_data))]
+
+  # Add geographical metadata
+  merged_data <- merge(geog_meta, merged_data, by="SKN")
+  return(merged_data)
+}
+
 rbind.all.columns <- function(x, y) {     #function to smart rbind
     x.diff <- setdiff(colnames(x), colnames(y))
     y.diff <- setdiff(colnames(y), colnames(x))
@@ -350,11 +370,7 @@ source_month_filename<-paste0("Statewide_Daily_Source_",file_date,".csv") #dynam
 
 #conditional statement that adds new obs
 if(file.exists(source_month_filename)){
-  source_month_df<-read.csv(source_month_filename)
-  sub_cols<-c("SKN",names(source_month_df)[grep("X",names(source_month_df))])
-  sub_cols<-sub_cols[sub_cols!=rf_col]
-  final_source_data<-merge(source_month_df[,sub_cols],all_sta_data_wide_no_dup_source,by="SKN",all=T)
-  final_source_data<-merge(geog_meta,final_source_data,by="SKN")
+  final_source_data <- combine_data(source_month_filename, all_sta_data_wide_no_dup_source, rf_col, geog_meta)
   write.csv(final_source_data,source_month_filename, row.names=F)
   print(paste(source_month_filename,"daily souce table appended!"))
 }else{ #if month year file does not exist make a new month year file
@@ -374,11 +390,7 @@ rf_month_filename<-paste0("Statewide_Raw_Daily_RF_mm_",file_date,".csv") #dynami
 
 #conditional statement that adds new obs day col
 if(file.exists(rf_month_filename)){
-	rf_month_df<-read.csv(rf_month_filename)
-	sub_cols<-c("SKN",names(rf_month_df)[grep("X",names(rf_month_df))])
-  sub_cols<-sub_cols[sub_cols!=rf_col]
-	add_rf_data_sub<-merge(rf_month_df[,sub_cols],all_sta_data_wide_no_dup_rf,by="SKN",all=T)
-	final_rf_data<-merge(geog_meta,add_rf_data_sub,by="SKN")
+  final_rf_data <- combine_data(rf_month_filename, all_sta_data_wide_no_dup_rf, rf_col, geog_meta)
 	write.csv(final_rf_data,rf_month_filename, row.names=F)
 	print(paste(rf_month_filename,"daily rainfall table appended!"))
     }else{ #if month year file does not exist make a new month year file
