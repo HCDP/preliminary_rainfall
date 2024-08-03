@@ -48,7 +48,7 @@ combine_data <- function(data_filename, new_data, new_date_col, geog_meta) {
   sub_cols <- c("SKN", names(file_data)[grep("X", names(file_data))])
   # Remove old data for day being processed from source table cols
   sub_cols <- sub_cols[sub_cols != new_date_col]
-  file_data = source_month_df[,sub_cols]
+  file_data <- file_data[,sub_cols]
 
   # Merge data from file with new data
   merged_data <- merge(file_data, new_data, by="SKN", all=T)
