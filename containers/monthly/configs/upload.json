@@ -19,11 +19,6 @@
             "system_id": "ikewai-annotated-data"
         },
         {
-            "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs",
-            "remote_path": "HCDP/workflow_data/preliminary/rainfall/data_outputs/iterations/%y",
-            "system_id": "ikewai-annotated-data"
-        },
-        {
             "local_path": "/home/hawaii_climate_products_container/preliminary/rainfall/data_outputs/tiffs/monthly/rf_mm/statewide/%y_%m_statewide_rf_mm.tif",
             "remote_path": "HCDP/production/rainfall/new/month/statewide/data_map/%y",
             "rename": "rainfall_new_month_statewide_data_map_%y_%m.tif",
