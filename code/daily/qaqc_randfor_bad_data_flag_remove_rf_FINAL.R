@@ -299,7 +299,7 @@ rf_qaqc_screen_month_filename<-paste0("Statewide_QAQC_Raw_Daily_RF_mm_",file_dat
 if(file.exists(rf_qaqc_screen_month_filename)){
   #append screened rf col
   daily_rf_screened<-daily_rf_qaqc_pass[,c("SKN",rfcol)]
-  final_rf_daily_month_qaqc_flag <- combine_data(rf_qaqc_prob_month_filename, daily_rf_screened, rfcol, geog_meta)
+  final_rf_daily_month_qaqc_flag <- combine_data(rf_qaqc_screen_month_filename, daily_rf_screened, rfcol, geog_meta)
 
   write.csv(final_rf_daily_month_qaqc_flag,rf_qaqc_screen_month_filename, row.names=F)
   print(paste(rf_qaqc_screen_month_filename,"daily screened rainfall table appended!"))
