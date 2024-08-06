@@ -161,25 +161,18 @@ appendMonthCol<-function(yearDF, monthDF, metafile, rf_col) {
   yearDFcols <- names(yearDF)
   yearDFcols <- yearDFcols[yearDFcols != rf_col]
   sub_cols <- c(1, grep("X", yearDFcols))
-  # Check if this was the only row in the file
-  if(length(sub_cols) > 1) {
-    yearDFsub <- yearDF[,sub_cols]#keep only SKN and monthly RF cols
-    monthDF <- monthDF[,c(1, grep("X", names(monthDF)))]#keep only SKN and monthly RF cols
-    yearDFsub <- merge(yearDFsub, monthDF, by="SKN")
 
-    # Sort columns to ensure dates are properly ordered
-    yearDFsub <- yearDFsub[,order(colnames(yearDFsub))]
-    # Add metadata
-    yearDFsub <- merge(metafile, yearDFsub, by="SKN")
-    # Remove rows with all NAs
-    yearFinal <- removeAllNA(yearDFsub)
-    
-  }
-  # If this is the first month of the year just set to monthDF
-  # DOES THIS NEED TO HAVE METADATA APPENDED????
-  else {
-    yearFinal <- monthDF
-  }
+  yearDFsub <- yearDF[,sub_cols]#keep only SKN and monthly RF cols
+  monthDF <- monthDF[,c(1, grep("X", names(monthDF)))]#keep only SKN and monthly RF cols
+  yearDFsub <- merge(yearDFsub, monthDF, by="SKN", all=T)
+
+  # Sort columns to ensure dates are properly ordered
+  yearDFsub <- yearDFsub[,order(colnames(yearDFsub))]
+  # Add metadata
+  yearDFsub <- merge(metafile, yearDFsub, by="SKN")
+  # Remove rows with all NAs
+  yearFinal <- removeAllNA(yearDFsub)
+  
   message("month added to year!")
   return(yearFinal)
 }
