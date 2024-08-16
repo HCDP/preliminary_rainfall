@@ -172,7 +172,7 @@ appendMonthCol<-function(yearDF, monthDF, metafile, rf_col) {
   yearDFsub <- merge(metafile, yearDFsub, by="SKN")
   # Remove rows with all NAs
   yearFinal <- removeAllNA(yearDFsub)
-  
+  head(yearFinal)
   message("month added to year!")
   return(yearFinal)
 }
