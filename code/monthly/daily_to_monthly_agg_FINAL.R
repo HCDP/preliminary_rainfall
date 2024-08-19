@@ -52,8 +52,8 @@ makeMonthlyRF<-function(rf_day_month_df){
   return(rf_month_final)
 }
 RFMonthCheck<-function(rf_day_month_df,rf_month_df,dataDate){
-  lastMonthDay<-as.Date(paste(format(dataDate,"%Y"),as.numeric(format(dataDate,"%m"))+1,01,sep="-"))-1
-  allMonthDays<-seq.Date(as.Date(format(dataDate,"%Y-%m-01")),lastMonthDay,by="days")
+  lastMonthDay<-as.Date(dataDate)
+  allMonthDays<-seq.Date(as.Date(format(dataDate,"%Y-%m-01")),dataDate,by="days")
   nMonDays<-length(allMonthDays)
   countyMonthDayRF<-list(rf_day_month_df$Island=="BI",rf_day_month_df$Island=="MA"|rf_day_month_df$Island=="KO"|rf_day_month_df$Island=="MO"|rf_day_month_df$Island=="LA",rf_day_month_df$Island=="OA",rf_day_month_df$Island=="KA")
   counties<-c("BI","MN","OA","KA")
@@ -159,7 +159,6 @@ MonthPC2rf<-function(doi,missingCo){
 }#end MonthPC2rf
 
 appendMonthCol<-function(yearDF, monthDF, metafile, rf_col) {
-  
   # Add new and remove old rf month cols
   sub_cols <- c("SKN", names(yearDF)[grep("X", names(yearDF))]) #sub SKN and date cols
   sub_cols <- sub_cols[sub_cols != rf_col]  # Remove old data for day being processed from source table cols
@@ -173,7 +172,6 @@ appendMonthCol<-function(yearDF, monthDF, metafile, rf_col) {
   yearDFsub <- merge(metafile, yearDFsub, by="SKN")
   # Remove rows with all NAs
   yearFinal <- removeAllNA(yearDFsub)
-  head(yearFinal)
   message("month added to year!")
   return(yearFinal)
 }
@@ -261,10 +259,12 @@ if(!all(coStaCheck)){
   if(file.exists(filename)){ #check if downloaded file is in wd
     yearFile<-read.csv(filename)
     yearFile<-appendMonthCol(yearDF=yearFile,monthDF=rf_month_wide,metafile=geo_meta,rf_col=rf_col)
+    head(yearFile)
     write.csv(yearFile,filename,row.names=F)
     print(paste(fileYear,"appended..."))
   }else{ #if file did not exist/download write new file
     yearFile<-rf_month_wide
+    head(yearFile)
     write.csv(yearFile,filename,row.names=F)
     print(paste(fileYear,filename,"written..."))
   }
