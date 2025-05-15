@@ -33,12 +33,12 @@ rf_day_data_wd <- paste0(mainDir,"/rainfall/data_outputs/tables/station_data/dai
 #functions
 read.csv.TC<-function(file,HADS=FALSE){
   tryCatch({
-    if(HADS){
+    if(HADS) {
 	    out <- read.csv(file, header=TRUE, colClasses=c("staID"="character"))
-    }else{
+    } else {
 	    out <- read.csv(file, header=TRUE)
-   }
-    },error = function(e) NULL)
+    }
+  }, error = function(e) NULL)
 }
 
 combine_data <- function(data_filename, new_data, new_date_col, geog_meta) {
@@ -62,11 +62,11 @@ combine_data <- function(data_filename, new_data, new_date_col, geog_meta) {
 }
 
 rbind.all.columns <- function(x, y) {     #function to smart rbind
-    x.diff <- setdiff(colnames(x), colnames(y))
-    y.diff <- setdiff(colnames(y), colnames(x))
-    x[, c(as.character(y.diff))] <- NA 
-    y[, c(as.character(x.diff))] <- NA 
-    return(rbind(x, y))}
+  x.diff <- setdiff(colnames(x), colnames(y))
+  y.diff <- setdiff(colnames(y), colnames(x))
+  x[, c(as.character(y.diff))] <- NA 
+  y[, c(as.character(x.diff))] <- NA 
+  return(rbind(x, y))}
 
 #add master metadata with SKN and lat long
 meta_url <- "https://raw.githubusercontent.com/ikewai/hawaii_wx_station_mgmt_container/main/Hawaii_Master_Station_Meta.csv"

@@ -52,8 +52,8 @@ makeMonthlyRF<-function(rf_day_month_df){
   return(rf_month_final)
 }
 RFMonthCheck<-function(rf_day_month_df,rf_month_df,dataDate){
-  lastMonthDay<-as.Date(paste(format(dataDate,"%Y"),as.numeric(format(dataDate,"%m"))+1,01,sep="-"))-1
-  allMonthDays<-seq.Date(as.Date(format(dataDate,"%Y-%m-01")),lastMonthDay,by="days")
+  lastMonthDay<-as.Date(dataDate)
+  allMonthDays<-seq.Date(as.Date(format(dataDate,"%Y-%m-01")),dataDate,by="days")
   nMonDays<-length(allMonthDays)
   countyMonthDayRF<-list(rf_day_month_df$Island=="BI",rf_day_month_df$Island=="MA"|rf_day_month_df$Island=="KO"|rf_day_month_df$Island=="MO"|rf_day_month_df$Island=="LA",rf_day_month_df$Island=="OA",rf_day_month_df$Island=="KA")
   counties<-c("BI","MN","OA","KA")
@@ -96,6 +96,7 @@ RFMonthCheck<-function(rf_day_month_df,rf_month_df,dataDate){
   
   return(allDataCheck)
 }
+
 MonthPC2rf<-function(doi,missingCo){
   doi <- as.Date(doi)
   firstDate<-as.Date(format(doi,"%Y-%m-01"))
@@ -158,12 +159,11 @@ MonthPC2rf<-function(doi,missingCo){
 }#end MonthPC2rf
 
 appendMonthCol<-function(yearDF, monthDF, metafile, rf_col) {
-  yearDFcols <- names(yearDF)
-  yearDFcols <- yearDFcols[yearDFcols != rf_col]
-  sub_cols <- c(1, grep("X", yearDFcols))
-
-  yearDFsub <- yearDF[,sub_cols]#keep only SKN and monthly RF cols
-  monthDF <- monthDF[,c(1, grep("X", names(monthDF)))]#keep only SKN and monthly RF cols
+  # Add new and remove old rf month cols
+  sub_cols <- c("SKN", names(yearDF)[grep("X", names(yearDF))]) #sub SKN and date cols
+  sub_cols <- sub_cols[sub_cols != rf_col]  # Remove old data for day being processed from source table cols
+  yearDFsub <- yearDF[,sub_cols] #keep only SKN and monthly RF cols
+  monthDF <- monthDF[,c("SKN",rf_col)] #keep only SKN and current month RF col
   yearDFsub <- merge(yearDFsub, monthDF, by="SKN", all=T)
 
   # Sort columns to ensure dates are properly ordered
@@ -172,7 +172,6 @@ appendMonthCol<-function(yearDF, monthDF, metafile, rf_col) {
   yearDFsub <- merge(metafile, yearDFsub, by="SKN")
   # Remove rows with all NAs
   yearFinal <- removeAllNA(yearDFsub)
-  
   message("month added to year!")
   return(yearFinal)
 }
@@ -194,12 +193,14 @@ stateSubCounty<-function(stateFile,stateName=NA,outdirCounty=NA,writeCo=F){
   }#end county loop
   return(stateCoList)
 }#county sub function
+
 rbind.all.columns <- function(x, y) {     #function to smart rbind
   x.diff <- setdiff(colnames(x), colnames(y))
   y.diff <- setdiff(colnames(y), colnames(x))
   x[, c(as.character(y.diff))] <- NA 
   y[, c(as.character(x.diff))] <- NA 
   return(rbind(x, y))}
+
 #add master metadata with SKN and lat long
 meta_url <- "https://raw.githubusercontent.com/ikewai/hawaii_wx_station_mgmt_container/main/Hawaii_Master_Station_Meta.csv"
 geo_meta<-read.csv(meta_url, colClasses=c("NESDIS.id"="character"))
@@ -240,29 +241,30 @@ if(length(missingCo)>0){
   rf_month_track<-RFMonthCheck(rf_month_df,rf_month_wide,dataDate)
   print("station tracking REDO...")
   print(rf_month_track)
-}
+}else{message("all counties have plenty of RF stations")}
 
-#check data availible to krig each county
+#check data available to krig each county
 coStaCheck<-rf_month_track[rf_month_track$County!="All","TotalMonthRFstations"]>3
-lowCounty<-paste(rf_month_track[coStaCheck,"County"],collapse=" &")
 
 if(!all(coStaCheck)){
+  lowCounty<-paste(rf_month_track[coStaCheck,"County"],collapse=" &")
   stop(paste(lowCounty,"did not have enough stations to perform monthly RF krigging!!"))
 }else{ #write files and finish script
     
   #save monthly rf annual file table
   setwd(outDir)
-  filename<-paste0("Statewide_Partial_Filled_Monthly_RF_mm_",fileYear,".csv") #dynamic file name that includes year of file
 
   #append or write new annual monthly rf file
-  filename<-paste0("Statewide_Partial_Filled_Monthly_RF_mm_",fileYear,".csv")
+  filename<-paste0("Statewide_Partial_Filled_Monthly_RF_mm_",fileYear,".csv") #dynamic file name that includes year of file
   if(file.exists(filename)){ #check if downloaded file is in wd
     yearFile<-read.csv(filename)
     yearFile<-appendMonthCol(yearDF=yearFile,monthDF=rf_month_wide,metafile=geo_meta,rf_col=rf_col)
+    head(yearFile)
     write.csv(yearFile,filename,row.names=F)
     print(paste(fileYear,"appended..."))
   }else{ #if file did not exist/download write new file
     yearFile<-rf_month_wide
+    head(yearFile)
     write.csv(yearFile,filename,row.names=F)
     print(paste(fileYear,filename,"written..."))
   }
