@@ -3,6 +3,9 @@ FROM ghcr.io/hcdp/task-preliminary-rainfall-base:2024-06-11-04152a0
 LABEL org.opencontainers.image.source="https://github.com/hcdp/preliminary_rainfall"
 LABEL org.opencontainers.image.description="Daily Air Temperature Aggregation and Mapping."
 
+RUN apt update
+RUN apt install -y ssh rsync
+
 # Pull the daily dependencies and extract them.
 RUN mkdir -p /home/hawaii_climate_products_container/preliminary/rainfall/dependencies
 WORKDIR /home/hawaii_climate_products_container/preliminary/rainfall/dependencies
