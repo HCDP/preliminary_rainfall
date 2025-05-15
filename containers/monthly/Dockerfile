@@ -1,5 +1,5 @@
 # Start with the Air Temperature Preliminary Aggregation Base.
-FROM ghcr.io/hcdp/task-preliminary-rainfall-base:latest
+FROM ghcr.io/hcdp/task-preliminary-rainfall-base:2024-06-11-04152a0
 LABEL org.opencontainers.image.source="https://github.com/hcdp/preliminary_rainfall"
 LABEL org.opencontainers.image.description="Monthly Air Temperature Aggregation and Mapping."
 
@@ -29,6 +29,7 @@ ADD /containers/monthly/configs/upload.json /sync/config.json
 # Add the task wrapper script.
 ADD /containers/monthly/task.sh /actor/task.sh
 
+RUN wget https://raw.githubusercontent.com/ikewai/data-uploader/main/upload.py -O /sync/upload.py
 
 # This container is intended to run the task wrapper at launch, unless otherwise specified at run-time.
 CMD [ "/bin/bash", "/actor/task.sh" ]
