@@ -307,7 +307,7 @@ print(all_missing)
 print("combinding all data...")
 hads_nws_wide<-rbind.all.columns(hads_wide_merged,nws_wide_merged)
 hads_nws_scan_wide<-rbind.all.columns(hads_nws_wide,scan_wide_merged)
-hads_nws_scan_madis_wide<-rbind.all.columns(hads_nws_wide,scan_wide_merged)
+hads_nws_scan_madis_wide<-rbind.all.columns(hads_nws_scan_wide,madis_wide_merged)
 all_sta_data_wide<-rbind.all.columns(hads_nws_scan_madis_wide,synoptic_wide_merged)
 
 print("all data combind!")
