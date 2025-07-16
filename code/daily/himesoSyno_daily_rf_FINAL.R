@@ -108,8 +108,9 @@ row.names(meso_daily_rf)<-NULL #rename rows
 #head(meso_daily_rf)
 #tail(meso_daily_rf)
 
-#subset: yesterday 
-meso_daily_rf_today_final<-meso_daily_rf[meso_daily_rf$date==(currentDate),]#subset yesterday
+#subsets: yesterday with 95% data
+meso_daily_rf_today<-meso_daily_rf[meso_daily_rf$date==(currentDate),]#subset yesterday
+meso_daily_rf_today_final<-meso_daily_rf_today[meso_daily_rf_today$data_per>=0.95,]#subset days with at least 95% data
 row.names(meso_daily_rf_today_final)<-NULL #rename rows
 #head(meso_daily_rf_today)
 #tail(meso_daily_rf_today)

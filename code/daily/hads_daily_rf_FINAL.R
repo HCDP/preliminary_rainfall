@@ -155,8 +155,9 @@ if(nrow(all_hads_pp)>0){ #run loop if pp subset has any data
   #subset yesterday 
   hads_daily_pp_rf<-hads_daily_pp_rf[hads_daily_pp_rf$date==(currentDate),]#subset yesterday
 
-  #sort descending by data percent
-  hads_daily_pp_rf<-hads_daily_pp_rf[order(hads_daily_pp_rf$data_per,decreasing = T),] 
+  #subset 95% data
+  hads_daily_pp_rf<-hads_daily_pp_rf[hads_daily_pp_rf$data_per>=0.95,]#subset days with at least 95% data
+  hads_daily_pp_rf<-hads_daily_pp_rf[order(hads_daily_pp_rf$data_per,decreasing = T),] #sort descending by data percent
   row.names(hads_daily_pp_rf)<-NULL #rename rows
 }else{
   hads_daily_pp_rf<-data.frame()
@@ -203,8 +204,9 @@ if(nrow(all_hads_pc)>0){ #run loop if pc subset has any data
   #subset yesterday 
   hads_daily_pc_rf<-hads_daily_pc_rf[hads_daily_pc_rf$date==(currentDate),]#subset yesterday
   
-  #sort descending by data percent
-  hads_daily_pc_rf<-hads_daily_pc_rf[order(hads_daily_pc_rf$data_per,decreasing = T),] 
+  #subset 95% data
+  hads_daily_pc_rf<-hads_daily_pc_rf[hads_daily_pc_rf$data_per>=0.95,]#subset days with at least 95% data
+  hads_daily_pc_rf<-hads_daily_pc_rf[order(hads_daily_pc_rf$data_per,decreasing = T),] #sort descending by data percent
   row.names(hads_daily_pc_rf)<-NULL #rename rows
 }else{ 
   hads_daily_pc_rf<-data.frame()

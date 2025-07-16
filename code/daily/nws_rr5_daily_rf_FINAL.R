@@ -37,7 +37,8 @@ nws_hrly_data_final<-read.csv(paste0(ikeUrl,"/data_aqs/data_outputs/nws_rr5/pars
 #agg to daily and removal partial daily obs
 nws_hrly_data_final$date<-as.Date(nws_hrly_data_final$date)#make date a date
 nws_hrly_data_final_cc<-nws_hrly_data_final[complete.cases(nws_hrly_data_final),]#remove NA obs
-nws_24hr_agg_final<-ddply(nws_hrly_data_final_cc, .(nwsli,NWS_name, date), summarize, prec_mm_24hr = sum(prec_mm_1hr), hour_count=length(nwsli)) #sum by station & day and count hourly obs per station & day
+nws_24hr_agg<-ddply(nws_hrly_data_final_cc, .(nwsli,NWS_name, date), summarize, prec_mm_24hr = sum(prec_mm_1hr), hour_count=length(nwsli)) #sum by station & day and count hourly obs per station & day
+nws_24hr_agg_final<-nws_24hr_agg[nws_24hr_agg$hour_count >= 23,] #subset by stations with at least 23 hourly obs (ie: only 1 missing data)
 nws_24hr_agg_final$nwsli<-as.character(nws_24hr_agg_final$nwsli) #cast nws id to character
 airports<-c("HJR","HKO","HLI","HMK","HNL","HNY","HOG","HTO")
 nws_24hr_agg_final[nws_24hr_agg_final$nwsli %in% airports,"nwsli"]<-paste0("P",nws_24hr_agg_final[nws_24hr_agg_final$nwsli %in% airports,"nwsli"]) #add P to airport IDs to match meta
