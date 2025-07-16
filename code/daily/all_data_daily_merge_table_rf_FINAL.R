@@ -87,6 +87,7 @@ if(!is.null(hads) && nrow(hads)>0){  #did HADS month file exist?
  hads<-hads[,c("staID","date","rf")]
  names(hads)<-c("sourceID","date","x") #note 'source_id" IS "NESDIS.id" for hads
  hads$date<-as.Date(hads$date)
+ hads<-hads[hads$data_per>=0.95,]#subset days with at least 95% data
  hads_day<-hads[hads$date==map_date,] #date sub
  if(nrow(hads_day)>0){ #if hads_day has rows/data
   hads_day$date<-format(hads_day$date,"%Y.%m.%d")
@@ -123,10 +124,11 @@ print("hads pau!")
 setwd(nws_daily_wd)#set data source wd
 nws_month_filename<-paste0(file_date,"_nws_daily_rf.csv")#dynamic file name that includes month year so when month is done new file is written
 nws<-read.csv.TC(nws_month_filename)
-if(!is.null(nws) && nrow(nws)>0){  #did nws month file exist? 
+if(!is.null(nws) && nrow(nws)>0){  #did nws month file exist? TRUE
  nws<-nws[,c("nwsli","date","prec_mm_24hr")]
  names(nws)<-c("sourceID","date","x")
  nws$date<-as.Date(nws$date)#format as date
+ nws<-nws[nws$hour_count >= 23,] #subset by stations with at least 23 hourly obs (95% ie: only 1 missing hour)
  nws_day<-nws[nws$date==map_date,]
  if(nrow(nws_day)>0){ #if nws_day has rows/data
   nws_day$date<-format(nws_day$date,"%Y.%m.%d")
@@ -162,7 +164,7 @@ print("nws pau!")
 setwd(scan_daily_wd)#set data source wd
 scan_month_filename<-paste0(file_date,"_scan_daily_rf.csv")
 scan<-read.csv.TC(scan_month_filename)
-if(!is.null(scan) && nrow(scan)>0){  #did scan month file exist? 
+if(!is.null(scan) && nrow(scan)>0){  #did scan month file exist? TRUE
  #subset 24hr obs
  names(scan)<-c("sourceID","date","x")
  scan$date<-as.Date(scan$date)
@@ -201,10 +203,11 @@ print("scan pau!")
 setwd(madis_daily_wd)#set data source wd
 madis_month_filename<-paste0(file_date,"_madis_daily_rf.csv")#dynamic file name that includes month year so when month is done new file is written
 madis<-read.csv.TC(madis_month_filename,HADS=TRUE)
-if(!is.null(madis) && nrow(madis)>0){  #did madis month file exist? 
+if(!is.null(madis) && nrow(madis)>0){  #did madis month file exist? TRUE
  madis<-madis[,c("staID","date","rf")]
  names(madis)<-c("sourceID","date","x") #note 'source_id" IS "NWS.id" for madis
  madis$date<-as.Date(madis$date)
+ madis<-madis[madis$data_per>=0.95,]#subset days with at least 95% data
  madis_day<-madis[madis$date==map_date,] #date sub
  if(nrow(madis_day)>0){ #if madis_day has rows/data
   madis_day$date<-format(madis_day$date,"%Y.%m.%d")
@@ -240,10 +243,11 @@ print("madis pau!")
 setwd(synoptic_daily_wd)#set data source wd
 synoptic_month_filename<-paste0(file_date,"_synoMeso_daily_rf.csv")#dynamic file name that includes month year so when month is done new file is written
 synoptic<-read.csv.TC(synoptic_month_filename,HADS=FALSE)
-if(!is.null(synoptic) && nrow(synoptic)>0){  #did synoptic month file exist? 
+if(!is.null(synoptic) && nrow(synoptic)>0){  #did synoptic month file exist? TRUE
   synoptic<-synoptic[,c("staID","date","rf")]
   names(synoptic)<-c("sourceID","date","x")
   synoptic$date<-as.Date(synoptic$date)#format as date
+  synoptic<-synoptic[synoptic$data_per>=0.95,]#subset days with at least 95% data
   synoptic_day<-synoptic[synoptic$date==map_date,]
   if(nrow(synoptic_day)>0){ #if synoptic_day has rows/data
     synoptic_day$date<-format(synoptic_day$date,"%Y.%m.%d")

@@ -115,9 +115,8 @@ all_madis<-read.csv(madis_filename) #read data csv
 #subset precip var, convert inch to mm and convert UTC to HST
 all_madis_rp<-subset(all_madis, varname=="rawPrecip")# subset rawPrecip only
 all_madis_rp<-all_madis_rp[complete.cases(all_madis_rp),] #remove NA rows
-all_madis_rp$time<-strptime(all_madis_rp$time, format="%Y-%m-%d %H:%M", tz="UTC")
-attr(all_madis_rp$time,"tzone") <- "Pacific/Honolulu" #convert TZ attribute to HST
-all_madis_rp$time<-(all_madis_rp$time-36000) #minus 10 hrs for UTC to HST
+all_madis_rp$time<-as.POSIXct(all_madis_rp$time,tz="UTC")
+attr(all_madis_rp$time, "tzone") <- "HST"
 all_madis_rp$time<-(all_madis_rp$time)-1 #minus 1 second to put midnight obs in last day
 #tail(all_madis_rp)
 #head(all_madis_rp)
@@ -162,7 +161,6 @@ print("PP loop complete!")
 madis_daily_pp_rf<-madis_daily_pp_rf[madis_daily_pp_rf$date==(currentDate),]#subset yesterday
 
 #subset 95% data
-madis_daily_pp_rf<-madis_daily_pp_rf[madis_daily_pp_rf$data_per>=0.95,]#subset days with at least 95% data
 madis_daily_pp_rf<-madis_daily_pp_rf[order(madis_daily_pp_rf$data_per,decreasing = T),] #sort descending by data percent
 row.names(madis_daily_pp_rf)<-NULL #rename rows
 
@@ -183,7 +181,7 @@ for(j in stations){
   sta_data<-subset(all_madis_pc,stationId==j)
   sta_data_xts<-xts(sta_data$value,order.by=sta_data$time,unique = TRUE) #make xtended timeseries object
   sta_data_xts_sub<- sta_data_xts[!duplicated(index(sta_data_xts)),] #remove duplicate time obs
-  if(nrow(sta_data_xts_sub)>=23){ #only stations with at least hourly intervals
+  if(nrow(sta_data_xts_sub)>=2){ #only stations with at least 2 hourly intervals
     sta_data_xts_sub_lag<-diff(sta_data_xts_sub,lag=1)
     sta_data_xts_sub_lag[sta_data_xts_sub_lag<0]<-NA #NA to neg values when lag 1 dif
     sta_data_hrly_xts<-apply.hourly(sta_data_xts_sub_lag,FUN=sum,roundtime = "trunc")#agg to hourly and truncate hour
@@ -208,11 +206,8 @@ madis_daily_pc_rf<-madis_daily_pc_rf[madis_daily_pc_rf$date==(currentDate),]#sub
 #head(madis_daily_pc_rf)
 #tail(madis_daily_pc_rf)
 
-#subset 95% data for day
-madis_daily_pc_rf<-madis_daily_pc_rf[madis_daily_pc_rf$data_per>=0.95,]#subset days with at least 95% data
-row.names(madis_daily_pc_rf)<-NULL #rename rows
-
 #data check
+row.names(madis_daily_pc_rf)<-NULL #rename rows
 print("data check head:tail..")
 head(madis_daily_pc_rf)
 tail(madis_daily_pc_rf)
