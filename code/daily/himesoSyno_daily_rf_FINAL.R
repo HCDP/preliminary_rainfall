@@ -14,7 +14,7 @@ require(xts)
 #set dirs
 mainDir <- "/home/hawaii_climate_products_container/preliminary"
 codeDir<-paste0(mainDir,"/rainfall/code/source")
-parse_wd<-paste0(mainDir,"/data_aqs/data_outputs/mesonetSynoptic/parse")
+parse_wd<-paste0(mainDir,"/data_aqs/data_outputs/hi_mesonet_synoptic/parse")
 agg_daily_wd<-paste0(mainDir,"/rainfall/working_data/hi_mesonet/synoptic")
 
 #define dates
@@ -52,14 +52,14 @@ apply.hourly <- function(x, FUN, roundtime = "round", na.rm = TRUE){
 
 # #read meso parsed table from dev server OLD
 # setwd(parse_wd)#sever path for parsed meso files
-# meso_filename<-paste0(format((currentDate),"%Y%m%d"),"_himeso_synoptic.csv") #dynamic file name that includes date
+# meso_filename<-paste0(format((currentDate),"%Y%m%d"),"_hi_mesonet_synoptic_parsed.csv") #dynamic file name that includes date
 # all_meso<-read.csv(meso_filename)
 # head(all_meso)
 
 #read meso parsed table from ikewai data portal NEW
 ikeUrl<-"https://ikeauth.its.hawaii.edu/files/v2/download/public/system/ikewai-annotated-data/HCDP/workflow_data/preliminary" #url
-meso_filename<-paste0(format((currentDate),"%Y%m%d"),"_himeso_synoptic.csv") #dynamic file name that includes date
-all_meso<-read.csv(paste0(ikeUrl,"/data_aqs/data_outputs/mesonetSynoptic/parse/",meso_filename))
+meso_filename<-paste0(format((currentDate),"%Y%m%d"),"_hi_mesonet_synoptic_parsed.csv") #dynamic file name that includes date
+all_meso<-read.csv(paste0(ikeUrl,"/data_aqs/data_outputs/hi_mesonet_synoptic/parse/",meso_filename))
 #head(all_meso)
 #unique(all_meso$var)
 
