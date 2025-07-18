@@ -48,6 +48,7 @@ apply.hourly <- function(x, FUN, roundtime = "round", na.rm = TRUE){
     period.apply(x,ap,FUN)
   }
  }#end apply.hrly function
+
 PC2rf24hr<-function(df,pc_dp,doi){
   require(lubridate)
   dtoi1<-strptime(paste(doi, "00:00:00"),format="%Y-%m-%d %H:%M:%S")
@@ -82,18 +83,27 @@ PC2rf24hr<-function(df,pc_dp,doi){
   row.names(df_pc2)<-NULL
   
   #merge
-  mergedPC<-merge(df_pc1,df_pc2,by="stationId")
-  mergedPC$PCdiff<-mergedPC$PC2-mergedPC$PC1
-  mergedPC<-mergedPC[mergedPC$PCdiff>=0,] #subset minus values
-  
-  #make matching DF
-  sta_daily_df<-data.frame(staID=mergedPC$stationId,
+  if(!(nrow(df_pc2)==0 | nrow(df_pc1)==0)){
+    mergedPC<-merge(df_pc1,df_pc2,by="stationId")
+    mergedPC$PCdiff<-mergedPC$PC2-mergedPC$PC1
+    mergedPC<-mergedPC[mergedPC$PCdiff>=0,] #subset minus values
+    
+    #make matching DF
+    sta_daily_df<-data.frame(staID=mergedPC$stationId,
                            date=rep(doi,nrow(mergedPC)),
                            obs_int_mins=NA,
                            data_per=NA,
                            rf=round(mergedPC$PCdiff,4))#make df row
   
-  return(sta_daily_df)
+    return(sta_daily_df)
+  }else{
+    sta_daily_df<-data.frame(staID=as.character(),
+                             date=as.character(),
+                             obs_int_mins=as.numeric(),
+                             data_per=as.numeric(),
+                             rf=as.numeric())#make df row
+  }
+    
 }#end PC2rf24hr
 
 #dirs
