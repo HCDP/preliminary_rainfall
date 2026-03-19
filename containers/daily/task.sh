@@ -1,8 +1,11 @@
 #!/bin/bash
+
+set -u
+
 echo "[task.sh] [1/5] Starting Execution."
 export TZ="HST"
 echo "It is currently $(date)."
-if [ $CUSTOM_DATE ]; then
+if [[ -v CUSTOM_DATE ]]; then
     echo "An aggregation date was provided by the environment."
 else
     export CUSTOM_DATE=$(date -d "1 day ago" --iso-8601)
@@ -31,6 +34,8 @@ echo "---end madis_daily_rf_FINAL.R---"
 echo "---begin himesoSyno_daily_rf_FINAL.R---"
 Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/himesoSyno_daily_rf_FINAL.R $CUSTOM_DATE
 echo "---end himesoSyno_daily_rf_FINAL.R---"
+
+set -eo pipefail
 
 echo "---begin all_data_daily_merge_table_rf_FINAL.R---"
 Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/all_data_daily_merge_table_rf_FINAL.R $CUSTOM_DATE

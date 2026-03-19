@@ -4,7 +4,7 @@
 TZ=Pacific/Honolulu 
 
 #define filedate year_month of yesterday
-if [ $CUSTOM_DATE ]; then
+if [[ -v CUSTOM_DATE ]]; then
     fileDate=$(date --date="$CUSTOM_DATE" +"%Y_%m")
     fileYear=$(date --date="$CUSTOM_DATE" +"%Y")
 else

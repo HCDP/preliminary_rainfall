@@ -6,7 +6,7 @@ echo "Starting Daily RF Pull"
 TZ=Pacific/Honolulu 
 
 #define fileDate year_month of yesterday
-if [ $CUSTOM_DATE ]; then
+if [[ -v CUSTOM_DATE ]]; then
     fileDate=$(date --date="$CUSTOM_DATE" +"%Y_%m")
 else
     fileDate=$(date --date="1 day ago" +"%Y_%m")  
