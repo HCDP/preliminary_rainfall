@@ -19,7 +19,7 @@ agg_daily_wd<-paste0(mainDir,"/rainfall/working_data/hads")
 
 #define dates
 source(paste0(codeDir,"/dataDateFunc.R"))
-dataDate<-dataDateMkr("2020-01-01") #function for importing/defining date as input or as yesterday
+dataDate<-dataDateMkr() #function for importing/defining date as input or as yesterday
 currentDate<-dataDate #dataDate as currentDate
 
 #functions

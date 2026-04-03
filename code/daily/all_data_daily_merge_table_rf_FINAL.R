@@ -21,7 +21,7 @@ nws_daily_wd <- paste0(mainDir,"/rainfall/working_data/nws_rr5") #nws daily agg 
 scan_daily_wd <- paste0(mainDir,"/rainfall/working_data/scan") #scan daily agg wd
 madis_daily_wd <- paste0(mainDir,"/rainfall/working_data/madis") #madis daily agg wd
 synoptic_daily_wd <- paste0(mainDir,"/rainfall/working_data/hi_mesonet/synoptic") #hi mesonet synoptic daily agg wd
-#WORKING... hi mesonet daily agg wd
+uhmeso_daily_wd <- paste0(mainDir,"/rainfall/working_data/hi_mesonet/uh_meso") #uh hi mesonet daily agg wd
 #WORKING... smart ala wai daily agg wd
 
 #output dirs
@@ -41,24 +41,26 @@ read.csv.TC<-function(file,HADS=FALSE){
   }, error = function(e) NULL)
 }
 
-combine_data <- function(data_filename, new_data, new_date_col, geog_meta) {
+combine_data <- function(data_filename, new_data, new_date_col, geog_meta){
   # Read data from file
   file_data <- read.csv(data_filename)
   # Subset data by SKN and date cols
   sub_cols <- c("SKN", names(file_data)[grep("X", names(file_data))])
   # Remove old data for day being processed from source table cols
   sub_cols <- sub_cols[sub_cols != new_date_col]
-  file_data <- file_data[,sub_cols]
-
-  # Merge data from file with new data
-  merged_data <- merge(file_data, new_data, by="SKN", all=T)
-
-  # Sort columns to ensure dates are properly ordered
-  merged_data <- merged_data[,order(colnames(merged_data))]
-
-  # Add geographical metadata
-  merged_data <- merge(geog_meta, merged_data, by="SKN")
-  return(merged_data)
+  if(length(sub_cols)>1){
+    file_data_sub <- file_data[,sub_cols]
+    # Merge data from file with new data
+    merged_data <- merge(file_data_sub, new_data, by="SKN", all=T)
+    # Sort columns to ensure dates are properly ordered
+    merged_data <- merged_data[,order(colnames(merged_data))]
+    # Add geographical metadata
+    merged_data <- merge(geog_meta, merged_data, by="SKN")
+    return(merged_data)
+  }else{
+    message(paste("no new data returing",source_month_filename))
+            return(file_data)
+  }
 }
 
 rbind.all.columns <- function(x, y) {     #function to smart rbind
@@ -88,6 +90,7 @@ if(!is.null(hads) && nrow(hads)>0){  #did HADS month file exist?
  names(hads)<-c("sourceID","date","x") #note 'source_id" IS "NESDIS.id" for hads
  hads$date<-as.Date(hads$date)
  hads_day<-hads[hads$date==map_date,] #date sub
+ hads_day<-hads_day[complete.cases(hads_day),] #subset complete rows to remove any NA rows
  if(nrow(hads_day)>0){ #if hads_day has rows/data
   hads_day$date<-format(hads_day$date,"%Y.%m.%d")
   hads_day<-hads_day[,c("sourceID","date","x")]
@@ -128,6 +131,7 @@ if(!is.null(nws) && nrow(nws)>0){  #did nws month file exist?
  names(nws)<-c("sourceID","date","x")
  nws$date<-as.Date(nws$date)#format as date
  nws_day<-nws[nws$date==map_date,]
+ nws_day<-nws_day[complete.cases(nws_day),] #subset complete rows to remove any NA rows
  if(nrow(nws_day)>0){ #if nws_day has rows/data
   nws_day$date<-format(nws_day$date,"%Y.%m.%d")
   nws_day$x<-as.numeric(nws_day$x)
@@ -166,7 +170,8 @@ if(!is.null(scan) && nrow(scan)>0){  #did scan month file exist?
  #subset 24hr obs
  names(scan)<-c("sourceID","date","x")
  scan$date<-as.Date(scan$date)
- scan_day<- scan[scan$date==map_date,]
+ scan_day<- scan[scan$date==map_date,] #subset data day
+ scan_day<-scan_day[complete.cases(scan_day),] #subset complete rows to remove any NA rows
  if(nrow(scan_day)>0){ #if scan_day has rows/data
   scan_day$date<-format(scan_day$date,"%Y.%m.%d")
   scan_day$x<-as.numeric(scan_day$x)
@@ -206,6 +211,7 @@ if(!is.null(madis) && nrow(madis)>0){  #did madis month file exist?
  names(madis)<-c("sourceID","date","x") #note 'source_id" IS "NWS.id" for madis
  madis$date<-as.Date(madis$date)
  madis_day<-madis[madis$date==map_date,] #date sub
+ madis_day<-madis_day[complete.cases(madis_day),] #subset complete rows to remove any NA rows
  if(nrow(madis_day)>0){ #if madis_day has rows/data
   madis_day$date<-format(madis_day$date,"%Y.%m.%d")
   madis_day<-madis_day[,c("sourceID","date","x")]
@@ -237,6 +243,7 @@ if(!is.null(madis) && nrow(madis)>0){  #did madis month file exist?
     }
 print("madis pau!")
 
+#add synoptic meso data
 setwd(synoptic_daily_wd)#set data source wd
 synoptic_month_filename<-paste0(file_date,"_synoMeso_daily_rf.csv")#dynamic file name that includes month year so when month is done new file is written
 synoptic<-read.csv.TC(synoptic_month_filename,HADS=FALSE)
@@ -244,7 +251,8 @@ if(!is.null(synoptic) && nrow(synoptic)>0){  #did synoptic month file exist?
   synoptic<-synoptic[,c("staID","date","rf")]
   names(synoptic)<-c("sourceID","date","x")
   synoptic$date<-as.Date(synoptic$date)#format as date
-  synoptic_day<-synoptic[synoptic$date==map_date,]
+  synoptic_day<-synoptic[synoptic$date==map_date,] #date sub
+  synoptic_day<-synoptic_day[complete.cases(synoptic_day),] #subset complete rows to remove any NA rows
   if(nrow(synoptic_day)>0){ #if synoptic_day has rows/data
     synoptic_day$date<-format(synoptic_day$date,"%Y.%m.%d")
     synoptic_day$x<-as.numeric(synoptic_day$x)
@@ -261,12 +269,14 @@ if(!is.null(synoptic) && nrow(synoptic)>0){  #did synoptic month file exist?
     count_log_synoptic<-data.frame(datastream=as.character("synoptic"),station_count=as.numeric(nrow(synoptic_wide_merged)),unique=as.logical(0))
     print(paste(synoptic_month_filename,"found!",nrow(synoptic_wide_merged),"stations added!"))
   }else{ #else if nrow(synoptic_day) = 0
+    message("syno day missing making blank df")
     synoptic_wide_merged<-data.frame(sourceID=as.character(NA),date_day=as.numeric(NA),datastream=as.character("synoptic"),SKN=as.numeric(NA))
     names(synoptic_wide_merged)[2]<-format(dataDate,"X%Y.%m.%d")
     missing_synoptic<-data.frame(sourceID=as.character(NA),datastream=as.character(NA)) #missing stations blank df
     count_log_synoptic<-data.frame(datastream=as.character("synoptic"),station_count=as.numeric(0),unique=as.logical(0))
     print(paste("NO SYNOPTIC DATA:",map_date,"!"))
   }}else{ #else if synoptic month df is missing make a blank df
+    message("syno month df missing making blank df")
     synoptic_wide_merged<-data.frame(sourceID=as.character(NA),date_day=as.numeric(NA),datastream=as.character("synoptic"),SKN=as.numeric(NA))
     names(synoptic_wide_merged)[2]<-format(dataDate,"X%Y.%m.%d")
     missing_synoptic<-data.frame(sourceID=as.character(NA),datastream=as.character(NA)) #missing stations blank df
@@ -275,8 +285,48 @@ if(!is.null(synoptic) && nrow(synoptic)>0){  #did synoptic month file exist?
   }
 print("synoptic pau!")
 
-#make and write table of all missing stations from acquired data
-all_missing<-rbind(missing_hads,missing_nws,missing_scan,missing_madis,missing_synoptic)
+#add uh meso data
+setwd(uhmeso_daily_wd)#set data source wd
+uhmeso_month_filename<-paste0(file_date,"_HIMeso_daily_rf.csv")#dynamic file name that includes month year so when month is done new file is written
+uhmeso<-read.csv.TC(uhmeso_month_filename,HADS=FALSE)
+if(!is.null(uhmeso) && nrow(uhmeso)>0){  #did uhmeso month file exist? 
+  uhmeso<-uhmeso[,c("staID","date","rf")]
+  names(uhmeso)<-c("sourceID","date","x")
+  uhmeso$date<-as.Date(uhmeso$date)#format as date
+  uhmeso_day<-uhmeso[uhmeso$date==map_date,]
+  uhmeso_day<-uhmeso_day[complete.cases(uhmeso_day),] #subset complete rows to remove any NA rows
+  if(nrow(uhmeso_day)>0){ #if uhmeso_day has rows/data
+    uhmeso_day$date<-format(uhmeso_day$date,"%Y.%m.%d")
+    uhmeso_day$x<-as.numeric(uhmeso_day$x)
+    uhmeso_wide<- reshape(uhmeso_day, idvar = "sourceID", timevar = "date", direction = "wide")
+    uhmeso_wide$datastream<-"uhmeso"
+    #head(uhmeso_wide)
+    #tail(uhmeso_wide)
+    uhmeso_wide_merged_all<-merge(uhmeso_wide,geog_meta_sub[,c("NWS.id","SKN")],by.x="sourceID",by.y="NWS.id",all.x=T)
+    missing_uhmeso<-uhmeso_wide_merged_all[is.na(uhmeso_wide_merged_all$SKN),c("sourceID","datastream")] #missing stations
+    uhmeso_wide_merged<-uhmeso_wide_merged_all[!is.na(uhmeso_wide_merged_all$SKN),] #remove missing stations with no SKN
+    names(uhmeso_wide_merged)[2]<-gsub("x.","X",names(uhmeso_wide_merged)[2])#make lower case x to uppercase X for continuity
+    uhmeso_wide_merged<-uhmeso_wide_merged[!is.na(uhmeso_wide_merged[,2]),] #remove NA rf day vals
+    #tail(uhmeso_wide_merged)
+    count_log_uhmeso<-data.frame(datastream=as.character("uhmeso"),station_count=as.numeric(nrow(uhmeso_wide_merged)),unique=as.logical(0))
+    print(paste(uhmeso_month_filename,"found!",nrow(uhmeso_wide_merged),"stations added!"))
+  }else{ #else if nrow(uhmeso_day) = 0
+    uhmeso_wide_merged<-data.frame(sourceID=as.character(NA),date_day=as.numeric(NA),datastream=as.character("uhmeso"),SKN=as.numeric(NA))
+    names(uhmeso_wide_merged)[2]<-format(dataDate,"X%Y.%m.%d")
+    missing_uhmeso<-data.frame(sourceID=as.character(NA),datastream=as.character(NA)) #missing stations blank df
+    count_log_uhmeso<-data.frame(datastream=as.character("uhmeso"),station_count=as.numeric(0),unique=as.logical(0))
+    print(paste("NO uhmeso DATA:",map_date,"!"))
+  }}else{ #else if uhmeso month df is missing make a blank df
+    uhmeso_wide_merged<-data.frame(sourceID=as.character(NA),date_day=as.numeric(NA),datastream=as.character("uhmeso"),SKN=as.numeric(NA))
+    names(uhmeso_wide_merged)[2]<-format(dataDate,"X%Y.%m.%d")
+    missing_uhmeso<-data.frame(sourceID=as.character(NA),datastream=as.character(NA)) #missing stations blank df
+    count_log_uhmeso<-data.frame(datastream=as.character("uhmeso"),station_count=as.numeric(0),unique=as.logical(0))
+    print(paste(uhmeso_month_filename,"MISSING empty DF made!"))
+  }
+print("uh meso pau!")
+
+##make and write table of all missing stations from acquired data
+all_missing<-rbind(missing_hads,missing_nws,missing_scan,missing_madis,missing_synoptic,missing_uhmeso)
 all_missing<-all_missing[!is.na(all_missing$sourceID),] #remove no sourceID stations
 if(nrow(all_missing)==0){
   all_missing<-data.frame(sourceID=NA,datastream="ALL")
@@ -300,7 +350,9 @@ if(file.exists(missing_month_filename)){
 	write.csv(all_missing,missing_month_filename, row.names=F)
 	print(paste(missing_month_filename,"unknown sta table written!"))
 	}
+
 print("unknown station table below...")
+row.names(all_missing)<-NULL
 print(all_missing)
 
 #rbind all data streams and merge with geog meta
@@ -308,16 +360,16 @@ print("combinding all data...")
 hads_nws_wide<-rbind.all.columns(hads_wide_merged,nws_wide_merged)
 hads_nws_scan_wide<-rbind.all.columns(hads_nws_wide,scan_wide_merged)
 hads_nws_scan_madis_wide<-rbind.all.columns(hads_nws_scan_wide,madis_wide_merged)
-all_sta_data_wide<-rbind.all.columns(hads_nws_scan_madis_wide,synoptic_wide_merged)
-
-print("all data combind!")
+hads_nws_scan_madis_syno_wide<-rbind.all.columns(hads_nws_scan_madis_wide,synoptic_wide_merged)
+all_sta_data_wide<-rbind.all.columns(hads_nws_scan_madis_syno_wide,uhmeso_wide_merged)
+message("all data combind!")
 
 #remove stations with NA values
 rf_col<-paste0("X",format(map_date,"%Y.%m.%d"))#define rf day col name
 all_sta_data_wide<-all_sta_data_wide[!is.na(all_sta_data_wide[,rf_col]),] #remove na rf obs should be none
 
 #reorder to define data stream priority
-data_priority <- c("synoptic","hads","nws","madis","scan")
+data_priority <- c("uhmeso","synoptic","hads","nws","madis","scan")
 all_sta_data_wide<-all_sta_data_wide[order(match(all_sta_data_wide$datastream, data_priority)),] #remove dup stations by priority
 dim(all_sta_data_wide)
 str(all_sta_data_wide)
@@ -341,7 +393,11 @@ names(all_sta_data_wide_no_dup_source)<-names(all_sta_data_wide_no_dup_rf)#renam
 head(all_sta_data_wide_no_dup_source)
 
 #make and write table of source log station counts from acquired data
-count_log_per<-rbind(count_log_hads,count_log_nws,count_log_scan)
+#with dups
+count_log_per<-data.frame(table(all_sta_data_wide$datastream))
+names(count_log_per)<-c("datastream","station_count")
+count_log_per$unique<-as.logical(0)
+#unq sta no dups
 count_log_unq<-data.frame(table(all_sta_data_wide_no_dup$datastream))
 names(count_log_unq)<-c("datastream","station_count")
 count_log_unq$unique<-as.logical(1)
@@ -404,4 +460,3 @@ head(final_rf_data)
 tail(final_rf_data)
 
 paste(dataDate,"DATA COMBIND RUN - CODE PAU!")
-
