@@ -35,6 +35,10 @@ echo "---begin himesoSyno_daily_rf_FINAL.R---"
 Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/himesoSyno_daily_rf_FINAL.R $CUSTOM_DATE
 echo "---end himesoSyno_daily_rf_FINAL.R---"
 
+echo "---begin himesoUH_daily_rf_FINAL.R.R---"
+Rscript /home/hawaii_climate_products_container/preliminary/rainfall/code/daily/himesoUH_daily_rf_FINAL.R $CUSTOM_DATE
+echo "---end himesoUH_daily_rf_FINAL.R---"
+
 set -eo pipefail
 
 echo "---begin all_data_daily_merge_table_rf_FINAL.R---"
