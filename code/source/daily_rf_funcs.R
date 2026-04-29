@@ -125,13 +125,20 @@ metamaker<-function(map_validation_df,grid,filenames,datatype,rfDay,statewide=F,
                               ifelse(map_validation_df$county=="mn"|map_validation_df$county=="MN","Maui County (Maui, Lanai, Molokai & Kahoolawe)",
                                      if(map_validation_df$county=="bi"|map_validation_df$county=="BI"){"Hawaii county"})))
     
-    co_statement<-as.character(paste("This",format(dataStartDate,"%B %d %Y"),"rainfall map of",countyText, 
+    isIDW<-isTRUE(as.character(map_validation_df$interpolation)=="IDW")
+    co_statement<-as.character(paste("This",format(dataStartDate,"%B %d %Y"),"rainfall map of",countyText,
                                      "is a high spatial resolution (~250m) gridded prediction of cumulative rainfall in millimeters from midnight HST",
                                      format(dataStartDate,"%b %d %Y"),"to midnight HST",format(dataEndDate,"%b %d %Y."),
-                                     ifelse(map_validation_df$noRF,as.character(paste("All",map_validation_df$stationCount, "observed and statistically gap filled unique station locations within",countyText, "county reported no measured or estimated rainfall. Without any observed rainfall the county wide map was created by setting all pixels to 0. As such, no validation metric data is availible, and an rainfall SE map was not produced.", 
+                                     ifelse(map_validation_df$noRF,as.character(paste("All",map_validation_df$stationCount, "observed and statistically gap filled unique station locations within",countyText, "county reported no measured or estimated rainfall. Without any observed rainfall the county wide map was created by setting all pixels to 0. As such, no validation metric data is availible, and an rainfall SE map was not produced.",
                                                                                       "Unknown rainfall errors could be present, if unreported rainfall occured at locations without known station observations. If so this map might be underestimating accual rainfall in unknown areas. All maps are subject to change as new data becomes available or unknown errors are corrected in reoccurring versions.")),
+                                            ifelse(isIDW,as.character(paste("All kriging variogram fits failed for this county on this date, so this map was produced using inverse-distance-weighted (IDW, power=2) interpolation of raw observed daily rainfall (mm) instead of kriging. No standard error map was produced because IDW does not yield an analytic prediction error; the SE GeoTIFF is filled with the sentinel value -9999. This IDW process used",
+                                                                            map_validation_df$stationCount,"unique station locations within",countyText,
+                                                                            "and their",format(dataStartDate,"%B %Y"),
+                                                                            "recorded and/or estimated rainfall (mm) totals. A leave one out cross validation (LOOCV) between observed station data and the IDW estimate produced a mean absolute error (MAE) of:",
+                                                                            round(map_validation_df$mae_rf_mm,3),"with a maximum observed rainfall of",round(map_validation_df$staRFmmMax,3),"mm.",
+                                                                            "All maps are subject to change as new data becomes available or unknown errors are corrected in reoccurring versions.")),
                                             #IDW statement here
-                                            as.character(paste("This was produced using a climate-aided modified automatic kriging interpolation of a log transformed daily rainfall anomaly ratio calculated from a mean monthly daily disaggrigated rf map, plus a consteint (observed mm + 1 / (mean daily mm + c). This kriging process used", 
+                                            as.character(paste("This was produced using a climate-aided modified automatic kriging interpolation of a log transformed daily rainfall anomaly ratio calculated from a mean monthly daily disaggrigated rf map, plus a consteint (observed mm + 1 / (mean daily mm + c). This kriging process used",
                                                                map_validation_df$stationCount, "unique station locations within",countyText,
                                                                "and their",format(dataStartDate,"%B %Y"), 
                                                                "recorded and/or estimated rainfall (mm) totals. A leave one out cross validation (LOOCV) between observed station data and the interpolated estimate used in this map produced a mean absolute error (MAE) of:",
@@ -143,7 +150,7 @@ metamaker<-function(map_validation_df,grid,filenames,datatype,rfDay,statewide=F,
                                                                                     ifelse(qualMetric<=validRanks[4],"low quality estimate of daily rainfall, and should be used with dilligence.","lowest quality estimate of daily rainfall, and should be used with caution.")))),
                                                                "All maps are subject to change as new data becomes available or unknown errors are corrected in reoccurring versions.", 
                                                                "Errors in rainfall estimates do vary over space meaning any gridded rainfall value, even on higher quality maps, could still produce incorrect estimates.",
-                                                               "Check standard error (SE) maps to better understand spatial estimates of prediction error")))))
+                                                               "Check standard error (SE) maps to better understand spatial estimates of prediction error"))))))
     
     keywords<-as.character(paste(ifelse(map_validation_df$county=="ka"|map_validation_df$county=="KA","Kauai,",
                                         ifelse(map_validation_df$county=="oa"|map_validation_df$county=="OA","Oahu,",
@@ -193,12 +200,14 @@ metamaker<-function(map_validation_df,grid,filenames,datatype,rfDay,statewide=F,
     names(rf_validation)<-names(map_validation_df)[-2]
     
     #make statewide valid stat from all county loocv
-    
+
+    idwCounties<-if("interpolation" %in% names(map_validation_df)) as.character(map_validation_df[as.character(map_validation_df$interpolation)=="IDW","county"]) else character(0)
+    idwNote<-if(length(idwCounties)>0) paste0(" Note: kriging variogram fits failed for the following counties on this date and IDW (inverse-distance-weighted, power=2) was used as a fallback instead — ",paste(idwCounties,collapse=", "),". Standard error rasters for these counties carry the sentinel value -9999 because IDW does not yield an analytic prediction error.") else ""
     state_statement<-as.character(paste("This",format(dataStartDate,"%B %d %Y"),"mosaic rainfall map of the State of Hawaii",
                                         "is a high spatial resolution (~250m) gridded prediction of cumulative rainfall in millimeters from midnight HST",
                                         format(dataStartDate,"%b %d %Y"),"to midnight HST",format(dataEndDate,"%b %d %Y."),
-                                        #IDW statement here
-                                        "This was produced by performing a climate-aided modified automatic kriging interpolations for each county extent. This kriging used log transformed daily rainfall anomaly ratios calculated from a mean monthly daily disaggrigated rf map, plus a consteint (observed mm + 1 / (mean daily mm + c) as an input. This process was done for four individually produced maps of Kauai, Honolulu (Oahu), Maui (Maui, Lanai, Molokai, & Kahoolawe) and Hawaii counties.", 
+                                        idwNote,
+                                        "This was produced by performing a climate-aided modified automatic kriging interpolations for each county extent. This kriging used log transformed daily rainfall anomaly ratios calculated from a mean monthly daily disaggrigated rf map, plus a consteint (observed mm + 1 / (mean daily mm + c) as an input. This process was done for four individually produced maps of Kauai, Honolulu (Oahu), Maui (Maui, Lanai, Molokai, & Kahoolawe) and Hawaii counties.",
                                         "These kriging processes used", 
                                         sum(map_validation_df$stationCount), "unique station locations statewide",
                                         "and their",format(dataStartDate,"%B %d %Y"), 
@@ -303,9 +312,10 @@ noRFoutputs<-function(meanRFgridwd,county,data_date,RF_day,realVals){
     mae_rf_anom=NA,
     bias_rf_anom=NA,
     nse_rf_anom=NA,
-    kge_rf_anom=NA
+    kge_rf_anom=NA,
+    interpolation="none"
   )
-  
+
   #make LOOCV data
   outList[["loocvBestC"]]<-data.frame(SKN=RF_day$SKN,
                                       noRF=rep(TRUE,length(RF_day$SKN)),
@@ -328,6 +338,93 @@ noRFoutputs<-function(meanRFgridwd,county,data_date,RF_day,realVals){
   return(outList)
   #end all sta rf = zero (no rainfall)
 }#end no rf func
+
+#IDW fallback when no kriging variogram fits — produces raw inverse-distance-weighted
+#rainfall map and matches the bestRFoutputs return shape so downstream code is unchanged.
+#SE rasters carry a -9999 sentinel because IDW has no analytic prediction error.
+idwFallback<-function(county,meanRFgridwd,data_date,RF_day,RF_day_raw,realVals){
+  outList<-list()
+
+  setwd(meanRFgridwd)
+  rf_ras_name<-paste0(tolower(county),"_rf_mm",substr(data_date,6,7),"_daily.tif")
+  Mean_RF<-raster(rf_ras_name)
+
+  RF_day$RF_Mean_Extract<-raster::extract(Mean_RF,RF_day)
+  RF_day<-RF_day[!is.na(RF_day$RF_Mean_Extract),]
+
+  temppoints<-SpatialPoints(as.data.frame(Mean_RF,xy=T,na.rm=T)[,c(1,2)])
+  sink("deleteMe.txt")
+  idwObj<-gstat::idw(as.formula("total_rf_mm ~ 1"),RF_day,temppoints,idp=2,debug.level=0)
+  sink()
+  unlink("deleteMe.txt")
+
+  rf_mm_ras<-rasterize(idwObj,Mean_RF,idwObj$var1.pred)
+  rf_mm_ras[rf_mm_ras<0]<-0
+  rf_mm_SE_ras<-(Mean_RF/Mean_RF)*(-9999)
+  rf_anom_ras<-rf_mm_ras/Mean_RF
+  rf_anom_SE_ras<-(Mean_RF/Mean_RF)*(-9999)
+
+  loocv_df<-data.frame()
+  sink("deleteMe.txt")
+  for(j in 1:nrow(RF_day)){
+    if(realFill(RF_day,RF_day_raw)[j]){
+      idwLOO<-gstat::idw(as.formula("total_rf_mm ~ 1"),RF_day[-j,],RF_day[j,],idp=2,debug.level=0)
+      rf_mm_pred<-round(idwLOO$var1.pred,10)
+      rf_mm_obs<-RF_day[j,]$total_rf_mm
+      mean_rf<-RF_day[j,]$RF_Mean_Extract
+      loocv_df<-rbind(loocv_df,data.frame(SKN=RF_day[j,]$SKN,
+                                          noRF=FALSE,
+                                          date=data_date,
+                                          pred_rf=rf_mm_pred,
+                                          obs_rf=rf_mm_obs,
+                                          obs_anom=rf_mm_obs/mean_rf,
+                                          pred_anom=rf_mm_pred/mean_rf))
+    }
+  }
+  sink()
+  unlink("deleteMe.txt")
+  loocv_df[loocv_df$pred_rf<0 & !is.na(loocv_df$pred_rf),"pred_rf"]<-0
+
+  stationCount<-nrow(RF_day)
+  if(nrow(loocv_df)==0 || sum(is.na(loocv_df$pred_rf))==length(loocv_df$pred_rf)){
+    rf_validation<-data.frame(county=county,date=data_date,stationCount=stationCount,
+                              stationCountReal=sum(realVals),stationCountFill=stationCount-sum(realVals),
+                              staRFmmMin=NA,staRFmmMax=NA,noRF=NA,addC=NA,fixedVario=NA,nugFixZero=NA,
+                              mod=NA,nugget=NA,range=NA,sill=NA,
+                              rsq_rf_mm=NA,rmse_rf_mm=NA,mae_rf_mm=NA,bias_rf_mm=NA,nse_rf_mm=NA,kge_rf_mm=NA,
+                              rsq_rf_anom=NA,rmse_rf_anom=NA,mae_rf_anom=NA,bias_rf_anom=NA,nse_rf_anom=NA,kge_rf_anom=NA)
+  }else{
+    rf_validation<-data.frame(county=county,date=data_date,stationCount=stationCount,
+                              stationCountReal=nrow(RF_day_raw),stationCountFill=stationCount-nrow(RF_day_raw),
+                              staRFmmMin=min(loocv_df$obs_rf),staRFmmMax=max(loocv_df$obs_rf),noRF=FALSE,
+                              addC=NA,fixedVario=NA,nugFixZero=NA,mod=NA,nugget=NA,range=NA,sill=NA,
+                              rsq_rf_mm=summary(lm(loocv_df$obs_rf~loocv_df$pred_rf))$r.squared,
+                              rmse_rf_mm=Metrics::rmse(loocv_df$obs_rf,loocv_df$pred_rf),
+                              mae_rf_mm=Metrics::mae(loocv_df$obs_rf,loocv_df$pred_rf),
+                              bias_rf_mm=bias(loocv_df$obs_rf,loocv_df$pred_rf),
+                              nse_rf_mm=NSE(sim=loocv_df$pred_rf,obs=loocv_df$obs_rf),
+                              kge_rf_mm=KGE(sim=loocv_df$pred_rf,obs=loocv_df$obs_rf,out.type="single"),
+                              rsq_rf_anom=summary(lm(loocv_df$obs_anom~loocv_df$pred_anom))$r.squared,
+                              rmse_rf_anom=Metrics::rmse(loocv_df$obs_anom,loocv_df$pred_anom),
+                              mae_rf_anom=Metrics::mae(loocv_df$obs_anom,loocv_df$pred_anom),
+                              bias_rf_anom=bias(loocv_df$obs_anom,loocv_df$pred_anom),
+                              nse_rf_anom=NSE(sim=loocv_df$pred_anom,obs=loocv_df$obs_anom),
+                              kge_rf_anom=KGE(sim=loocv_df$pred_anom,obs=loocv_df$obs_anom,out.type="single"))
+  }
+  rf_validation$interpolation<-"IDW"
+
+  outList[["bestC"]]<-NA
+  outList[["RF_dayBestC"]]<-RF_day
+  outList[["rf_validationBestC"]]<-rf_validation
+  outList[["loocvBestC"]]<-loocv_df
+  outList[["rf_mm_ras"]]<-rf_mm_ras
+  outList[["rf_mm_SE_ras"]]<-rf_mm_SE_ras
+  outList[["rf_anom_ras"]]<-rf_anom_ras
+  outList[["rf_anom_SE_ras"]]<-rf_anom_SE_ras
+  outList[["varioBestC"]]<-NA
+  message(paste(county,"all kriging attempts failed — IDW fallback used"))
+  return(outList)
+}#end idwFallback
 
 bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,RF_day,RF_day_raw,realVals){
   #list to store out objects
@@ -357,7 +454,13 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
         
         C<-1 #define constant C for log + C transformation
         RF_day$total_rf_mm_logC<-log(RF_day$total_rf_mm+C)
-        
+
+        #variance pre-flight: an empty/zero-variance experimental variogram crashes autofitVariogram
+        if(!is.finite(var(RF_day$total_rf_mm_logC,na.rm=TRUE)) || var(RF_day$total_rf_mm_logC,na.rm=TRUE) < 1e-10){
+          message(paste(county,addC,"useVario:",useVario,"— zero-variance target, skipping"))
+          next
+        }
+
         if(useVario){
           #build vario
           Nugget<-varioDFAll[varioDFAll$month==month(data_date) & varioDFAll$addC==addC & varioDFAll$county==county,c("nugget")]
@@ -365,9 +468,9 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
           Range<-varioDFAll[varioDFAll$month==month(data_date) & varioDFAll$addC==addC& varioDFAll$county==county,c("range")]
           nugFixZero<-FALSE
           vario<-try(automap::autofitVariogram(as.formula("total_rf_mm_logC ~ 1"), RF_day, model="Exp",fix.values = as.numeric(c(Nugget,Range,Sill)))) #fit mat variogram fix parameters
-          if(!is.na(grep("error",vario[1],ignore.case = T)[1])){ #if error make nug 0
+          if(inherits(vario, "try-error")){ #if error make nug 0
             Nugget<- 0 #set nugget value when needed
-            vario<-automap::autofitVariogram(as.formula("total_rf_mm_logC ~ 1"), RF_day, model="Exp",fix.values = as.numeric(c(Nugget,Range,Sill))) #fit mat variogram all parameters free
+            vario<-try(automap::autofitVariogram(as.formula("total_rf_mm_logC ~ 1"), RF_day, model="Exp",fix.values = as.numeric(c(Nugget,Range,Sill)))) #fit mat variogram all parameters free
             nugFixZero<-TRUE
           }
           #plot(vario)
@@ -375,7 +478,7 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
           nugFixZero<-FALSE
           vario<-try(automap::autofitVariogram(as.formula("total_rf_mm_logC ~ 1"), RF_day, fix.values = as.numeric(c(NA,NA,NA)))) #fit mat variogram all parameters free
           
-          if(!is.na(grep("error",vario[1],ignore.case = T)[1])){ #if error make nug 0
+          if(inherits(vario, "try-error")){ #if error make nug 0
             Nugget<- 0 #set nugget value when needed
             vario<-try(automap::autofitVariogram(as.formula("total_rf_mm_logC ~ 1"), RF_day,fix.values = as.numeric(c(Nugget,NA,NA)))) #fit mat variogram all parameters free
             nugFixZero<-TRUE
@@ -383,7 +486,7 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
           #plot(vario)
         }#end conditional free vario
         
-        if(!is.na(grep("error",vario[1],ignore.case = T)[1])) next
+        if(inherits(vario, "try-error")) next
         
         #LOOCV
         stationCount<-nrow(RF_day) #save station count with gap fill
@@ -391,7 +494,8 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
         for(j in 1:nrow(RF_day)){
           check<-realFill(RF_day,RF_day_raw)[2] #check if real or gap fill val
           if(check){
-            krigeLOO<-krige(as.formula("total_rf_mm_logC ~ 1") ,RF_day[-j,], RF_day[j,], model=vario$var_model,debug.level = 0)
+            krigeLOO<-try(krige(as.formula("total_rf_mm_logC ~ 1") ,RF_day[-j,], RF_day[j,], model=vario$var_model,debug.level = 0),silent=TRUE)
+            if(inherits(krigeLOO,"try-error")) next
             #back transform to rf mm and anom
             krig_logC<-krigeLOO$var1.pred
             if(!is.na(krig_logC)){
@@ -448,9 +552,15 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
         C<-1 #define constant C for log + C transformation
         RF_day$RF_day_Anom <- RF_day$total_rf_mm / (RF_day$RF_Mean_Extract-addC) #calc anom" rf obs/mean monthly (minus addC)
         RF_day$RF_day_Anom_logK <- log((RF_day$total_rf_mm + C * RF_day$RF_Mean_Extract)/(RF_day$RF_Mean_Extract))#Make suggested transformation a column to back transform
-        
+
         ###Set up for interpolation###
-        
+
+        #variance pre-flight: an empty/zero-variance experimental variogram crashes autofitVariogram
+        if(!is.finite(var(RF_day$RF_day_Anom_logK,na.rm=TRUE)) || var(RF_day$RF_day_Anom_logK,na.rm=TRUE) < 1e-10){
+          message(paste(county,addC,"useVario:",useVario,"— zero-variance target, skipping"))
+          next
+        }
+
         if(useVario){
           #build vario
           Nugget<-varioDFAll[varioDFAll$month==month(data_date) & varioDFAll$addC==addC & varioDFAll$county==county,c("nugget")]
@@ -458,23 +568,23 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
           Range<-varioDFAll[varioDFAll$month==month(data_date) & varioDFAll$addC==addC& varioDFAll$county==county,c("range")]
           nugFixZero<-FALSE
           vario<-try(automap::autofitVariogram(as.formula("RF_day_Anom_logK ~ 1"), RF_day, model="Exp",fix.values = as.numeric(c(Nugget,Range,Sill)))) #fit mat variogram fix parameters
-          if(!is.na(grep("error",vario[1],ignore.case = T)[1])){ #if error make nug 0
+          if(inherits(vario, "try-error")){ #if error make nug 0
             Nugget<- 0 #set nugget value when needed
-            vario<-automap::autofitVariogram(as.formula("RF_day_Anom_logK ~ 1"), RF_day, model="Exp",fix.values = as.numeric(c(Nugget,Range,Sill))) #fit mat variogram all parameters free
+            vario<-try(automap::autofitVariogram(as.formula("RF_day_Anom_logK ~ 1"), RF_day, model="Exp",fix.values = as.numeric(c(Nugget,Range,Sill)))) #fit mat variogram all parameters free
             nugFixZero<-TRUE
           }
           #plot(vario)
         }else{
           nugFixZero<-FALSE
           vario<-try(automap::autofitVariogram(as.formula("RF_day_Anom_logK ~ 1"), RF_day, fix.values = as.numeric(c(NA,NA,NA)))) #fit mat variogram all parameters free
-          if(!is.na(grep("error",vario[1],ignore.case = T)[1])){ #if error make nug 0
+          if(inherits(vario, "try-error")){ #if error make nug 0
             Nugget<- 0 #set nugget value when needed           
             nugFixZero<-TRUE
             vario<-try(automap::autofitVariogram(as.formula("RF_day_Anom_logK ~ 1"), RF_day, fix.values = as.numeric(c(Nugget,NA,NA))))#fit mat variogram all parameters free
           }
           #plot(vario)
         }#end conditional free vario
-        if(!is.na(grep("error",vario[1],ignore.case = T)[1])) next  #if still error skip rest of loop iteration for county
+        if(inherits(vario, "try-error")) next  #if still error skip rest of loop iteration for county
         
         ## make loocv df
         stationCount<-nrow(RF_day) #save station count with gap fill
@@ -482,7 +592,8 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
         for(j in 1:nrow(RF_day)){
           check<-realFill(RF_day,RF_day_raw)[j] #check if real or gap fill val
           if(check){
-            krigeLOO<-krige(as.formula("RF_day_Anom_logK ~ 1") ,RF_day[-j,], RF_day[j,], model=vario$var_model,debug.level = 0)
+            krigeLOO<-try(krige(as.formula("RF_day_Anom_logK ~ 1") ,RF_day[-j,], RF_day[j,], model=vario$var_model,debug.level = 0),silent=TRUE)
+            if(inherits(krigeLOO,"try-error")) next
             #back transform to rf mm and anom
             krig_logC_anom<-krigeLOO$var1.pred
             if(!is.na(krig_logC_anom)){
@@ -577,7 +688,11 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
     if(bestC==-1){ #make non-climate aid raster
       
       #raw krige
-      krigeObj<-krige(as.formula("total_rf_mm_logC ~ 1") ,RF_dayBestC, temppoints, model=varioBestC$var_model,debug.level = 0)
+      krigeObj<-try(krige(as.formula("total_rf_mm_logC ~ 1") ,RF_dayBestC, temppoints, model=varioBestC$var_model,debug.level = 0),silent=TRUE)
+      if(inherits(krigeObj,"try-error")){
+        message(paste("final raster krige failed",data_date,county,"— attempting IDW fallback"))
+        return(idwFallback(county,meanRFgridwd,data_date,RF_day,RF_day_raw,realVals))
+      }
       krig_logC<-rasterize(krigeObj, Mean_RF, krigeObj$var1.pred) #make krig log points into raster
       krig_logC_SE<-rasterize(krigeObj, Mean_RF, krigeObj$var1.var) #make krig SD logk points into raster
       
@@ -596,7 +711,11 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
       Mean_RF<-(Mean_RF+bestC) #add best addC to mean
       
       #clim aid kriging
-      krigeObj<-krige(as.formula("RF_day_Anom_logK ~ 1") ,RF_dayBestC, temppoints, model=varioBestC$var_model,debug.level = 0)
+      krigeObj<-try(krige(as.formula("RF_day_Anom_logK ~ 1") ,RF_dayBestC, temppoints, model=varioBestC$var_model,debug.level = 0),silent=TRUE)
+      if(inherits(krigeObj,"try-error")){
+        message(paste("final raster krige failed",data_date,county,"— attempting IDW fallback"))
+        return(idwFallback(county,meanRFgridwd,data_date,RF_day,RF_day_raw,realVals))
+      }
       krig_logC_anom<-rasterize(krigeObj, Mean_RF, krigeObj$var1.pred) #make krig log points into raster
       krig_logC_anom_SE<-rasterize(krigeObj, Mean_RF, krigeObj$var1.var) #make krig SD logk points into raster
       krig_logC_anom[krig_logC_anom>=708]<-700
@@ -614,6 +733,7 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
     message("rasters made ",county)
     
     #function output
+    rf_validationBestC$interpolation<-"kriging"
     outList[["bestC"]]<-bestC
     outList[["RF_dayBestC"]]<-RF_dayBestC
     outList[["rf_validationBestC"]]<-rf_validationBestC
@@ -623,13 +743,11 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
     outList[["rf_anom_ras"]]<-rf_anom_ras
     outList[["rf_anom_SE_ras"]]<-rf_anom_SE_ras
     outList[["varioBestC"]]<-varioBestC
-  }else{ 
-    #no krige 
-    outList[["bestC"]]<-NA
-    #print(dfC)
-    stop(paste("null krige",data_date,county)) #stop function kick error
-    #try IDW here
-  }    
+  }else{
+    #all kriging attempts failed — fall back to IDW so a county TIFF still lands
+    message(paste("null krige",data_date,county,"— attempting IDW fallback"))
+    outList<-idwFallback(county,meanRFgridwd,data_date,RF_day,RF_day_raw,realVals)
+  }
   return(outList)
 }#end obs rf best krig
 
