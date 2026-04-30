@@ -810,6 +810,10 @@ dailyRFkrig<-function(rfdailyDFmaster,rfdailyRawDFmaster,varioDFAll,data_date,me
     #make spatial data frame with Lat and Lon
     RF_day$x<-RF_day$LON
     RF_day$y<-RF_day$LAT
+    if(nrow(RF_day)==0 || !is.numeric(RF_day$x) || !is.numeric(RF_day$y)){
+      warning(paste("no usable stations / non-numeric coords for",data_date,county,"— skipping county"))
+      next
+    }
     coordinates(RF_day) <- ~x+y
     crs(RF_day)<-"+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0" #add crs 
     
