@@ -811,45 +811,14 @@ dailyRFkrig<-function(rfdailyDFmaster,rfdailyRawDFmaster,varioDFAll,data_date,me
     RF_day$x<-RF_day$LON
     RF_day$y<-RF_day$LAT
     if(nrow(RF_day)==0 || !is.numeric(RF_day$x) || !is.numeric(RF_day$y)){
-      warning(paste("no usable stations / non-numeric coords for",data_date,county,"— skipping county"))
-      next
+      stop(paste("not enough stations to krige:",county,"on",data_date,"has 0 usable rows or non-numeric LON/LAT — aborting run"))
     }
     coordinates(RF_day) <- ~x+y
     crs(RF_day)<-"+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0" #add crs 
     
     #check station count is greater then N
     if(nrow(RF_day)<3){ #is there less then N stations?
-      warning(paste(nrow(RF_day),"is not enough stations to krige",data_date,county))
-      rf_validation<-data.frame(
-        county=county,
-        date=data_date,
-        stationCount=nrow(RF_day),
-        stationCountReal=sum(realVals),
-        stationCountFill=nrow(RF_day)-sum(realVals),
-        staRFmmMin=NA,
-        staRFmmMax=NA,
-        noRF=NA,
-        addC=addC,
-        fixedVario=NA,
-        nugFixZero=NA,
-        mod=NA,
-        nugget=NA,
-        range=NA,
-        sill=NA,
-        rsq_rf_mm=NA,
-        rmse_rf_mm=NA,
-        mae_rf_mm=NA,
-        bias_rf_mm=NA,
-        nse_rf_mm=NA,
-        kge_rf_mm=NA,
-        rsq_rf_anom=NA,
-        rmse_rf_anom=NA,
-        mae_rf_anom=NA,
-        bias_rf_anom=NA,
-        nse_rf_anom=NA,
-        kge_rf_anom=NA
-      )
-      return(rf_validation)
+      stop(paste("not enough stations to krige:",county,"on",data_date,"has only",nrow(RF_day),"station(s) — aborting run"))
     }else{ #more then 3 station conditional
       
       #set up addC loop, fix vario condition and while loop condition  
@@ -873,7 +842,9 @@ dailyRFkrig<-function(rfdailyDFmaster,rfdailyRawDFmaster,varioDFAll,data_date,me
       staRFmin<-min(RF_day$total_rf_mm) #save station min stat
       staRFmax<-max(RF_day$total_rf_mm) #save station max stat
       staRFmaxNoFill<-max(RF_day_real$total_rf_mm) #save station max no fill station stat
-      
+
+      message(paste0(county," station count for ",data_date,": ",nrow(RF_day)," total (",nrow(RF_day_real)," real, ",nrow(RF_day_fill)," gap-fill) — preparing to krige"))
+
       if(staRFmaxNoFill==0 | staRFmax==0){
         #no RF function and outputs
         message("no rf observed...")
@@ -1048,7 +1019,7 @@ dailyRFkrig<-function(rfdailyDFmaster,rfdailyRawDFmaster,varioDFAll,data_date,me
   }#end county loop
   t2<-Sys.time()
   t2-t1
-  
+
   #save STATEWIDE files
   message("saving statewide files...")
   
