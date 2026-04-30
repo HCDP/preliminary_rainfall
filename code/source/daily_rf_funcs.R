@@ -467,20 +467,20 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
           Sill<-varioDFAll[varioDFAll$month==month(data_date) & varioDFAll$addC==addC & varioDFAll$county==county,c("sill")]
           Range<-varioDFAll[varioDFAll$month==month(data_date) & varioDFAll$addC==addC& varioDFAll$county==county,c("range")]
           nugFixZero<-FALSE
-          vario<-try(automap::autofitVariogram(as.formula("total_rf_mm_logC ~ 1"), RF_day, model="Exp",fix.values = as.numeric(c(Nugget,Range,Sill)))) #fit mat variogram fix parameters
+          vario<-try(automap::autofitVariogram(as.formula("total_rf_mm_logC ~ 1"), RF_day, model="Exp",fix.values = as.numeric(c(Nugget,Range,Sill))),silent=TRUE) #fit mat variogram fix parameters
           if(inherits(vario, "try-error")){ #if error make nug 0
             Nugget<- 0 #set nugget value when needed
-            vario<-try(automap::autofitVariogram(as.formula("total_rf_mm_logC ~ 1"), RF_day, model="Exp",fix.values = as.numeric(c(Nugget,Range,Sill)))) #fit mat variogram all parameters free
+            vario<-try(automap::autofitVariogram(as.formula("total_rf_mm_logC ~ 1"), RF_day, model="Exp",fix.values = as.numeric(c(Nugget,Range,Sill))),silent=TRUE) #fit mat variogram all parameters free
             nugFixZero<-TRUE
           }
           #plot(vario)
         }else{
           nugFixZero<-FALSE
-          vario<-try(automap::autofitVariogram(as.formula("total_rf_mm_logC ~ 1"), RF_day, fix.values = as.numeric(c(NA,NA,NA)))) #fit mat variogram all parameters free
+          vario<-try(automap::autofitVariogram(as.formula("total_rf_mm_logC ~ 1"), RF_day, fix.values = as.numeric(c(NA,NA,NA))),silent=TRUE) #fit mat variogram all parameters free
           
           if(inherits(vario, "try-error")){ #if error make nug 0
             Nugget<- 0 #set nugget value when needed
-            vario<-try(automap::autofitVariogram(as.formula("total_rf_mm_logC ~ 1"), RF_day,fix.values = as.numeric(c(Nugget,NA,NA)))) #fit mat variogram all parameters free
+            vario<-try(automap::autofitVariogram(as.formula("total_rf_mm_logC ~ 1"), RF_day,fix.values = as.numeric(c(Nugget,NA,NA))),silent=TRUE) #fit mat variogram all parameters free
             nugFixZero<-TRUE
           }
           #plot(vario)
@@ -567,20 +567,20 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
           Sill<-varioDFAll[varioDFAll$month==month(data_date) & varioDFAll$addC==addC & varioDFAll$county==county,c("sill")]
           Range<-varioDFAll[varioDFAll$month==month(data_date) & varioDFAll$addC==addC& varioDFAll$county==county,c("range")]
           nugFixZero<-FALSE
-          vario<-try(automap::autofitVariogram(as.formula("RF_day_Anom_logK ~ 1"), RF_day, model="Exp",fix.values = as.numeric(c(Nugget,Range,Sill)))) #fit mat variogram fix parameters
+          vario<-try(automap::autofitVariogram(as.formula("RF_day_Anom_logK ~ 1"), RF_day, model="Exp",fix.values = as.numeric(c(Nugget,Range,Sill))),silent=TRUE) #fit mat variogram fix parameters
           if(inherits(vario, "try-error")){ #if error make nug 0
             Nugget<- 0 #set nugget value when needed
-            vario<-try(automap::autofitVariogram(as.formula("RF_day_Anom_logK ~ 1"), RF_day, model="Exp",fix.values = as.numeric(c(Nugget,Range,Sill)))) #fit mat variogram all parameters free
+            vario<-try(automap::autofitVariogram(as.formula("RF_day_Anom_logK ~ 1"), RF_day, model="Exp",fix.values = as.numeric(c(Nugget,Range,Sill))),silent=TRUE) #fit mat variogram all parameters free
             nugFixZero<-TRUE
           }
           #plot(vario)
         }else{
           nugFixZero<-FALSE
-          vario<-try(automap::autofitVariogram(as.formula("RF_day_Anom_logK ~ 1"), RF_day, fix.values = as.numeric(c(NA,NA,NA)))) #fit mat variogram all parameters free
+          vario<-try(automap::autofitVariogram(as.formula("RF_day_Anom_logK ~ 1"), RF_day, fix.values = as.numeric(c(NA,NA,NA))),silent=TRUE) #fit mat variogram all parameters free
           if(inherits(vario, "try-error")){ #if error make nug 0
             Nugget<- 0 #set nugget value when needed           
             nugFixZero<-TRUE
-            vario<-try(automap::autofitVariogram(as.formula("RF_day_Anom_logK ~ 1"), RF_day, fix.values = as.numeric(c(Nugget,NA,NA))))#fit mat variogram all parameters free
+            vario<-try(automap::autofitVariogram(as.formula("RF_day_Anom_logK ~ 1"), RF_day, fix.values = as.numeric(c(Nugget,NA,NA))),silent=TRUE)#fit mat variogram all parameters free
           }
           #plot(vario)
         }#end conditional free vario
@@ -644,19 +644,22 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
   }#useVario T/F loop
   
   ##choose best C run ranked best krig
-  dfC$listName<-paste0("add",dfC$addC,dfC$fixedVario)
-  dfC$zdist<-zdist
-  
-  #if free vario subset runs with nug/sill ratio and small ranges
-  nugsill<-(dfC$nugget/dfC$sill)<0.3
-  rangeLim<-dfC$range>0.04
-  
-  dfCFree<-dfC[nugsill & rangeLim & !dfC$fixedVario,] #subset free
-  dfCFix<-dfC[dfC$fixedVario,] #subset fixed
-  dfC<-rbind(dfCFix,dfCFree) #redefine dfc
-  
-  #conditional has data 
-  if(sum(!is.na(dfC$mae_rf_mm))>0 & nrow(dfC)>0){
+  #guard against empty dfC (every addC iteration was skipped/failed) so the IDW else branch can fire
+  if(nrow(dfC)>0){
+    dfC$listName<-paste0("add",dfC$addC,dfC$fixedVario)
+    dfC$zdist<-zdist
+
+    #if free vario subset runs with nug/sill ratio and small ranges
+    nugsill<-(dfC$nugget/dfC$sill)<0.3
+    rangeLim<-dfC$range>0.04
+
+    dfCFree<-dfC[nugsill & rangeLim & !dfC$fixedVario,] #subset free
+    dfCFix<-dfC[dfC$fixedVario,] #subset fixed
+    dfC<-rbind(dfCFix,dfCFree) #redefine dfc
+  }
+
+  #conditional has data
+  if(nrow(dfC)>0 && sum(!is.na(dfC$mae_rf_mm))>0){
     
     # #get bestC meanScore
     # bestRun<-dfC[which.max(dfC$meanScore),"listName"]
@@ -690,7 +693,7 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
       #raw krige
       krigeObj<-try(krige(as.formula("total_rf_mm_logC ~ 1") ,RF_dayBestC, temppoints, model=varioBestC$var_model,debug.level = 0),silent=TRUE)
       if(inherits(krigeObj,"try-error")){
-        message(paste("final raster krige failed",data_date,county,"— attempting IDW fallback"))
+        message(paste("Can't Krig.. lets IDW! (final raster krige failed)",data_date,county))
         return(idwFallback(county,meanRFgridwd,data_date,RF_day,RF_day_raw,realVals))
       }
       krig_logC<-rasterize(krigeObj, Mean_RF, krigeObj$var1.pred) #make krig log points into raster
@@ -713,7 +716,7 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
       #clim aid kriging
       krigeObj<-try(krige(as.formula("RF_day_Anom_logK ~ 1") ,RF_dayBestC, temppoints, model=varioBestC$var_model,debug.level = 0),silent=TRUE)
       if(inherits(krigeObj,"try-error")){
-        message(paste("final raster krige failed",data_date,county,"— attempting IDW fallback"))
+        message(paste("Can't Krig.. lets IDW! (final raster krige failed)",data_date,county))
         return(idwFallback(county,meanRFgridwd,data_date,RF_day,RF_day_raw,realVals))
       }
       krig_logC_anom<-rasterize(krigeObj, Mean_RF, krigeObj$var1.pred) #make krig log points into raster
@@ -745,7 +748,7 @@ bestRFoutputs<-function(county,meanRFgridwd,data_date,zdist=0.00225,varioDFAll,R
     outList[["varioBestC"]]<-varioBestC
   }else{
     #all kriging attempts failed — fall back to IDW so a county TIFF still lands
-    message(paste("null krige",data_date,county,"— attempting IDW fallback"))
+    message(paste("Can't Krig.. lets IDW!",data_date,county))
     outList<-idwFallback(county,meanRFgridwd,data_date,RF_day,RF_day_raw,realVals)
   }
   return(outList)
@@ -873,7 +876,7 @@ dailyRFkrig<-function(rfdailyDFmaster,rfdailyRawDFmaster,varioDFAll,data_date,me
         bestCList<-noRFoutputs(meanRFgridwd,county,data_date,RF_day,realVals)
       }else{ 
         #station observed rainfall >0 else
-        message("rf observed attempting best krig...")
+        message("Attempting to Krig now...")
         bestCList<-bestRFoutputs(county,meanRFgridwd,data_date,zdist,varioDFAll,RF_day,RF_day_raw,realVals)
       }#end RF=0 if else
       
