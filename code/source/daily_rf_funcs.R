@@ -901,12 +901,14 @@ dailyRFkrig<-function(rfdailyDFmaster,rfdailyRawDFmaster,varioDFAll,data_date,me
       dir.create(paste0(outdir,"/plots/daily/variogram/county"), showWarnings = FALSE)
       dir.create(paste0(outdir,"/plots/daily/variogram/county/",county), showWarnings = FALSE)
       setwd(paste0(outdir,"/plots/daily/variogram/county/",county))
-      if(!rf_validationBestC$noRF){
+      if(!rf_validationBestC$noRF && isTRUE(as.character(rf_validationBestC$interpolation)=="kriging")){
         subVG<-paste0(county," ",format(data_date,"%Y-%m-%d"),"; Fix Vario:",bestFixVario,"; BestC:",bestC,"; RSQ:",round(rf_validationBestC$rsq_rf_mm,2),"; RMSE:",round(rf_validationBestC$rmse_rf_mm,2),"; MAE:",round(rf_validationBestC$mae_rf_mm,2),"; BIAS:",round(rf_validationBestC$bias_rf_mm,2))
         bitmap(file = paste0(county,"_vario_",format(data_date,"%Y%m%d"),".jpg"),width=7,height=5,units="in",res=300,type="jpeg")
           plot(varioBestC,sub=subVG)
           dev.off()
         message(paste(county,"vario plotted!"))
+      }else if(isTRUE(as.character(rf_validationBestC$interpolation)=="IDW")){
+        message(paste(county,"vario plot skipped — IDW fallback (no variogram)"))
       }
       
       #rf mm plotting
@@ -915,7 +917,8 @@ dailyRFkrig<-function(rfdailyDFmaster,rfdailyRawDFmaster,varioDFAll,data_date,me
       #rf_mm_ras_zero[rf_mm_ras_zero == 0] <- NA
       mapMax<-max(c(max(RF_dayBestC$total_rf_mm),maxValue(rf_mm_ras)))
       pntCol <- rainbow(100,end=0.8)[as.numeric(cut(c(0,mapMax,RF_dayBestC$total_rf_mm),breaks = 100))[-c(1,2)]]
-      subText<-paste0("Fix Vario:",bestFixVario,"; BestC:",bestC,";  RSQ:",round(rf_validationBestC$rsq_rf_mm,2),";  RMSE:",round(rf_validationBestC$rmse_rf_mm,2),";  MAE:",round(rf_validationBestC$mae_rf_mm,2),";  BIAS:",round(rf_validationBestC$bias_rf_mm,2))
+      methodTag<-if(isTRUE(as.character(rf_validationBestC$interpolation)=="IDW")) "Method:IDW" else paste0("Fix Vario:",bestFixVario,"; BestC:",bestC)
+      subText<-paste0(methodTag,";  RSQ:",round(rf_validationBestC$rsq_rf_mm,2),";  RMSE:",round(rf_validationBestC$rmse_rf_mm,2),";  MAE:",round(rf_validationBestC$mae_rf_mm,2),";  BIAS:",round(rf_validationBestC$bias_rf_mm,2))
       #rf_mm_poly_zero<-rasterToPolygons(rf_mm_ras_zero, digits=8, dissolve=TRUE)
       
       #save rf plot
@@ -933,7 +936,7 @@ dailyRFkrig<-function(rfdailyDFmaster,rfdailyRawDFmaster,varioDFAll,data_date,me
       dev.off()
       
       #save anom plot
-      subTextAnom<-paste0("Fix Vario:",bestFixVario,"; BestC:",bestC,";  RSQ:",round(rf_validationBestC$rsq_rf_anom,2),";  RMSE:",round(rf_validationBestC$rmse_rf_anom,2),";  MAE:",round(rf_validationBestC$mae_rf_anom,2),";  BIAS:",round(rf_validationBestC$bias_rf_anom,2))
+      subTextAnom<-paste0(methodTag,";  RSQ:",round(rf_validationBestC$rsq_rf_anom,2),";  RMSE:",round(rf_validationBestC$rmse_rf_anom,2),";  MAE:",round(rf_validationBestC$mae_rf_anom,2),";  BIAS:",round(rf_validationBestC$bias_rf_anom,2))
       dir.create(paste0(outdir,"/plots/daily/anom"), showWarnings = FALSE)
       dir.create(paste0(outdir,"/plots/daily/anom/county"), showWarnings = FALSE)
       dir.create(paste0(outdir,"/plots/daily/anom/county/",county), showWarnings = FALSE)
