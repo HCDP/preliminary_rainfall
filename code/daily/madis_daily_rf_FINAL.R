@@ -251,6 +251,7 @@ rf_month_filename<-paste0(format((currentDate),"%Y_%m"),"_madis_daily_rf.csv") #
 #local write/append
 if(file.exists(rf_month_filename)){
 	 existing_rf<-read.csv(rf_month_filename) #read existing monthly file
+	 existing_rf<-existing_rf[existing_rf$date!="20531",]
 	 existing_rf$date<-as.Date(existing_rf$date) #cast date col to Date so rbind below doesn't strip Date class from new rows
 	 existing_rf<-existing_rf[existing_rf$date!=as.Date(currentDate),] #drop any rows for dataDate
 	 combined_rf<-rbind(existing_rf,all_madis_daily_rf_final) #append new data
