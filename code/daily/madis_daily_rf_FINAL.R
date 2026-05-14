@@ -222,7 +222,7 @@ madis_daily_pc_rf<-madis_daily_pc_rf[madis_daily_pc_rf$date==(currentDate),]#sub
 #tail(madis_daily_pc_rf)
 
 #subset 95% data for day
-madis_daily_pc_rf<-madis_daily_pc_rf[madis_daily_pc_rf$data_per>=0.95,]#subset days with at least 95% data
+madis_daily_pc_rf<-madis_daily_pc_rf[madis_daily_pc_rf$data_per>=0.95 & complete.cases(madis_daily_pc_rf),]#subset days with at least 95% data
 row.names(madis_daily_pc_rf)<-NULL #rename rows
 
 #data check
@@ -253,7 +253,7 @@ if(file.exists(rf_month_filename)){
 	 existing_rf<-read.csv(rf_month_filename) #read existing monthly file
 	 existing_rf<-existing_rf[existing_rf$date!="20531",]
 	 existing_rf$date<-as.Date(existing_rf$date) #cast date col to Date so rbind below doesn't strip Date class from new rows
-	 existing_rf<-existing_rf[existing_rf$date!=as.Date(currentDate),] #drop any rows for dataDate
+	 existing_rf<-existing_rf[existing_rf$date!=currentDate,] #drop any rows for dataDate
 	 combined_rf<-rbind(existing_rf,all_madis_daily_rf_final) #append new data
 	 combined_rf<-combined_rf[order(as.Date(combined_rf$date)),] #re-order by date
 	 row.names(combined_rf)<-NULL
