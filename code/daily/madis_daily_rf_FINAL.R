@@ -251,7 +251,7 @@ rf_month_filename<-paste0(format((currentDate),"%Y_%m"),"_madis_daily_rf.csv") #
 #local write/append
 if(file.exists(rf_month_filename)){
 	 existing_rf<-read.csv(rf_month_filename) #read existing monthly file
-	 existing_rf<-existing_rf[as.character(existing_rf$date)!=as.character(currentDate),] #drop any rows for dataDate
+	 existing_rf<-existing_rf[as.Date(existing_rf$date)!=as.Date(currentDate),] #drop any rows for dataDate
 	 combined_rf<-rbind(existing_rf,all_madis_daily_rf_final) #append new data
 	 combined_rf<-combined_rf[order(as.Date(combined_rf$date)),] #re-order by date
 	 row.names(combined_rf)<-NULL
