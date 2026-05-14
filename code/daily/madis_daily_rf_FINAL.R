@@ -132,49 +132,52 @@ all_madis_rp$time<-(all_madis_rp$time)-1 #minus 1 second to put midnight obs in 
 #tail(all_madis_rp)
 #head(all_madis_rp)
 
+#remove HF-METAR stations from all_madis_rp before processing
+all_madis_rp<-all_madis_rp[all_madis_rp$dataProvider != "HF-METAR",]
+
 ##incremental rainfall
-#subset by data providers with PP (incremental rainfall) in rawPrecip var
-pp_dp<-c("HF-METAR")
-all_madis_pp<-all_madis_rp[all_madis_rp$dataProvider %in% pp_dp,] #subset data providers with PP var as rainfall measurement
-
-#unique madis stations
-stations<-unique(all_madis_pp$stationId)
-
-#blank DF to store daily data
-madis_daily_pp_rf<-data.frame()
-
-#start daily RF loop for PP
-print("PP daily rf loop started...")
-for(j in stations){
-  sta_data<-subset(all_madis_pp,stationId==j)
-  sta_data_xts<-xts(sta_data$value,order.by=sta_data$time,unique = TRUE) #make xtended timeseries object
-  sta_data_xts_sub<- sta_data_xts[!duplicated(index(sta_data_xts)),] #remove duplicate time obs
-  if(nrow(sta_data_xts_sub)>=23){
-    sta_data_hrly_xts<-apply.hourly(sta_data_xts_sub,FUN=sum,roundtime = "trunc")#agg to hourly and truncate hour
-    indexTZ(sta_data_hrly_xts) <- "Pacific/Honolulu"
-    sta_data_daily_xts<-apply.daily(sta_data_hrly_xts,FUN=sum,na.rm = F)#daily sum of all all lag observations
-    obs_ints<-diff(index(sta_data_xts_sub),lag=1) #calculate vector of obs intervals
-    obs_int_hr<-getmode(as.numeric(obs_ints, units="hours"))
-    obs_int_minutes<-obs_int_hr*60
-    obs_per_day<-((1/obs_int_hr)*24)#calculate numbers of obs per day based on obs interval
-    sta_per_obs_daily_xts<-as.numeric(apply.daily(sta_data_xts_sub,FUN=length)/obs_per_day)#vec of % percentage of obs per day
-    sta_daily_df<-data.frame(staID=rep(as.character(j),length(sta_data_daily_xts)),date=as.Date(strptime(index(sta_data_daily_xts),format="%Y-%m-%d %H:%M"),format="%Y-%m-%d"),obs_int_mins=rep(obs_int_minutes,length(sta_data_daily_xts)),data_per=sta_per_obs_daily_xts,rf=sta_data_daily_xts)#make df row
-    sta_daily_df$rf<-round(sta_daily_df$rf,4) #round rainfall 
-    madis_daily_pp_rf<-rbind(madis_daily_pp_rf,sta_daily_df)
-  }
-}
-print("PP loop complete!")
-
-#head(madis_daily_pp_rf)
-#tail(madis_daily_pp_rf)
-
-#subset yesterday 
-madis_daily_pp_rf<-madis_daily_pp_rf[madis_daily_pp_rf$date==(currentDate),]#subset yesterday
-
-#subset 95% data
-madis_daily_pp_rf<-madis_daily_pp_rf[madis_daily_pp_rf$data_per>=0.95,]#subset days with at least 95% data
-madis_daily_pp_rf<-madis_daily_pp_rf[order(madis_daily_pp_rf$data_per,decreasing = T),] #sort descending by data percent
-row.names(madis_daily_pp_rf)<-NULL #rename rows
+# #subset by data providers with PP (incremental rainfall) in rawPrecip var
+# pp_dp<-c("HF-METAR")
+# all_madis_pp<-all_madis_rp[all_madis_rp$dataProvider %in% pp_dp,] #subset data providers with PP var as rainfall measurement
+#
+# #unique madis stations
+# stations<-unique(all_madis_pp$stationId)
+#
+# #blank DF to store daily data
+# madis_daily_pp_rf<-data.frame()
+#
+# #start daily RF loop for PP
+# print("PP daily rf loop started...")
+# for(j in stations){
+#   sta_data<-subset(all_madis_pp,stationId==j)
+#   sta_data_xts<-xts(sta_data$value,order.by=sta_data$time,unique = TRUE) #make xtended timeseries object
+#   sta_data_xts_sub<- sta_data_xts[!duplicated(index(sta_data_xts)),] #remove duplicate time obs
+#   if(nrow(sta_data_xts_sub)>=23){
+#     sta_data_hrly_xts<-apply.hourly(sta_data_xts_sub,FUN=sum,roundtime = "trunc")#agg to hourly and truncate hour
+#     indexTZ(sta_data_hrly_xts) <- "Pacific/Honolulu"
+#     sta_data_daily_xts<-apply.daily(sta_data_hrly_xts,FUN=sum,na.rm = F)#daily sum of all all lag observations
+#     obs_ints<-diff(index(sta_data_xts_sub),lag=1) #calculate vector of obs intervals
+#     obs_int_hr<-getmode(as.numeric(obs_ints, units="hours"))
+#     obs_int_minutes<-obs_int_hr*60
+#     obs_per_day<-((1/obs_int_hr)*24)#calculate numbers of obs per day based on obs interval
+#     sta_per_obs_daily_xts<-as.numeric(apply.daily(sta_data_xts_sub,FUN=length)/obs_per_day)#vec of % percentage of obs per day
+#     sta_daily_df<-data.frame(staID=rep(as.character(j),length(sta_data_daily_xts)),date=as.Date(strptime(index(sta_data_daily_xts),format="%Y-%m-%d %H:%M"),format="%Y-%m-%d"),obs_int_mins=rep(obs_int_minutes,length(sta_data_daily_xts)),data_per=sta_per_obs_daily_xts,rf=sta_data_daily_xts)#make df row
+#     sta_daily_df$rf<-round(sta_daily_df$rf,4) #round rainfall
+#     madis_daily_pp_rf<-rbind(madis_daily_pp_rf,sta_daily_df)
+#   }
+# }
+# print("PP loop complete!")
+#
+# #head(madis_daily_pp_rf)
+# #tail(madis_daily_pp_rf)
+#
+# #subset yesterday
+# madis_daily_pp_rf<-madis_daily_pp_rf[madis_daily_pp_rf$date==(currentDate),]#subset yesterday
+#
+# #subset 95% data
+# madis_daily_pp_rf<-madis_daily_pp_rf[madis_daily_pp_rf$data_per>=0.95,]#subset days with at least 95% data
+# madis_daily_pp_rf<-madis_daily_pp_rf[order(madis_daily_pp_rf$data_per,decreasing = T),] #sort descending by data percent
+# row.names(madis_daily_pp_rf)<-NULL #rename rows
 
 ##accumulated rainfall
 #subset by data providers with PC (accumulated rainfall) in rawPrecip var
@@ -232,7 +235,7 @@ madis_daily_pc_rf_alt<-PC2rf24hr(df=all_madis,pc_dp=pc_dp,doi=currentDate)
 
 #combining all data and remove duplicates
 all_madis_daily_pc<-rbind(madis_daily_pc_rf,madis_daily_pc_rf_alt)#rbind all processed PC data with with alt 24hr pc
-all_madis_daily_rf<-rbind(madis_daily_pp_rf,all_madis_daily_pc) #add pp station data
+all_madis_daily_rf<-all_madis_daily_pc #PP workflow disabled; PC data only
 all_madis_daily_rf_final<-all_madis_daily_rf[!duplicated(all_madis_daily_rf$staID),] #remove dup stations
 row.names(all_madis_daily_rf_final)<-NULL #rename rows
 
